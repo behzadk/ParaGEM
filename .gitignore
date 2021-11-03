@@ -132,3 +132,7 @@ dmypy.json
 #
 .DS_Store
 .vscode/
+nn_train_data/
+nn_fba/
+runs/
+test_nn_checkpoints/

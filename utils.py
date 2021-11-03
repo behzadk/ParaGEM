@@ -6,7 +6,7 @@ from smetana.legacy import Community
 from reframed import Environment
 from smetana.interface import load_communities
 
-def get_community_complete_environment(model_paths: List[str], max_uptake=10.0):
+def get_community_complete_environment(model_paths: List[str], max_uptake=10.0, flavor='cobra'):
     """
     Generates a complete environment for a given list of model paths. 
     """
@@ -14,7 +14,7 @@ def get_community_complete_environment(model_paths: List[str], max_uptake=10.0):
     model_cache, comm_dict, other_models = load_communities(
         model_paths, 
         None, None, 
-        flavor='cobra')
+        flavor=flavor)
     
     comm_models = [model_cache.get_model(org_id, reset_id=True) for org_id in comm_dict['all']]
     community = Community('all', comm_models, copy_models=False)
