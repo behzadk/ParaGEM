@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
-
+from loguru import logger
 
 def find_nearest(array, value):
     array = np.asarray(array)
@@ -15,12 +15,13 @@ def get_solution_index(comm, sol_element_key):
 
 
 class DistanceTimeseriesEuclidianDistance:
-    def __init__(self, exp_data: pd.DataFrame, exp_t_key, exp_sol_keys, epsilon=1.0):
+    def __init__(self, exp_data: pd.DataFrame, exp_t_key, exp_sol_keys, epsilon=1.0, final_epsion=1.0):
         self.exp_data = exp_data
         self.exp_t_key = exp_t_key
         self.exp_sol_keys = exp_sol_keys
 
         self.epsilon = epsilon
+        self.final_epsion = final_epsion
 
     def calculate_distance(self, community):
         n_distances = len(self.exp_sol_keys)

@@ -1,6 +1,29 @@
 import numpy as np
 
 
+class MultiDistribution:
+    def __init__(self, dist_1, dist_2, prob_dist_1):
+        self.dist_1 = dist_1
+        self.dist_2 = dist_2
+
+        self.prob_dist_1 = prob_dist_1
+
+    def random_multi_dist(self, size):
+        x = np.zeros(size)
+
+        for i in range(size[0]):
+            for j in range(size[1]):
+                if np.random.uniform() < self.prob_dist_1:
+                    x[i][j] = self.dist_1.sample(1)[0]
+
+                else:
+                    x[i][j] = self.dist_2.sample(1)[0]
+
+        return x
+
+    def sample(self, size):
+        return self.random_multi_dist(size)
+
 
 class SampleSkewNormal:
     def __init__(self, loc, scale, alpha, clip_zero=True):

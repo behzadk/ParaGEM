@@ -50,7 +50,6 @@ class Population:
         self.set_media()
 
         self.use_parsimonius_fba = use_parsimonius_fba
-        # self.set_max_growth_rate(2.0)
 
     def load_model(self, model_path):
         """
@@ -155,6 +154,8 @@ class Community:
         self.model_paths = model_paths
         self.smetana_analysis_path = smetana_analysis_path
         self.media_path = media_path
+        self.use_parsimonius_fba = use_parsimonius_fba
+
 
         self.media_df = pd.read_csv(self.media_path, delimiter="\t")
         self.media_df = self.media_df.loc[
@@ -172,7 +173,7 @@ class Community:
             self.dynamic_compounds,
             self.reaction_keys,
             self.media_df,
-            use_parsimonius_fba,
+            self.use_parsimonius_fba,
         )
 
         self.init_compound_values = self.load_initial_compound_values(
@@ -194,9 +195,39 @@ class Community:
         self.compound_indexes = self.set_compound_indexes()
         self.solution_keys = self.set_solution_key_order()
 
+        self.set_init_y()
 
     def generate_initial_population_densities(self):
         return np.array([0.01 * 0.56 for x in self.populations])
+
+    def generate_parameter_vector(self):
+        # Initial conditions
+        # exchange_constraints
+        # k values
+
+        initial_concs_vec = self.init_y.reshape(1, -1)
+        k_val_vec = self.k_vals.reshape(1, -1)
+        max_exchange_vec = self.max_exchange_mat.reshape(1, -1)
+        param_vec = np.concatenate(
+            [initial_concs_vec, k_val_vec, max_exchange_vec], axis=1
+        ).reshape(-1, 1)
+
+        return param_vec
+
+    def load_parameter_vector(self, parameter_vec):
+        n_init_conc = len(self.init_y)
+        n_k_vals = self.k_vals.shape[0] * self.k_vals.shape[1]
+        n_max_exchange_vals = (
+            self.max_exchange_mat.shape[0] * self.max_exchange_mat.shape[1]
+        )
+
+        self.init_y = parameter_vec[0:n_init_conc]
+        self.k_vals = parameter_vec[n_init_conc : n_init_conc + n_k_vals].reshape(
+            self.k_vals.shape
+        )
+        self.max_exchange_mat = parameter_vec[
+            n_init_conc + n_k_vals : n_init_conc + n_k_vals + n_max_exchange_vals
+        ].reshape(self.max_exchange_mat.shape)
 
     def load_initial_compound_values(self, dynamic_compounds):
         init_compound_values = np.zeros(len(dynamic_compounds))
@@ -263,7 +294,6 @@ class Community:
             solution_keys.append(m)
 
         return solution_keys
-
 
     def load_populations(
         self,
@@ -335,7 +365,8 @@ class Community:
             met for met in dynamic_compounds if met not in unconstrained_compounds
         ]
 
-        dynamic_compounds = set(dynamic_compounds)
+        # Remove duplicates
+        dynamic_compounds = list(dict.fromkeys(dynamic_compounds))
 
         print(f"Total env compounds: {len(all_compounds)}")
         print(f"Crossfeeding compounds: {len(cross_feeding_compounds)}")
@@ -343,7 +374,7 @@ class Community:
         print(f"Media compounds: {len(media_compounds)}")
         print(f"Dynamic compounds: {len(dynamic_compounds)}")
 
-        return list(dynamic_compounds)
+        return dynamic_compounds
 
     def set_population_indexes(self):
         num_populations = len(self.populations)
@@ -353,15 +384,15 @@ class Community:
         num_dynamic_cmpds = len(self.dynamic_compounds)
         num_populations = len(self.populations)
 
-        return range(
-            num_populations, num_populations + num_dynamic_cmpds
-        )
+        return range(num_populations, num_populations + num_dynamic_cmpds)
 
-
-    def simulate_community(self, method="odeint"):
-        init_y = np.concatenate(
+    def set_init_y(self):
+        self.init_y = np.concatenate(
             (self.init_population_values, self.init_compound_values), axis=None
         )
+
+    def simulate_community(self, method="odeint"):
+        init_y = self.init_y
         y0 = init_y
         t_0 = 0.0
         t_end = 24.0
@@ -419,8 +450,6 @@ class Community:
 
         return uptake_mat + secretion_mat
         # return max_uptake
-        
-        
 
     def sim_step(self, y):
         compound_concs = y[self.compound_indexes]
