@@ -8,6 +8,8 @@ from matplotlib.backends.backend_pdf import PdfPages
 import time
 from loguru import logger
 import sys
+from pathlib import Path
+
 
 def simulate_particles(particles, n_processes=4, parallel=True):
     if parallel:
@@ -80,26 +82,28 @@ class ParameterEstimation:
 
             particles_out.append(p_copy)
 
-        logger.info(f'Saving checkpoint {output_path}')
+        logger.info(f"Saving particles {output_path}")
 
         with open(f"{output_path}", "wb") as handle:
-            pickle.dump(particles_out, handle)        
+            pickle.dump(particles_out, handle)
 
     def save_checkpoint(self, output_dir):
         time_stamp = time.strftime("%Y-%m-%d_%H%M%S")
-        output_path = f'{output_dir}/{self.experiment_name}_checkpoint_{time_stamp}.pkl'
+        output_path = f"{output_dir}{self.experiment_name}_checkpoint_{time_stamp}.pkl"
 
-        logger.info(f'Saving checkpoint {output_path}')
+        logger.info(f"Saving checkpoint {output_path}")
 
-        with open(output_path, 'wb') as f:
+        with open(output_path, "wb") as f:
             pickle.dump(self, f)
+
 
     @classmethod
     def load_checkpoint(cls, checkpoint_path):
-        logger.info(f'Loading checkpoint {checkpoint_path}')
+        logger.info(f"Loading checkpoint {checkpoint_path}")
 
-        with open(checkpoint_path, 'rb') as f:
+        with open(checkpoint_path, "rb") as f:
             return pickle.load(f)
+
 
 class GeneticAlgorithm(ParameterEstimation):
     def __init__(
@@ -130,7 +134,6 @@ class GeneticAlgorithm(ParameterEstimation):
         self.gen_idx = 0
         self.final_generation = False
 
-
     def selection(self, particles):
         accepted_particles = []
 
@@ -159,7 +162,9 @@ class GeneticAlgorithm(ParameterEstimation):
             # Generate child parameter vector by uniform crossover
             child_vec = np.zeros(len(female_vec))
             for idx in range(len(female_vec)):
-                child_vec[idx] = np.random.choice([female_vec[idx][0], male_vec[idx][0]])
+                child_vec[idx] = np.random.choice(
+                    [female_vec[idx][0], male_vec[idx][0]]
+                )
 
             # Generate child paticle
             child_particle = copy.deepcopy(self.base_community)
@@ -187,7 +192,7 @@ class GeneticAlgorithm(ParameterEstimation):
             particle.load_parameter_vector(particle_param_vec)
 
     def gen_initial_population(self):
-        logger.info('Generating initial population')
+        logger.info("Generating initial population")
 
         # Generate initial population
         accepted_particles = []
@@ -226,9 +231,8 @@ class GeneticAlgorithm(ParameterEstimation):
 
             self.distance_object.epsilon[dist_idx] = new_epsilon
 
-    
     def run(self):
-        logger.info('Running genetic algorithm')
+        logger.info("Running genetic algorithm")
 
         if self.gen_idx == 0:
             # Generate initial population
@@ -236,7 +240,6 @@ class GeneticAlgorithm(ParameterEstimation):
             self.gen_idx += 1
 
             self.save_checkpoint(self.output_dir)
-            exit()
 
         # Core genetic algorithm loop
         while not self.final_generation:
@@ -247,22 +250,17 @@ class GeneticAlgorithm(ParameterEstimation):
                 final_generation = True
 
             while len(accepted_particles) < self.population_size:
-                print(
-                    "Gen: ",
-                    self.gen_idx,
-                    "batch: ",
-                    batch_idx,
-                    "epsilon: ",
-                    self.distance_object.epsilon,
-                    "accepted: ",
-                    len(accepted_particles),
+                logger.info(
+                    f"Gen: {self.gen_idx}, batch: {batch_idx}, epsilon: {self.distance_object.epsilon}, accepted: {len(accepted_particles)}"
                 )
+
                 # Generate new batch by crossover
-                batch_particles = self.crossover(self.n_particles_batch, self.population)
+                batch_particles = self.crossover(
+                    self.n_particles_batch, self.population
+                )
 
                 # Mutate batch
                 self.mutate_particles(batch_particles)
-
 
                 print("Simulating... ")
                 # Simulate
@@ -280,7 +278,7 @@ class GeneticAlgorithm(ParameterEstimation):
 
             accepted_particles = accepted_particles[: self.population_size]
 
-            output_path = f'{self.output_dir}/particles_{self.experiment_name}_gen_{self.gen_idx}.pkl'
+            output_path = f"{self.output_dir}particles_{self.experiment_name}_gen_{self.gen_idx}.pkl"
             self.save_particles(accepted_particles, output_path)
 
             # Set new population
@@ -290,7 +288,9 @@ class GeneticAlgorithm(ParameterEstimation):
             self.update_epsilon(self.population)
             self.gen_idx += 1
 
-        output_path = f'{self.output_dir}/particles_{self.experiment_name}_final_gen_{gen_idx}.pkl'
+        output_path = (
+            f"{self.output_dir}particles_{self.experiment_name}_final_gen_{gen_idx}.pkl"
+        )
         self.save_particles(particles, output_path)
         self.save_checkpoint(self.output_dir)
 

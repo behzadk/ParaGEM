@@ -5,6 +5,7 @@ from typing import List
 from smetana.legacy import Community
 from reframed import Environment
 from smetana.interface import load_communities
+from pathlib import Path
 
 def get_community_complete_environment(model_paths: List[str], max_uptake=10.0, flavor='cobra'):
     """
@@ -58,3 +59,5 @@ def get_competition_compounds(smetana_df: pd.DataFrame, all_compounds):
             competition_compounds.append(m)
 
     return competition_compounds
+
+
