@@ -120,7 +120,7 @@ class SpeedTest(ParameterEstimation):
         with open(particles_path, 'rb') as f:
             particles = pickle.load(f)
 
-        particles = particles[0:6]
+        particles = particles
         self.n_processes = n_processes
         self.particles = []
         for p in particles:
@@ -145,7 +145,6 @@ class SpeedTest(ParameterEstimation):
         end_time = time.time()
 
         logger.info(f'Parallel: {end_time - start_time}')
-
 
 class GeneticAlgorithm(ParameterEstimation):
     def __init__(
@@ -310,7 +309,7 @@ class GeneticAlgorithm(ParameterEstimation):
                 print("Simulating... ")
                 # Simulate
                 simulate_particles(
-                    batch_particles, n_processes=self.n_processes, parallel=False
+                    batch_particles, n_processes=self.n_processes, parallel=True
                 )
 
                 print("Selecting... ")

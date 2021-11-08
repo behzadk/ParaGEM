@@ -118,10 +118,14 @@ def genetic_algorithm(experiment_name, output_dir):
     exp_sol_keys = [
         ["yeast_dcw", "iMM904"],
         ["yeast_ser_mm", "M_ser__L_e"],
+        ["yeast_ala_mm", "M_ala__L_e"],
+        ["yeast_glu_mm", "M_glu__L_e"],
+        ["yeast_gly_mm", "M_gly_e"],
+
     ]
 
-    epslilon = [3.0, 1000]
-    final_epsion = [0.5, 0.01]
+    epslilon = [3.0, 1000, 1000, 1000, 1000]
+    final_epsion = [0.5, 0.008, 0.008, 0.008, 0.008]
 
     distance = distances.DistanceTimeseriesEuclidianDistance(
         exp_data,
@@ -150,7 +154,7 @@ def genetic_algorithm(experiment_name, output_dir):
         max_uptake_sampler=max_uptake_sampler,
         k_val_sampler=k_val_sampler,
         output_dir=output_dir,
-        n_particles_batch=32,
+        n_particles_batch=6,
         population_size=25,
         mutation_probability=0.1,
         epsilon_alpha=0.5,
@@ -260,8 +264,8 @@ def speed_test():
 if __name__ == "__main__":
     # example_simulation()
     # rejection_sampling()
-    speed_test()
-    exit()
+    # speed_test()
+    # exit()
     output_dir = "./output/exp_yeast_ga_fit/"
 
     for exp_num in range(10):
