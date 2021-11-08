@@ -13,10 +13,7 @@ from scipy.integrate import ode
 
 import utils
 import cobra
-import simulate_dfba
 from scipy.integrate import odeint
-
-from train_nn import FluxBalanceNN
 
 import logging
 
@@ -61,7 +58,6 @@ class Population:
         return model
 
     def set_media(self):
-        model_medium_compounds = list(self.model.medium)
         dynamic_compounds = [x.replace("M_", "EX_") for x in self.dynamic_compounds]
 
         defined_mets = ["EX_" + x + "_e" for x in self.media_df["compound"].values]

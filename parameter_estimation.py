@@ -9,7 +9,9 @@ import time
 from loguru import logger
 import sys
 from pathlib import Path
-
+import gc
+import psutil
+import os
 
 def simulate_particles(particles, n_processes=4, parallel=True):
     if parallel:
@@ -19,6 +21,9 @@ def simulate_particles(particles, n_processes=4, parallel=True):
         for idx in range(len(particles)):
             particles[idx].sol = mp_solutions[idx][0]
             particles[idx].t = mp_solutions[idx][1]
+        
+        p.close()
+        p.join()
 
     else:
         for p in particles:
@@ -77,9 +82,6 @@ class ParameterEstimation:
         for idx, p in enumerate(particles):
             p_copy = copy.deepcopy(p)
 
-            for pop in p_copy.populations:
-                del pop.model
-
             particles_out.append(p_copy)
 
         logger.info(f"Saving particles {output_path}")
@@ -96,6 +98,14 @@ class ParameterEstimation:
         with open(output_path, "wb") as f:
             pickle.dump(self, f)
 
+    def delete_particle_fba_models(self, particles):
+        for part in particles:
+            for p in part.populations:
+                del p.model
+            # del part.sol
+            # del part.t
+    
+        gc.collect()
 
     @classmethod
     def load_checkpoint(cls, checkpoint_path):
@@ -125,7 +135,7 @@ class GeneticAlgorithm(ParameterEstimation):
         self.n_particles_batch = n_particles_batch
         self.max_uptake_sampler = max_uptake_sampler
         self.k_val_sampler = k_val_sampler
-        self.output_dir = "./output/exp_test/"
+        self.output_dir = output_dir
         self.population_size = population_size
         self.distance_object = distance_object
         self.mutation_probability = mutation_probability
@@ -198,12 +208,15 @@ class GeneticAlgorithm(ParameterEstimation):
         accepted_particles = []
         batch_idx = 0
         while len(accepted_particles) < self.population_size:
+            logger.info(f"Initial accepted particles: {len(accepted_particles)}")
+
             particles = self.init_particles(self.n_particles_batch)
             particles = filter(particles)
-
             simulate_particles(particles, n_processes=self.n_processes, parallel=True)
+            logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
 
             accepted_particles.extend(self.selection(particles))
+            self.delete_particle_fba_models(particles)
 
             batch_idx += 1
 
@@ -247,7 +260,7 @@ class GeneticAlgorithm(ParameterEstimation):
             accepted_particles = []
 
             if self.distance_object.final_epsion == self.distance_object.epsilon:
-                final_generation = True
+                self.final_generation = True
 
             while len(accepted_particles) < self.population_size:
                 logger.info(
@@ -265,13 +278,14 @@ class GeneticAlgorithm(ParameterEstimation):
                 print("Simulating... ")
                 # Simulate
                 simulate_particles(
-                    batch_particles, n_processes=self.n_processes, parallel=True
+                    batch_particles, n_processes=self.n_processes, parallel=False
                 )
 
                 print("Selecting... ")
-
                 # Select particles
                 batch_accepted = self.selection(batch_particles)
+
+                self.delete_particle_fba_models(batch_particles)
                 accepted_particles.extend(batch_accepted)
 
                 batch_idx += 1
@@ -283,15 +297,15 @@ class GeneticAlgorithm(ParameterEstimation):
 
             # Set new population
             self.population = accepted_particles
-
+            self.save_checkpoint(self.output_dir)
             # Update epsilon
             self.update_epsilon(self.population)
             self.gen_idx += 1
 
         output_path = (
-            f"{self.output_dir}particles_{self.experiment_name}_final_gen_{gen_idx}.pkl"
+            f"{self.output_dir}particles_{self.experiment_name}_final_gen_{self.gen_idx}.pkl"
         )
-        self.save_particles(particles, output_path)
+        self.save_particles(accepted_particles, output_path)
         self.save_checkpoint(self.output_dir)
 
 
