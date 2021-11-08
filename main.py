@@ -13,6 +13,7 @@ import matplotlib.pyplot as plt
 import pickle
 from pathlib import Path
 
+import argparse
 
 def rejection_sampling():
     model_paths = [
@@ -228,10 +229,20 @@ def example_simulation():
     # exp_data = pd.read_csv("./data/Figure1B_fake_data.csv")
 
 
+def speed_test():
+    # checkpoint_path = './output/exp_test/test_1_checkpoint_2021-11-05_130218.pkl'
+    # ga = ga.load_checkpoint(checkpoint_path)
+
+
 if __name__ == "__main__":
     # example_simulation()
     # rejection_sampling()
     output_dir = "./output/exp_yeast_ga_fit/"
 
-    for exp_num in range(10):
-        genetic_algorithm(f"yeast_ga_{exp_num}", output_dir)
+    parser = argparse.ArgumentParser(description='Description of your program')
+    parser.add_argument('-e','--exp_num', help='Description for foo argument', required=True)
+    args = vars(parser.parse_args())
+
+    exp_num = args['exp_num']
+
+    genetic_algorithm(f"yeast_ga_{exp_num}", output_dir)

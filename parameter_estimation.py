@@ -87,7 +87,7 @@ class ParameterEstimation:
         logger.info(f"Saving particles {output_path}")
 
         with open(f"{output_path}", "wb") as handle:
-            pickle.dump(particles_out, handle)
+            pickle.dump(particles_out, handle)        
 
     def save_checkpoint(self, output_dir):
         time_stamp = time.strftime("%Y-%m-%d_%H%M%S")
