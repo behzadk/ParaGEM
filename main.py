@@ -4,6 +4,7 @@ from community import Community
 import distances
 from parameter_estimation import RejectionAlgorithm
 from parameter_estimation import GeneticAlgorithm
+from parameter_estimation import SpeedTest
 
 import pandas as pd
 import sampling
@@ -120,7 +121,7 @@ def genetic_algorithm(experiment_name, output_dir):
     ]
 
     epslilon = [3.0, 1000]
-    final_epsion = [0.8, 0.01]
+    final_epsion = [0.5, 0.01]
 
     distance = distances.DistanceTimeseriesEuclidianDistance(
         exp_data,
@@ -227,10 +228,40 @@ def example_simulation():
 
     # exp_data = pd.read_csv("./data/Figure1B_fake_data.csv")
 
+def speed_test():
+    output_dir = "./output/exp_yeast_ga_fit/"
+    experiment_name = 'speed_test'
+    logger.remove()
+    logger.add(f"./{output_dir}{experiment_name}.log", level="DEBUG")
+    
+    model_paths = [
+        # "./models/L_lactis/L_lactis_fbc.xml",
+        "./models/S_cerevisiae/iMM904.xml",
+    ]
 
+    model_names = ["iMM904"]
+    smetana_analysis_path = "./carveme_output/lactis_cerevisiae_detailed.tsv"
+    media_path = "./media_db_CDM35.tsv"
+
+    comm = Community(
+        model_names,
+        model_paths,
+        smetana_analysis_path,
+        media_path,
+        "CDM35",
+        use_parsimonius_fba=False,
+    )
+
+    particles_path = './output/exp_test/particles_yeast_ga_0_final_gen_8.pkl'
+    s = SpeedTest(particles_path, comm, n_processes=6)
+    s.speed_test()
+
+    
 if __name__ == "__main__":
     # example_simulation()
     # rejection_sampling()
+    speed_test()
+    exit()
     output_dir = "./output/exp_yeast_ga_fit/"
 
     for exp_num in range(10):

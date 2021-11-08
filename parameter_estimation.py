@@ -13,7 +13,7 @@ import gc
 import psutil
 import os
 
-def simulate_particles(particles, n_processes=4, parallel=True):
+def simulate_particles(particles, n_processes=1, parallel=True):
     if parallel:
         p = mp.Pool(n_processes)
         mp_solutions = p.map(sim_community, particles)
@@ -113,6 +113,38 @@ class ParameterEstimation:
 
         with open(checkpoint_path, "rb") as f:
             return pickle.load(f)
+
+class SpeedTest(ParameterEstimation):
+    def __init__(self, particles_path, base_community, n_processes):
+        
+        with open(particles_path, 'rb') as f:
+            particles = pickle.load(f)
+
+        particles = particles[0:6]
+        self.n_processes = n_processes
+        self.particles = []
+        for p in particles:
+            # Generate child paticle
+            child_particle = copy.deepcopy(base_community)
+            child_particle.load_parameter_vector(p.generate_parameter_vector())
+            self.particles.append(child_particle)
+
+    def speed_test(self):
+        start_time = time.time()
+        simulate_particles(
+            self.particles, n_processes=self.n_processes, parallel=False
+        )
+        end_time = time.time()
+
+        logger.info(f'Serial: {end_time - start_time}')
+
+        start_time = time.time()
+        simulate_particles(
+            self.particles, n_processes=self.n_processes, parallel=True
+        )
+        end_time = time.time()
+
+        logger.info(f'Parallel: {end_time - start_time}')
 
 
 class GeneticAlgorithm(ParameterEstimation):

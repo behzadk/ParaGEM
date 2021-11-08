@@ -60,15 +60,15 @@ class DistanceTimeseriesEuclidianDistance:
 
         return True, distance
 
-    def plot_community(self, community, pdf, prefix, comm_idx, batch_idx):
+    def plot_community(self, community, pdf, comm_idx, batch_idx):
         
 
         for idx, key_pair in enumerate(self.exp_sol_keys):
             f, ax = plt.subplots()
             sol_idx = get_solution_index(community, key_pair[1])
-            ax.plot(community.t, community.sol[:, sol_idx], label=str(sol_idx))
+            ax.plot(community.t, community.sol[:, sol_idx], label=f'sim_{sol_idx}', color='orange')
             ax.set_title(f"key:{key_pair[1]}, eps: {self.epsilon[idx]:.3}, dist: {community.distance[idx]:.4}")
-            
+
             for idx, t in enumerate(self.exp_data[self.exp_t_key].values):
                 
                 exp_val = self.exp_data.loc[self.exp_data[self.exp_t_key] == t][
@@ -78,9 +78,10 @@ class DistanceTimeseriesEuclidianDistance:
                 if np.isnan(exp_val):
                     continue
                 else:
-                    ax.scatter(t, exp_val, label=key_pair[0])
+                    ax.scatter(t, exp_val, label=key_pair[0], color='black')
             
-
-            plt.legend()
+            handles, labels = plt.gca().get_legend_handles_labels()
+            by_label = dict(zip(labels, handles))
+            plt.legend(by_label.values(), by_label.keys())
             pdf.savefig()
             plt.close()
