@@ -14,6 +14,7 @@ import matplotlib.pyplot as plt
 import pickle
 from pathlib import Path
 
+import argparse
 
 def rejection_sampling():
     model_paths = [
@@ -268,5 +269,10 @@ if __name__ == "__main__":
     # exit()
     output_dir = "./output/exp_yeast_ga_fit/"
 
-    for exp_num in range(10):
-        genetic_algorithm(f"yeast_ga_{exp_num}", output_dir)
+    parser = argparse.ArgumentParser(description='Description of your program')
+    parser.add_argument('-e','--exp_num', help='Description for foo argument', required=True)
+    args = vars(parser.parse_args())
+
+    exp_num = args['exp_num']
+
+    genetic_algorithm(f"yeast_ga_{exp_num}", output_dir)
