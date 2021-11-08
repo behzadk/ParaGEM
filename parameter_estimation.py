@@ -15,12 +15,10 @@ from guppy import hpy
 
 def simulate_particles(particles, n_processes=1, parallel=True):
     if parallel:
-        init_processes = min(len(particles), n_processes)
+        init_processes = int(min(len(particles), n_processes))
 
-        pool = mp.Pool(init_processes)
-        mp_solutions = pool.map(sim_community, particles)
-        pool.close()
-        pool.join()
+        with mp.Pool(init_processes) as pool:
+            mp_solutions = pool.map_async(sim_community, particles).get()
 
         for idx in range(len(particles)):
             particles[idx].sol = mp_solutions[idx][0]
@@ -131,14 +129,28 @@ class SpeedTest(ParameterEstimation):
         with open(particles_path, 'rb') as f:
             particles = pickle.load(f)
 
-        particles = particles
+        particles = particles[0:4]
         self.n_processes = n_processes
-        self.particles = []
-        for p in particles:
-            # Generate child paticle
-            child_particle = copy.deepcopy(base_community)
-            child_particle.load_parameter_vector(p.generate_parameter_vector())
-            self.particles.append(child_particle)
+        self.particles = particles
+        self.base_community = base_community
+
+
+        # Generate a list of models that will be assigned
+        # to new particles. Avoids repeatedly copying models
+        self.models = []
+        for _ in range(len(self.particles)):
+            proc_models = []
+            for pop in self.base_community.populations:
+                proc_models.append(pop.model)
+            self.models.append(proc_models)
+
+        for pop in self.base_community.populations:
+            del pop.model
+        
+        for particle_idx, comm in enumerate(self.particles):
+            # Assign population models
+            for pop_idx, pop in enumerate(comm.populations):
+                pop.model = self.models[particle_idx][pop_idx]
 
     def speed_test(self):
         start_time = time.time()

@@ -154,7 +154,7 @@ def genetic_algorithm(experiment_name, output_dir):
         max_uptake_sampler=max_uptake_sampler,
         k_val_sampler=k_val_sampler,
         output_dir=output_dir,
-        n_particles_batch=48,
+        n_particles_batch=3,
         population_size=25,
         mutation_probability=0.1,
         epsilon_alpha=0.3,
@@ -266,8 +266,8 @@ def speed_test():
 if __name__ == "__main__":
     # example_simulation()
     # rejection_sampling()
-    # speed_test()
-    # exit()
+    speed_test()
+    exit()
 
     parser = argparse.ArgumentParser(description='Description of your program')
     parser.add_argument('-r','--run_idx', help='Description for foo argument', required=True)
