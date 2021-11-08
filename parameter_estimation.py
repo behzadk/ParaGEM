@@ -1,29 +1,30 @@
-import multiprocessing
 import copy
-import sampling
 import pickle
 import numpy as np
 import multiprocessing as mp
 from matplotlib.backends.backend_pdf import PdfPages
 import time
 from loguru import logger
-import sys
 from pathlib import Path
 import gc
 import psutil
 import os
+import utils
+from sympy.core.cache import *
+from guppy import hpy
 
 def simulate_particles(particles, n_processes=1, parallel=True):
     if parallel:
-        p = mp.Pool(n_processes)
-        mp_solutions = p.map(sim_community, particles)
+        init_processes = min(len(particles), n_processes)
+
+        pool = mp.Pool(init_processes)
+        mp_solutions = pool.map(sim_community, particles)
+        pool.close()
+        pool.join()
 
         for idx in range(len(particles)):
             particles[idx].sol = mp_solutions[idx][0]
             particles[idx].t = mp_solutions[idx][1]
-        
-        p.close()
-        p.join()
 
     else:
         for p in particles:
@@ -43,10 +44,16 @@ def filter(particles):
         df.reset_index(drop=True, inplace=True)
 
         ser_flux = df.loc[df["name"] == "EX_ser__L_e"]["fluxes"].values[0]
+        ala_flux = df.loc[df["name"] == "EX_ala__L_e"]["fluxes"].values[0]
+        # glu_flux = df.loc[df["name"] == "EX_glu__L_e"]["fluxes"].values[0]
+        # gly_flux = df.loc[df["name"] == "EX_gly_e"]["fluxes"].values[0]
         biomass_flux = df.loc[df["name"] == "BIOMASS_SC5_notrace"]["fluxes"].values[0]
 
-        if ser_flux > 0 and biomass_flux > 0:
-            filtered_particles.append(p)
+        # num_efflux = sum([1 for f in [ser_flux, ala_flux, glu_flux, gly_flux] if f > 0])
+
+        if biomass_flux > 0:
+            if ser_flux > 0 and ala_flux > 0:
+                filtered_particles.append(p)
 
     return filtered_particles
 
@@ -63,6 +70,10 @@ class ParameterEstimation:
         for i in range(n_particles):
             # Make independent copy of base community
             comm = copy.deepcopy(self.base_community)
+            
+            # Assign population models
+            for idx, pop in enumerate(comm.populations):
+                pop.model = self.models[i][idx]
 
             array_size = [len(comm.populations), len(comm.dynamic_compounds)]
             # Sample new max uptake matrix
@@ -175,6 +186,18 @@ class GeneticAlgorithm(ParameterEstimation):
         self.gen_idx = 0
         self.final_generation = False
 
+        # Generate a list of models that will be assigned
+        # to new particles. Avoids repeatedly copying models
+        self.models = []
+        for _ in range(self.n_particles_batch):
+            proc_models = []
+            for pop in self.base_community.populations:
+                proc_models.append(pop.model)
+            self.models.append(proc_models)
+
+        for pop in self.base_community.populations:
+            del pop.model
+
     def selection(self, particles):
         accepted_particles = []
 
@@ -193,7 +216,7 @@ class GeneticAlgorithm(ParameterEstimation):
         return accepted_particles
 
     def crossover(self, n_particles, population):
-        batch_particles = np.zeros(n_particles, dtype=object)
+        batch_particles = self.init_particles(n_particles)
 
         for p_batch_idx in range(n_particles):
             # Randomly choose two particles from the population
@@ -207,16 +230,11 @@ class GeneticAlgorithm(ParameterEstimation):
                     [female_vec[idx][0], male_vec[idx][0]]
                 )
 
-            # Generate child paticle
-            child_particle = copy.deepcopy(self.base_community)
-            child_particle.load_parameter_vector(child_vec)
-
-            batch_particles[p_batch_idx] = child_particle
+            batch_particles[p_batch_idx].load_parameter_vector(child_vec)
 
         return batch_particles
 
     def mutate_particles(self, batch_particles):
-
         for particle in batch_particles:
             particle_param_vec = particle.generate_parameter_vector()
 
@@ -243,6 +261,9 @@ class GeneticAlgorithm(ParameterEstimation):
 
             particles = self.init_particles(self.n_particles_batch)
             particles = filter(particles)
+            if len(particles) == 0:
+                continue
+
             simulate_particles(particles, n_processes=self.n_processes, parallel=True)
             logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
 
@@ -295,7 +316,11 @@ class GeneticAlgorithm(ParameterEstimation):
 
             while len(accepted_particles) < self.population_size:
                 logger.info(
-                    f"Gen: {self.gen_idx}, batch: {batch_idx}, epsilon: {self.distance_object.epsilon}, accepted: {len(accepted_particles)}"
+                    f"Gen: {self.gen_idx}, batch: {batch_idx}, epsilon: {self.distance_object.epsilon}, accepted: {len(accepted_particles)}, mem usage (mb): {utils.get_mem_usage()}"
+                )
+
+                logger.info(
+                    f"Performing crossover..."
                 )
 
                 # Generate new batch by crossover
@@ -303,16 +328,26 @@ class GeneticAlgorithm(ParameterEstimation):
                     self.n_particles_batch, self.population
                 )
 
+                logger.info(
+                    f"Mutating particles..."
+                )
+
                 # Mutate batch
                 self.mutate_particles(batch_particles)
 
-                print("Simulating... ")
+                logger.info(
+                    f"Simulating particles..."
+                )
                 # Simulate
                 simulate_particles(
                     batch_particles, n_processes=self.n_processes, parallel=True
                 )
 
-                print("Selecting... ")
+                clear_cache()
+
+                logger.info(
+                    f"Selecting particles..."
+                )
                 # Select particles
                 batch_accepted = self.selection(batch_particles)
 

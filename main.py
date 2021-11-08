@@ -15,6 +15,8 @@ import pickle
 from pathlib import Path
 
 import argparse
+import psutil
+import os
 
 def rejection_sampling():
     model_paths = [
@@ -120,13 +122,10 @@ def genetic_algorithm(experiment_name, output_dir):
         ["yeast_dcw", "iMM904"],
         ["yeast_ser_mm", "M_ser__L_e"],
         ["yeast_ala_mm", "M_ala__L_e"],
-        ["yeast_glu_mm", "M_glu__L_e"],
-        ["yeast_gly_mm", "M_gly_e"],
-
     ]
 
-    epslilon = [3.0, 1000, 1000, 1000, 1000]
-    final_epsion = [0.5, 0.008, 0.008, 0.008, 0.008]
+    epslilon = [3.0, 1000, 1000]
+    final_epsion = [0.5, 0.008, 0.008]
 
     distance = distances.DistanceTimeseriesEuclidianDistance(
         exp_data,
@@ -155,14 +154,16 @@ def genetic_algorithm(experiment_name, output_dir):
         max_uptake_sampler=max_uptake_sampler,
         k_val_sampler=k_val_sampler,
         output_dir=output_dir,
-        n_particles_batch=6,
+        n_particles_batch=48,
         population_size=25,
         mutation_probability=0.1,
-        epsilon_alpha=0.5,
+        epsilon_alpha=0.3,
     )
 
-    # checkpoint_path = './output/exp_test/test_1_checkpoint_2021-11-05_130218.pkl'
+    # checkpoint_path = './output/exp_yeast_ga_fit/run_0/yeast_ga_0_checkpoint_2021-11-08_171838.pkl'
     # ga = ga.load_checkpoint(checkpoint_path)
+    # logger.info(f"Checkpoint loaded. mem usage: {psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2}")
+
     ga.run()
 
 
@@ -267,12 +268,14 @@ if __name__ == "__main__":
     # rejection_sampling()
     # speed_test()
     # exit()
-    output_dir = "./output/exp_yeast_ga_fit/"
 
     parser = argparse.ArgumentParser(description='Description of your program')
-    parser.add_argument('-e','--exp_num', help='Description for foo argument', required=True)
+    parser.add_argument('-r','--run_idx', help='Description for foo argument', required=True)
     args = vars(parser.parse_args())
 
-    exp_num = args['exp_num']
 
-    genetic_algorithm(f"yeast_ga_{exp_num}", output_dir)
+
+    run_idx = args['run_idx']
+    output_dir = f"./output/exp_yeast_ga_fit/run_{run_idx}/"
+
+    genetic_algorithm(f"yeast_ga_{run_idx}", output_dir)

@@ -6,6 +6,11 @@ from smetana.legacy import Community
 from reframed import Environment
 from smetana.interface import load_communities
 from pathlib import Path
+import psutil
+import os
+
+def get_mem_usage():
+    return psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2
 
 def get_community_complete_environment(model_paths: List[str], max_uptake=10.0, flavor='cobra'):
     """

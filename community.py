@@ -416,12 +416,7 @@ class Community:
 
             sol = np.array(sol)
             t = np.array(t)
-
-        # Assign solution and time vector
-        # to community object
-        self.sol = sol
-        self.t = t
-
+        
         return sol, t
 
     def print_sol(self, sol):
