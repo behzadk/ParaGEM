@@ -24,6 +24,9 @@ def simulate_particles(particles, dask_client=None, parallel=True):
             particles[idx].sol = solutions[idx][0]
             particles[idx].t = solutions[idx][1]
 
+
+        dask_client.restart()
+
     else:
         for p in particles:
             output = sim_community(p)
@@ -42,7 +45,7 @@ def filter(particles):
         df.reset_index(drop=True, inplace=True)
 
         ser_flux = df.loc[df["name"] == "EX_ser__L_e"]["fluxes"].values[0]
-        ala_flux = df.loc[df["name"] == "EX_ala__L_e"]["fluxes"].values[0]
+        # ala_flux = df.loc[df["name"] == "EX_ala__L_e"]["fluxes"].values[0]
         # glu_flux = df.loc[df["name"] == "EX_glu__L_e"]["fluxes"].values[0]
         # gly_flux = df.loc[df["name"] == "EX_gly_e"]["fluxes"].values[0]
         biomass_flux = df.loc[df["name"] == "BIOMASS_SC5_notrace"]["fluxes"].values[0]
@@ -50,7 +53,7 @@ def filter(particles):
         # num_efflux = sum([1 for f in [ser_flux, ala_flux, glu_flux, gly_flux] if f > 0])
 
         if biomass_flux > 0:
-            if ser_flux > 0 and ala_flux > 0:
+            if ser_flux > 0:
                 filtered_particles.append(p)
 
     return filtered_particles
@@ -130,7 +133,7 @@ class SpeedTest(ParameterEstimation):
         with open(particles_path, "rb") as f:
             particles = pickle.load(f)
 
-        particles = particles[0:4]
+        particles = particles
         self.n_processes = n_processes
         self.particles = particles
         self.base_community = base_community
@@ -152,24 +155,15 @@ class SpeedTest(ParameterEstimation):
             for pop_idx, pop in enumerate(comm.populations):
                 pop.model = self.models[particle_idx][pop_idx]
 
-    def speed_test(self, parallel=True):
-        if parallel:
-            client = Client(
-                processes=True,
-                threads_per_worker=1,
-                n_workers=self.n_processes,
-                timeout="3600s",
-            )
-            client.scheduler_info()
-
+    def speed_test(self, dask_client):
         start_time = time.time()
         simulate_particles(
             self.particles,
-            dask_client=client,
+            dask_client=dask_client,
             parallel=True,
         )
         end_time = time.time()
-        client.shutdown()
+        # client.shutdown()
 
         for p in self.particles:
             print(p.sol.shape, p.t.shape)
