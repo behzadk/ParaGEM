@@ -12,17 +12,18 @@ import os
 import utils
 from sympy.core.cache import *
 from guppy import hpy
+import dask
+from dask.distributed import Client
 
-def simulate_particles(particles, n_processes=1, parallel=True):
+def simulate_particles(particles, dask_client=None, n_processes=1, parallel=True):
     if parallel:
-        init_processes = int(min(len(particles), n_processes))
-
-        with mp.Pool(init_processes) as pool:
-            mp_solutions = pool.map_async(sim_community, particles).get()
+        compute_list = [dask.delayed(sim_community)(p) for p in particles]
+        dask_res = dask_client.compute(compute_list)
+        solutions = [x.result() for x in dask_res]
 
         for idx in range(len(particles)):
-            particles[idx].sol = mp_solutions[idx][0]
-            particles[idx].t = mp_solutions[idx][1]
+            particles[idx].sol = solutions[idx][0]
+            particles[idx].t = solutions[idx][1]
 
     else:
         for p in particles:
@@ -134,7 +135,6 @@ class SpeedTest(ParameterEstimation):
         self.particles = particles
         self.base_community = base_community
 
-
         # Generate a list of models that will be assigned
         # to new particles. Avoids repeatedly copying models
         self.models = []
@@ -152,7 +152,23 @@ class SpeedTest(ParameterEstimation):
             for pop_idx, pop in enumerate(comm.populations):
                 pop.model = self.models[particle_idx][pop_idx]
 
-    def speed_test(self):
+    def speed_test(self, parallel=True):
+        if parallel:
+            client = Client(processes=True, threads_per_worker=1, n_workers=self.n_processes, timeout="3600s")
+            client.scheduler_info()
+
+        start_time = time.time()
+        simulate_particles(
+            self.particles, dask_client=client, n_processes=self.n_processes, parallel=True
+        )
+        end_time = time.time()
+        client.shutdown()
+
+        for p in self.particles:
+            print(p.sol.shape, p.t.shape)
+
+        logger.info(f'Dask parallel: {end_time - start_time}')
+
         start_time = time.time()
         simulate_particles(
             self.particles, n_processes=self.n_processes, parallel=False
@@ -161,14 +177,7 @@ class SpeedTest(ParameterEstimation):
 
         logger.info(f'Serial: {end_time - start_time}')
 
-        start_time = time.time()
-        simulate_particles(
-            self.particles, n_processes=self.n_processes, parallel=True
-        )
-        end_time = time.time()
-
-        logger.info(f'Parallel: {end_time - start_time}')
-
+    
 class GeneticAlgorithm(ParameterEstimation):
     def __init__(
         self,
@@ -182,6 +191,7 @@ class GeneticAlgorithm(ParameterEstimation):
         population_size=32,
         mutation_probability=0.1,
         epsilon_alpha=0.2,
+        parallel=True,
     ):
         self.experiment_name = experiment_name
         self.base_community = base_community
@@ -197,6 +207,14 @@ class GeneticAlgorithm(ParameterEstimation):
 
         self.gen_idx = 0
         self.final_generation = False
+
+        self.parallel = parallel
+
+        if self.parallel:
+            self.dask_client = Client(processes=True, 
+            threads_per_worker=1, 
+            n_workers=self.n_processes, 
+            timeout="3600s")
 
         # Generate a list of models that will be assigned
         # to new particles. Avoids repeatedly copying models
@@ -276,7 +294,7 @@ class GeneticAlgorithm(ParameterEstimation):
             if len(particles) == 0:
                 continue
 
-            simulate_particles(particles, n_processes=self.n_processes, parallel=True)
+            simulate_particles(particles, n_processes=self.n_processes, parallel=self.parallel, dask_client=self.dask_client)
             logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
 
             accepted_particles.extend(self.selection(particles))
@@ -352,7 +370,7 @@ class GeneticAlgorithm(ParameterEstimation):
                 )
                 # Simulate
                 simulate_particles(
-                    batch_particles, n_processes=self.n_processes, parallel=True
+                    batch_particles, n_processes=self.n_processes, parallel=self.parallel, dask_client=self.dask_client
                 )
 
                 clear_cache()
