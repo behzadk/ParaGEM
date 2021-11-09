@@ -17,6 +17,8 @@ from pathlib import Path
 import argparse
 import psutil
 import os
+import dask
+from dask.distributed import Client
 
 def rejection_sampling():
     model_paths = [
@@ -154,17 +156,25 @@ def genetic_algorithm(experiment_name, output_dir):
         max_uptake_sampler=max_uptake_sampler,
         k_val_sampler=k_val_sampler,
         output_dir=output_dir,
-        n_particles_batch=3,
-        population_size=25,
+        n_particles_batch=6,
+        population_size=5,
         mutation_probability=0.1,
         epsilon_alpha=0.3,
+        parallel=True
     )
 
     # checkpoint_path = './output/exp_yeast_ga_fit/run_0/yeast_ga_0_checkpoint_2021-11-08_171838.pkl'
     # ga = ga.load_checkpoint(checkpoint_path)
     # logger.info(f"Checkpoint loaded. mem usage: {psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2}")
 
-    ga.run()
+    dask_client = Client(processes=True, 
+    threads_per_worker=1, 
+    n_workers=6, 
+    timeout="3600s")
+
+    ga.run(dask_client, parallel=True)
+
+    dask_client.shutdown()
 
 
 def example_simulation():
@@ -266,8 +276,8 @@ def speed_test():
 if __name__ == "__main__":
     # example_simulation()
     # rejection_sampling()
-    speed_test()
-    exit()
+    # speed_test()
+    # exit()
 
     parser = argparse.ArgumentParser(description='Description of your program')
     parser.add_argument('-r','--run_idx', help='Description for foo argument', required=True)

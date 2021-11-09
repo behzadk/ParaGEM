@@ -13,9 +13,8 @@ import utils
 from sympy.core.cache import *
 from guppy import hpy
 import dask
-from dask.distributed import Client
 
-def simulate_particles(particles, dask_client=None, n_processes=1, parallel=True):
+def simulate_particles(particles, dask_client=None, parallel=True):
     if parallel:
         compute_list = [dask.delayed(sim_community)(p) for p in particles]
         dask_res = dask_client.compute(compute_list)
@@ -69,7 +68,7 @@ class ParameterEstimation:
         for i in range(n_particles):
             # Make independent copy of base community
             comm = copy.deepcopy(self.base_community)
-            
+
             # Assign population models
             for idx, pop in enumerate(comm.populations):
                 pop.model = self.models[i][idx]
@@ -97,7 +96,7 @@ class ParameterEstimation:
         logger.info(f"Saving particles {output_path}")
 
         with open(f"{output_path}", "wb") as handle:
-            pickle.dump(particles_out, handle)        
+            pickle.dump(particles_out, handle)
 
     def save_checkpoint(self, output_dir):
         time_stamp = time.strftime("%Y-%m-%d_%H%M%S")
@@ -114,7 +113,7 @@ class ParameterEstimation:
                 del p.model
             # del part.sol
             # del part.t
-    
+
         gc.collect()
 
     @classmethod
@@ -124,10 +123,11 @@ class ParameterEstimation:
         with open(checkpoint_path, "rb") as f:
             return pickle.load(f)
 
+
 class SpeedTest(ParameterEstimation):
     def __init__(self, particles_path, base_community, n_processes):
-        
-        with open(particles_path, 'rb') as f:
+
+        with open(particles_path, "rb") as f:
             particles = pickle.load(f)
 
         particles = particles[0:4]
@@ -146,7 +146,7 @@ class SpeedTest(ParameterEstimation):
 
         for pop in self.base_community.populations:
             del pop.model
-        
+
         for particle_idx, comm in enumerate(self.particles):
             # Assign population models
             for pop_idx, pop in enumerate(comm.populations):
@@ -154,12 +154,19 @@ class SpeedTest(ParameterEstimation):
 
     def speed_test(self, parallel=True):
         if parallel:
-            client = Client(processes=True, threads_per_worker=1, n_workers=self.n_processes, timeout="3600s")
+            client = Client(
+                processes=True,
+                threads_per_worker=1,
+                n_workers=self.n_processes,
+                timeout="3600s",
+            )
             client.scheduler_info()
 
         start_time = time.time()
         simulate_particles(
-            self.particles, dask_client=client, n_processes=self.n_processes, parallel=True
+            self.particles,
+            dask_client=client,
+            parallel=True,
         )
         end_time = time.time()
         client.shutdown()
@@ -167,17 +174,15 @@ class SpeedTest(ParameterEstimation):
         for p in self.particles:
             print(p.sol.shape, p.t.shape)
 
-        logger.info(f'Dask parallel: {end_time - start_time}')
+        logger.info(f"Dask parallel: {end_time - start_time}")
 
         start_time = time.time()
-        simulate_particles(
-            self.particles, n_processes=self.n_processes, parallel=False
-        )
+        simulate_particles(self.particles, parallel=False)
         end_time = time.time()
 
-        logger.info(f'Serial: {end_time - start_time}')
+        logger.info(f"Serial: {end_time - start_time}")
 
-    
+
 class GeneticAlgorithm(ParameterEstimation):
     def __init__(
         self,
@@ -207,14 +212,6 @@ class GeneticAlgorithm(ParameterEstimation):
 
         self.gen_idx = 0
         self.final_generation = False
-
-        self.parallel = parallel
-
-        if self.parallel:
-            self.dask_client = Client(processes=True, 
-            threads_per_worker=1, 
-            n_workers=self.n_processes, 
-            timeout="3600s")
 
         # Generate a list of models that will be assigned
         # to new particles. Avoids repeatedly copying models
@@ -280,7 +277,7 @@ class GeneticAlgorithm(ParameterEstimation):
 
             particle.load_parameter_vector(particle_param_vec)
 
-    def gen_initial_population(self):
+    def gen_initial_population(self, dask_client, parallel):
         logger.info("Generating initial population")
 
         # Generate initial population
@@ -294,7 +291,12 @@ class GeneticAlgorithm(ParameterEstimation):
             if len(particles) == 0:
                 continue
 
-            simulate_particles(particles, n_processes=self.n_processes, parallel=self.parallel, dask_client=self.dask_client)
+            simulate_particles(
+                particles,
+                parallel=parallel,
+                dask_client=dask_client,
+            )
+
             logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
 
             accepted_particles.extend(self.selection(particles))
@@ -326,12 +328,12 @@ class GeneticAlgorithm(ParameterEstimation):
 
             self.distance_object.epsilon[dist_idx] = new_epsilon
 
-    def run(self):
+    def run(self, dask_client=None, parallel=False):
         logger.info("Running genetic algorithm")
 
         if self.gen_idx == 0:
             # Generate initial population
-            self.population = self.gen_initial_population()
+            self.population = self.gen_initial_population(dask_client, parallel)
             self.gen_idx += 1
 
             self.save_checkpoint(self.output_dir)
@@ -349,35 +351,29 @@ class GeneticAlgorithm(ParameterEstimation):
                     f"Gen: {self.gen_idx}, batch: {batch_idx}, epsilon: {self.distance_object.epsilon}, accepted: {len(accepted_particles)}, mem usage (mb): {utils.get_mem_usage()}"
                 )
 
-                logger.info(
-                    f"Performing crossover..."
-                )
+                logger.info(f"Performing crossover...")
 
                 # Generate new batch by crossover
                 batch_particles = self.crossover(
                     self.n_particles_batch, self.population
                 )
 
-                logger.info(
-                    f"Mutating particles..."
-                )
+                logger.info(f"Mutating particles...")
 
                 # Mutate batch
                 self.mutate_particles(batch_particles)
 
-                logger.info(
-                    f"Simulating particles..."
-                )
+                logger.info(f"Simulating particles...")
                 # Simulate
                 simulate_particles(
-                    batch_particles, n_processes=self.n_processes, parallel=self.parallel, dask_client=self.dask_client
+                    batch_particles,
+                    parallel=parallel,
+                    dask_client=dask_client,
                 )
 
                 clear_cache()
 
-                logger.info(
-                    f"Selecting particles..."
-                )
+                logger.info(f"Selecting particles...")
                 # Select particles
                 batch_accepted = self.selection(batch_particles)
 
@@ -398,9 +394,7 @@ class GeneticAlgorithm(ParameterEstimation):
             self.update_epsilon(self.population)
             self.gen_idx += 1
 
-        output_path = (
-            f"{self.output_dir}particles_{self.experiment_name}_final_gen_{self.gen_idx}.pkl"
-        )
+        output_path = f"{self.output_dir}particles_{self.experiment_name}_final_gen_{self.gen_idx}.pkl"
         self.save_particles(accepted_particles, output_path)
         self.save_checkpoint(self.output_dir)
 
@@ -454,7 +448,7 @@ class RejectionAlgorithm(ParameterEstimation):
             particles = filter(particles)
 
             print(f"\t Simulating batch {batch_idx}")
-            simulate_particles(particles, n_processes=self.n_processes, parallel=True)
+            simulate_particles(particles, parallel=True)
 
             acceptance_status = self.assess_particles(particles)
 
