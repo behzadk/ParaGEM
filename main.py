@@ -163,15 +163,17 @@ def genetic_algorithm(experiment_name, output_dir):
         parallel=True
     )
 
-    # checkpoint_path = './output/exp_yeast_ga_fit/run_0/yeast_ga_0_checkpoint_2021-11-09_150007.pkl'
+    # checkpoint_path = './output/exp_yeast_ga_fit/run_0/yeast_ga_0_checkpoint_2021-11-09_174610.pkl'
     # ga = ga.load_checkpoint(checkpoint_path)
     # logger.info(f"Checkpoint loaded. mem usage: {psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2}")
 
     dask_client = Client(processes=True, 
-    threads_per_worker=1, 
-    n_workers=32, 
+    n_workers=32, threads_per_worker=1,
     timeout="3600s")
     dask.config.set({'distributed.comm.timeouts.connect': '500s', 'distributed.comm.timeouts.tcp': '450s',})
+
+    print(dask_client)
+    print(dask_client.scheduler_info())
 
     ga.run(dask_client, parallel=True)
     dask_client.shutdown()
@@ -268,14 +270,14 @@ def speed_test():
     )
 
     dask_client = Client(processes=True, 
-    threads_per_worker=1, 
-    n_workers=32, 
+    # threads_per_worker=1,
+    n_workers=8, 
     timeout="3600s")
     dask.config.set({'distributed.comm.timeouts.connect': '500s', 'distributed.comm.timeouts.tcp': '450s',})
 
     particles_path = './output/exp_yeast_ga_fit/run_0/particles_yeast_ga_0_gen_1.pkl'
-    s = SpeedTest(particles_path, comm, n_processes=32)
-    s.speed_test(dask_client=dask_client, )
+    s = SpeedTest(particles_path, comm)
+    s.speed_test(dask_client=dask_client)
 
     
 if __name__ == "__main__":

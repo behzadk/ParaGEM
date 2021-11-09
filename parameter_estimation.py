@@ -16,6 +16,12 @@ import dask
 
 def simulate_particles(particles, dask_client=None, parallel=True):
     if parallel:
+        # for idx, p in enumerate(particles):
+        #     print(idx)
+        #     compute_list = dask.delayed(sim_community)(p)
+        #     dask_res = dask_client.compute(compute_list)
+        #     solutions = dask_res.result()
+        # exit()
         compute_list = [dask.delayed(sim_community)(p) for p in particles]
         dask_res = dask_client.compute(compute_list)
         solutions = [x.result() for x in dask_res]
@@ -128,13 +134,12 @@ class ParameterEstimation:
 
 
 class SpeedTest(ParameterEstimation):
-    def __init__(self, particles_path, base_community, n_processes):
+    def __init__(self, particles_path, base_community):
 
         with open(particles_path, "rb") as f:
             particles = pickle.load(f)
 
         particles = particles
-        self.n_processes = n_processes
         self.particles = particles
         self.base_community = base_community
 
@@ -163,11 +168,12 @@ class SpeedTest(ParameterEstimation):
             parallel=True,
         )
         end_time = time.time()
-        # client.shutdown()
+        dask_client.restart()
 
         for p in self.particles:
             print(p.sol.shape, p.t.shape)
 
+        print("logging")
         logger.info(f"Dask parallel: {end_time - start_time}")
 
         start_time = time.time()
@@ -213,7 +219,7 @@ class GeneticAlgorithm(ParameterEstimation):
         for _ in range(self.n_particles_batch):
             proc_models = []
             for pop in self.base_community.populations:
-                proc_models.append(pop.model)
+                proc_models.append(copy.deepcopy(pop.model))
             self.models.append(proc_models)
 
         for pop in self.base_community.populations:
@@ -346,6 +352,8 @@ class GeneticAlgorithm(ParameterEstimation):
                 )
 
                 logger.info(f"Performing crossover...")
+
+                # batch_particles = self.population[0:self.n_particles_batch]
 
                 # Generate new batch by crossover
                 batch_particles = self.crossover(
