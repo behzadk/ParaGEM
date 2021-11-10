@@ -18,6 +18,10 @@ import argparse
 import psutil
 import os
 import dask
+dask.config.set({'distributed.comm.timeouts.connect': '500s', 'distributed.comm.timeouts.tcp': '450s',})
+dask.config.set({'distributed.worker.multiprocessing-method': 'spawn'})
+dask.config.set({'distributed.client.heartbeat': '120s'})
+
 from dask.distributed import Client
 
 def rejection_sampling():
@@ -156,24 +160,35 @@ def genetic_algorithm(experiment_name, output_dir):
         max_uptake_sampler=max_uptake_sampler,
         k_val_sampler=k_val_sampler,
         output_dir=output_dir,
-        n_particles_batch=32,
+        n_particles_batch=16,
         population_size=25,
         mutation_probability=0.1,
         epsilon_alpha=0.3,
         parallel=True
     )
 
-    # checkpoint_path = './output/exp_yeast_ga_fit/run_0/yeast_ga_0_checkpoint_2021-11-09_174610.pkl'
+    from pympler import muppy
+    all_objects = muppy.get_objects()
+
+    from pympler import summary
+    sum1 = summary.summarize(all_objects)
+    summary.print_(sum1)   
+    logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
+    logger.info(summary.print_(sum1))
+
+    # checkpoint_path = './output/exp_yeast_ga_ser_fit/run_0/yeast_ga_0_checkpoint_2021-11-10_105123.pkl'
     # ga = ga.load_checkpoint(checkpoint_path)
     # logger.info(f"Checkpoint loaded. mem usage: {psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2}")
+    # ga.n_particles_batch = 8
 
-    dask_client = Client(processes=True, 
-    n_workers=32, threads_per_worker=1,
-    timeout="3600s")
-    dask.config.set({'distributed.comm.timeouts.connect': '500s', 'distributed.comm.timeouts.tcp': '450s',})
+    # dask_client = Client(processes=True, 
+    # n_workers=6, threads_per_worker=1, silence_logs=False,
+    # timeout="3600s")
 
-    print(dask_client)
-    print(dask_client.scheduler_info())
+    # print(dask_client)
+    # print(dask_client.scheduler_info())
+
+    dask_client = 1
 
     ga.run(dask_client, parallel=True)
     dask_client.shutdown()
@@ -270,7 +285,7 @@ def speed_test():
     )
 
     dask_client = Client(processes=True, 
-    # threads_per_worker=1,
+    threads_per_worker=1,
     n_workers=8, 
     timeout="3600s")
     dask.config.set({'distributed.comm.timeouts.connect': '500s', 'distributed.comm.timeouts.tcp': '450s',})

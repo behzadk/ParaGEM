@@ -1,7 +1,10 @@
 import copy
 import pickle
 import numpy as np
-import multiprocessing as mp
+
+# import multiprocessing as mp
+import multiprocess as mp
+
 from matplotlib.backends.backend_pdf import PdfPages
 import time
 from loguru import logger
@@ -13,25 +16,50 @@ import utils
 from sympy.core.cache import *
 from guppy import hpy
 import dask
+import functools
+from dask.distributed import Client
+
+def clear_lrus():
+    gc.collect()
+    wrappers = [a for a in gc.get_objects() if
+        isinstance(a, functools._lru_cache_wrapper)]
+
+    for wrapper in wrappers:
+        wrapper.cache_clear()
 
 def simulate_particles(particles, dask_client=None, parallel=True):
     if parallel:
-        # for idx, p in enumerate(particles):
-        #     print(idx)
-        #     compute_list = dask.delayed(sim_community)(p)
-        #     dask_res = dask_client.compute(compute_list)
-        #     solutions = dask_res.result()
-        # exit()
-        compute_list = [dask.delayed(sim_community)(p) for p in particles]
-        dask_res = dask_client.compute(compute_list)
-        solutions = [x.result() for x in dask_res]
+        # init_processes = int(min(len(particles), n_processes))
+        init_processes = 8
+
+        print("running parallel")
+
+        with mp.Pool(init_processes) as pool:
+            mp_solutions = pool.map(sim_community, particles)
 
         for idx in range(len(particles)):
-            particles[idx].sol = solutions[idx][0]
-            particles[idx].t = solutions[idx][1]
+            particles[idx].sol = mp_solutions[idx][0]
+            particles[idx].t = mp_solutions[idx][1]
 
+        # # for idx, p in enumerate(particles):
+        # #     print(idx)
+        # #     compute_list = dask.delayed(sim_community)(p)
+        # #     dask_res = dask_client.compute(compute_list)
+        # #     solutions = dask_res.result()
+        # # exit()
+        # compute_list = [dask.delayed(sim_community)(p) for p in particles]
+        # compute_list = dask_client.scatter(compute_list)
+        # # compute_list = dask_client.compute(compute_list)
+        # compute_list = dask_client.persist(compute_list)
 
-        dask_client.restart()
+        # solutions = [x.compute() for x in compute_list]
+
+        # for idx in range(len(particles)):
+        #     particles[idx].sol = solutions[idx][0]
+        #     particles[idx].t = solutions[idx][1]
+
+        # dask_client.cancel(compute_list)
+        # collect_res = dask_client.run(clear_lrus)
 
     else:
         for p in particles:
@@ -297,7 +325,14 @@ class GeneticAlgorithm(ParameterEstimation):
                 dask_client=dask_client,
             )
 
+            from pympler import muppy
+            all_objects = muppy.get_objects()
+
+            from pympler import summary
+            sum1 = summary.summarize(all_objects)
+            summary.print_(sum1)   
             logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
+            logger.info(summary.print_(sum1))
 
             accepted_particles.extend(self.selection(particles))
             self.delete_particle_fba_models(particles)
@@ -340,6 +375,11 @@ class GeneticAlgorithm(ParameterEstimation):
 
         # Core genetic algorithm loop
         while not self.final_generation:
+            # dask_client.shutdown()
+            # dask_client = Client(processes=True, 
+            # n_workers=6, threads_per_worker=1, silence_logs=False,
+            # timeout="3600s")
+
             batch_idx = 0
             accepted_particles = []
 
