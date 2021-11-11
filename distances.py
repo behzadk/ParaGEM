@@ -26,9 +26,14 @@ class DistanceTimeseriesEuclidianDistance:
     def calculate_distance(self, community):
         n_distances = len(self.exp_sol_keys)
         distances = np.zeros(n_distances)
+        
 
-        sim_t = community.t
+        if community.sol is None or community.t is None:
+            return [np.inf for d in range(n_distances)]
+            
         sim_data = community.sol
+        sim_t = community.t
+
 
         for distance_idx, key_pair in enumerate(self.exp_sol_keys):
             for exp_data_idx, t in enumerate(self.exp_data[self.exp_t_key].values):
@@ -36,6 +41,7 @@ class DistanceTimeseriesEuclidianDistance:
 
                 sol_idx = get_solution_index(community, key_pair[1])
 
+                
                 sim_val = sim_data[:, sol_idx][sim_t_idx]
                 exp_val = self.exp_data.loc[self.exp_data[self.exp_t_key] == t][
                     key_pair[0]

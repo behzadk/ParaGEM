@@ -17,12 +17,6 @@ from pathlib import Path
 import argparse
 import psutil
 import os
-import dask
-dask.config.set({'distributed.comm.timeouts.connect': '500s', 'distributed.comm.timeouts.tcp': '450s',})
-dask.config.set({'distributed.worker.multiprocessing-method': 'spawn'})
-dask.config.set({'distributed.client.heartbeat': '120s'})
-
-from dask.distributed import Client
 
 def rejection_sampling():
     model_paths = [
@@ -126,12 +120,12 @@ def genetic_algorithm(experiment_name, output_dir):
     exp_data = pd.read_csv("./data/Figure1B_fake_data.csv")
     exp_sol_keys = [
         ["yeast_dcw", "iMM904"],
-        ["yeast_ser_mm", "M_ser__L_e"],
+        # ["yeast_ser_mm", "M_ser__L_e"],
         # ["yeast_ala_mm", "M_ala__L_e"],
     ]
 
-    epslilon = [3.0, 0.019]
-    final_epsion = [0.5, 0.008]
+    epslilon = [3.0]
+    final_epsion = [0.5]
 
     distance = distances.DistanceTimeseriesEuclidianDistance(
         exp_data,
@@ -176,10 +170,10 @@ def genetic_algorithm(experiment_name, output_dir):
     logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
     logger.info(summary.print_(sum1))
 
-    # checkpoint_path = './output/exp_yeast_ga_ser_fit/run_0/yeast_ga_0_checkpoint_2021-11-10_105123.pkl'
-    # ga = ga.load_checkpoint(checkpoint_path)
-    # logger.info(f"Checkpoint loaded. mem usage: {psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2}")
-    # ga.n_particles_batch = 8
+    checkpoint_path = './output/exp_yeast_ga_ser_fit/run_0/yeast_ga_0_checkpoint_2021-11-11_102327.pkl'
+    ga = ga.load_checkpoint(checkpoint_path)
+    logger.info(f"Checkpoint loaded. mem usage: {psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2}")
+    # ga.n_particles_batch = 16
 
     # dask_client = Client(processes=True, 
     # n_workers=6, threads_per_worker=1, silence_logs=False,
@@ -284,13 +278,14 @@ def speed_test():
         use_parsimonius_fba=False,
     )
 
-    dask_client = Client(processes=True, 
-    threads_per_worker=1,
-    n_workers=8, 
-    timeout="3600s")
-    dask.config.set({'distributed.comm.timeouts.connect': '500s', 'distributed.comm.timeouts.tcp': '450s',})
+    # dask_client = Client(processes=True, 
+    # threads_per_worker=1,
+    # n_workers=8, 
+    # timeout="3600s")
+    # dask.config.set({'distributed.comm.timeouts.connect': '500s', 'distributed.comm.timeouts.tcp': '450s',})
 
-    particles_path = './output/exp_yeast_ga_fit/run_0/particles_yeast_ga_0_gen_1.pkl'
+    dask_client = 1
+    particles_path = './output/exp_yeast_ga_ser_fit/run_0/particles_yeast_ga_0_latest_batch.pkl'
     s = SpeedTest(particles_path, comm)
     s.speed_test(dask_client=dask_client)
 

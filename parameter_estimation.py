@@ -4,7 +4,7 @@ import numpy as np
 
 # import multiprocessing as mp
 import multiprocess as mp
-
+from pathos.multiprocessing import ProcessPool
 from matplotlib.backends.backend_pdf import PdfPages
 import time
 from loguru import logger
@@ -18,6 +18,7 @@ from guppy import hpy
 import dask
 import functools
 from dask.distributed import Client
+# pool = ProcessPool(nodes=8)
 
 def clear_lrus():
     gc.collect()
@@ -29,43 +30,35 @@ def clear_lrus():
 
 def simulate_particles(particles, dask_client=None, parallel=True):
     if parallel:
-        # init_processes = int(min(len(particles), n_processes))
-        init_processes = 8
-
         print("running parallel")
-
-        with mp.Pool(init_processes) as pool:
-            mp_solutions = pool.map(sim_community, particles)
-
-        for idx in range(len(particles)):
-            particles[idx].sol = mp_solutions[idx][0]
-            particles[idx].t = mp_solutions[idx][1]
-
-        # # for idx, p in enumerate(particles):
-        # #     print(idx)
-        # #     compute_list = dask.delayed(sim_community)(p)
-        # #     dask_res = dask_client.compute(compute_list)
-        # #     solutions = dask_res.result()
-        # # exit()
-        # compute_list = [dask.delayed(sim_community)(p) for p in particles]
-        # compute_list = dask_client.scatter(compute_list)
-        # # compute_list = dask_client.compute(compute_list)
-        # compute_list = dask_client.persist(compute_list)
-
-        # solutions = [x.compute() for x in compute_list]
-
-        # for idx in range(len(particles)):
-        #     particles[idx].sol = solutions[idx][0]
-        #     particles[idx].t = solutions[idx][1]
-
-        # dask_client.cancel(compute_list)
-        # collect_res = dask_client.run(clear_lrus)
+        pool = mp.get_context("spawn").Pool(8, maxtasksperchild=1)
+        pool.imap(sim_community, particles)
+        futures_mp_sol = pool.imap(sim_community, particles)
+        for particle in particles:
+            try:
+                sol, t = futures_mp_sol.next(timeout=45.0)
+                particle.sol = sol
+                particle.t = t
+            except mp.context.TimeoutError:
+                print("TIMEOUT ERROR")
+                print("time out closing")
+                pool.close()
+                print("Assigining solutions for unfinished particles")
+                particle.sol = None
+                particle.t = None
+                for p in particles:
+                    if not hasattr(p, 'sol'):
+                        particle.sol = None
+                        particle.t = None
 
     else:
+        p_idx = 0
         for p in particles:
+            print(f"Simulating particle idx: {p_idx}")
             output = sim_community(p)
             p.sol = output[0]
             p.t = output[1]
+            p_idx += 1
 
 
 def filter(particles):
@@ -87,15 +80,18 @@ def filter(particles):
         # num_efflux = sum([1 for f in [ser_flux, ala_flux, glu_flux, gly_flux] if f > 0])
 
         if biomass_flux > 0:
-            if ser_flux > 0:
-                filtered_particles.append(p)
+            # if ser_flux > 0:
+            filtered_particles.append(p)
 
     return filtered_particles
 
 
 def sim_community(community):
     sol, t = community.simulate_community("vode")
+    print("returning sim")
     return [sol, t]
+
+   
 
 
 class ParameterEstimation:
@@ -196,7 +192,7 @@ class SpeedTest(ParameterEstimation):
             parallel=True,
         )
         end_time = time.time()
-        dask_client.restart()
+        # dask_client.restart()
 
         for p in self.particles:
             print(p.sol.shape, p.t.shape)
@@ -406,6 +402,9 @@ class GeneticAlgorithm(ParameterEstimation):
                 self.mutate_particles(batch_particles)
 
                 logger.info(f"Simulating particles...")
+                output_path = f"{self.output_dir}particles_{self.experiment_name}_latest_batch.pkl"
+                self.save_particles(batch_particles, output_path)
+
                 # Simulate
                 simulate_particles(
                     batch_particles,

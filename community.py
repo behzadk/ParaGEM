@@ -23,8 +23,8 @@ import matplotlib.pyplot as plt
 
 import numba
 import copy
-import multiprocessing as mp
-
+# import multiprocessing as mp
+import multiprocess as mp
 
 class Population:
     def __init__(
@@ -388,35 +388,40 @@ class Community:
         )
 
     def simulate_community(self, method="odeint"):
+        print("Starting sim")
         init_y = self.init_y
         y0 = init_y
         t_0 = 0.0
         t_end = 24.0
-        steps = 1000000
+        steps = 100000
 
         if method == "odeint":
             t = np.linspace(t_0, t_end, steps)
             sol = odeint(self.diff_eqs, y0, t, args=())
 
         elif method == "vode":
+
             sol = []
             t = []
 
+            
             solver = ode(self.diff_eqs_vode, jac=None).set_integrator(
-                "vode", method="bdf", atol=1e-10, rtol=1e-8
+                "vode", method="bdf", atol=1e-9, rtol=1e-4
             )
+            # print("solver initiated")
 
             solver.set_initial_value(y0, t=t_0)
 
             while solver.successful() and solver.t < t_end:
                 step_out = solver.integrate(t_end, step=True)
-
                 sol.append(step_out)
                 t.append(solver.t)
+
 
             sol = np.array(sol)
             t = np.array(t)
         
+        print("finished sim")
         return sol, t
 
     def print_sol(self, sol):
@@ -492,7 +497,6 @@ class Community:
         output[self.compound_indexes] = np.dot(populations, flux_matrix)
 
         return output
-
 
 def sim_community(community):
     sol, t = community.simulate_community("vode")
