@@ -19,6 +19,8 @@ logging.getLogger("cobra").setLevel(logging.ERROR)
 import matplotlib.pyplot as plt
 import copy
 
+import warnings
+
 # import multiprocessing as mp
 import multiprocess as mp
 
@@ -115,9 +117,11 @@ class Population:
     def optimize(self):
         if self.use_parsimonius_fba:
             self.opt_sol = cobra.flux_analysis.pfba(self.model)
-
+        
+        
         else:
             self.opt_sol = self.model.optimize()
+        
 
     def get_dynamic_compound_fluxes(self):
         compound_fluxes = np.zeros(len(self.dynamic_compounds))
@@ -467,10 +471,16 @@ class Community:
 
         for idx, pop in enumerate(self.populations):
             pop.update_reaction_constraints(lower_constraints[idx])
-            pop.optimize()
+            with warnings.catch_warnings():
+                warnings.filterwarnings("error")
+                try:
+                    pop.optimize()
+                    flux_matrix[idx] = pop.get_dynamic_compound_fluxes()
+                    growth_rates[idx] = pop.get_growth_rate()
 
-            flux_matrix[idx] = pop.get_dynamic_compound_fluxes()
-            growth_rates[idx] = pop.get_growth_rate()
+                except UserWarning:
+                    flux_matrix[idx] = np.zeros(shape=len(self.dynamic_compounds))
+                    growth_rates[idx] = 0
 
         return growth_rates, flux_matrix
 
