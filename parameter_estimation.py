@@ -26,29 +26,36 @@ def clear_lrus():
         wrapper.cache_clear()
 
 
-def simulate_particles(particles, n_processes=1, sim_timeout=45.0, parallel=True):
+def simulate_particles(particles, n_processes=1, sim_timeout=15.0, parallel=True):
     if parallel:
         print("running parallel")
+
+        def wrapper(args):
+            idx, args = args
+            sol, t = sim_community(args)
+            return (idx, sol, t)
+
         pool = mp.get_context("spawn").Pool(n_processes, maxtasksperchild=1)
-        pool.imap(sim_community, particles)
-        futures_mp_sol = pool.imap(sim_community, particles)
+        futures_mp_sol = pool.imap_unordered(wrapper, enumerate(particles))
+
         for particle in particles:
             try:
-                sol, t = futures_mp_sol.next(timeout=sim_timeout)
-                particle.sol = sol
-                particle.t = t
+                idx, sol, t = futures_mp_sol.next(timeout=sim_timeout)
+                particles[idx].sol = sol
+                particles[idx].t = t
+
             except mp.context.TimeoutError:
                 print("TIMEOUT ERROR")
-                print("time out closing")
-                pool.close()
-                print("Assigining solutions for unfinished particles")
-                particle.sol = None
-                particle.t = None
-                for p in particles:
-                    if not hasattr(p, "sol"):
-                        particle.sol = None
-                        particle.t = None
+                break
 
+        print("Terminating pool")
+        pool.terminate()
+                
+        for idx, p in enumerate(particles):
+            if not hasattr(p, "sol"):
+                print(f"Particle {idx} has no sol")
+                p.sol = None
+                p.t = None
     else:
         p_idx = 0
         for p in particles:
