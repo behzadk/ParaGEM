@@ -205,6 +205,16 @@ class Community:
 
         return param_vec
 
+    def update_parameters_from_particle(self, particle, model_names):
+        # Update self arrays according to the specific model of the particle
+        for particle_model_name in model_names:
+            if particle_model_name in self.model_names:
+                particle_model_idx = particle.model_names.index(particle_model_name)
+                this_model_idx = self.model_names.index(particle_model_name)
+
+                self.k_vals[this_model_idx] = particle.k_vals[particle_model_idx]
+                self.max_exchange_mat[this_model_idx] = particle.max_exchange_mat[this_model_idx]
+
     def load_parameter_vector(self, parameter_vec):
         n_init_conc = len(self.init_y)
         n_k_vals = self.k_vals.shape[0] * self.k_vals.shape[1]
