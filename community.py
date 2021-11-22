@@ -18,8 +18,10 @@ logging.getLogger("cobra").setLevel(logging.ERROR)
 
 import matplotlib.pyplot as plt
 import copy
+
 # import multiprocessing as mp
 import multiprocess as mp
+
 
 class Population:
     def __init__(
@@ -47,6 +49,7 @@ class Population:
         """
         Loads models from model paths
         """
+
         model = cobra.io.read_sbml_model(model_path, name=str(np.random.randint(10)))
         model.solver = "glpk"
 
@@ -147,7 +150,6 @@ class Community:
         self.media_path = media_path
         self.use_parsimonius_fba = use_parsimonius_fba
 
-
         self.media_df = pd.read_csv(self.media_path, delimiter="\t")
         self.media_df = self.media_df.loc[
             self.media_df["medium"] == media_name
@@ -213,7 +215,9 @@ class Community:
                 this_model_idx = self.model_names.index(particle_model_name)
 
                 self.k_vals[this_model_idx] = particle.k_vals[particle_model_idx]
-                self.max_exchange_mat[this_model_idx] = particle.max_exchange_mat[this_model_idx]
+                self.max_exchange_mat[this_model_idx] = particle.max_exchange_mat[
+                    this_model_idx
+                ]
 
     def load_parameter_vector(self, parameter_vec):
         n_init_conc = len(self.init_y)
@@ -409,7 +413,6 @@ class Community:
             sol = []
             t = []
 
-            
             solver = ode(self.diff_eqs_vode, jac=None).set_integrator(
                 "vode", method="bdf", atol=1e-9, rtol=1e-4
             )
@@ -422,10 +425,9 @@ class Community:
                 sol.append(step_out)
                 t.append(solver.t)
 
-
             sol = np.array(sol)
             t = np.array(t)
-        
+
         print("finished sim")
         return sol, t
 
@@ -501,6 +503,7 @@ class Community:
         output[self.compound_indexes] = np.dot(populations, flux_matrix)
 
         return output
+
 
 def sim_community(community):
     sol, t = community.simulate_community("vode")

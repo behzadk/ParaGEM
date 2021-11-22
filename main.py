@@ -13,6 +13,7 @@ import argparse
 import psutil
 import os
 
+
 def rejection_sampling():
     model_paths = [
         # "./models/L_lactis/L_lactis_fbc.xml",
@@ -95,7 +96,7 @@ def genetic_algorithm(experiment_name, output_dir):
 
     model_paths = [
         # "./models/L_lactis/L_lactis_fbc.xml",
-        "./models/S_cerevisiae/iMM904.xml",
+        "./models/S_cerevisiae/iMM904.xml"
     ]
 
     model_names = ["iMM904"]
@@ -134,7 +135,7 @@ def genetic_algorithm(experiment_name, output_dir):
     dist_2 = sampling.SampleUniform(
         min_val=1e-3, max_val=1e-1, distribution="log_uniform"
     )
-    
+
     max_uptake_sampler = multi_dist = sampling.MultiDistribution(
         dist_1, dist_2, prob_dist_1=0.95
     )
@@ -154,26 +155,19 @@ def genetic_algorithm(experiment_name, output_dir):
         population_size=25,
         mutation_probability=0.1,
         epsilon_alpha=0.2,
-        parallel=True
     )
 
     logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
 
-    # checkpoint_path = './output/exp_yeast_ga_ser_fit/run_0/yeast_ga_0_checkpoint_2021-11-11_102327.pkl'
-    # ga = ga.load_checkpoint(checkpoint_path)
+    checkpoint_path = (
+        "./output/exp_yeast_ga_fit/run_0/yeast_ga_0_checkpoint_2021-11-11_180844.pkl"
+    )
+    ga = ga.load_checkpoint(checkpoint_path)
     # logger.info(f"Checkpoint loaded. mem usage: {psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2}")
     # ga.n_particles_batch = 16
 
-    # dask_client = Client(processes=True, 
-    # n_workers=6, threads_per_worker=1, silence_logs=False,
-    # timeout="3600s")
+    ga.run(parallel=True, n_processes=8)
 
-    # print(dask_client)
-    # print(dask_client.scheduler_info())
-
-    dask_client = 1
-
-    ga.run(dask_client, parallel=True)
 
 def example_simulation():
     model_paths = [
@@ -242,12 +236,13 @@ def example_simulation():
 
     # exp_data = pd.read_csv("./data/Figure1B_fake_data.csv")
 
+
 def speed_test():
     output_dir = "./output/exp_yeast_ga_fit/run_0/"
-    experiment_name = 'speed_test'
+    experiment_name = "speed_test"
     logger.remove()
     logger.add(f"./{output_dir}{experiment_name}.log", level="DEBUG")
-    
+
     model_paths = [
         # "./models/L_lactis/L_lactis_fbc.xml",
         "./models/S_cerevisiae/iMM904.xml",
@@ -266,28 +261,32 @@ def speed_test():
         use_parsimonius_fba=False,
     )
 
-    # dask_client = Client(processes=True, 
+    # dask_client = Client(processes=True,
     # threads_per_worker=1,
-    # n_workers=8, 
+    # n_workers=8,
     # timeout="3600s")
     # dask.config.set({'distributed.comm.timeouts.connect': '500s', 'distributed.comm.timeouts.tcp': '450s',})
 
     dask_client = 1
-    particles_path = './output/exp_yeast_ga_ser_fit/run_0/particles_yeast_ga_0_latest_batch.pkl'
+    particles_path = (
+        "./output/exp_yeast_ga_ser_fit/run_0/particles_yeast_ga_0_latest_batch.pkl"
+    )
     s = SpeedTest(particles_path, comm)
     s.speed_test(dask_client=dask_client)
 
-    
+
 if __name__ == "__main__":
     # example_simulation()
     # rejection_sampling()
     # speed_test()
     # exit()
 
-    parser = argparse.ArgumentParser(description='Description of your program')
-    parser.add_argument('-r','--run_idx', help='Description for foo argument', required=True)
+    parser = argparse.ArgumentParser(description="Description of your program")
+    parser.add_argument(
+        "-r", "--run_idx", help="Description for foo argument", required=True
+    )
     args = vars(parser.parse_args())
 
-    run_idx = args['run_idx']
+    run_idx = args["run_idx"]
     output_dir = f"./output/exp_yeast_ga_ser_fit/run_{run_idx}/"
     genetic_algorithm(f"yeast_ga_{run_idx}", output_dir)

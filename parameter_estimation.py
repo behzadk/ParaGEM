@@ -2,7 +2,6 @@ import copy
 import pickle
 import numpy as np
 
-# import multiprocessing as mp
 import multiprocess as mp
 from pathos.multiprocessing import ProcessPool
 from matplotlib.backends.backend_pdf import PdfPages
@@ -16,23 +15,26 @@ import utils
 from sympy.core.cache import *
 import functools
 
+
 def clear_lrus():
     gc.collect()
-    wrappers = [a for a in gc.get_objects() if
-        isinstance(a, functools._lru_cache_wrapper)]
+    wrappers = [
+        a for a in gc.get_objects() if isinstance(a, functools._lru_cache_wrapper)
+    ]
 
     for wrapper in wrappers:
         wrapper.cache_clear()
 
-def simulate_particles(particles, dask_client=None, parallel=True):
+
+def simulate_particles(particles, n_processes=1, sim_timeout=45.0, parallel=True):
     if parallel:
         print("running parallel")
-        pool = mp.get_context("spawn").Pool(8, maxtasksperchild=1)
+        pool = mp.get_context("spawn").Pool(n_processes, maxtasksperchild=1)
         pool.imap(sim_community, particles)
         futures_mp_sol = pool.imap(sim_community, particles)
         for particle in particles:
             try:
-                sol, t = futures_mp_sol.next(timeout=45.0)
+                sol, t = futures_mp_sol.next(timeout=sim_timeout)
                 particle.sol = sol
                 particle.t = t
             except mp.context.TimeoutError:
@@ -43,7 +45,7 @@ def simulate_particles(particles, dask_client=None, parallel=True):
                 particle.sol = None
                 particle.t = None
                 for p in particles:
-                    if not hasattr(p, 'sol'):
+                    if not hasattr(p, "sol"):
                         particle.sol = None
                         particle.t = None
 
@@ -86,8 +88,6 @@ def sim_community(community):
     sol, t = community.simulate_community("vode")
     print("returning sim")
     return [sol, t]
-
-   
 
 
 class ParameterEstimation:
@@ -180,24 +180,23 @@ class SpeedTest(ParameterEstimation):
             for pop_idx, pop in enumerate(comm.populations):
                 pop.model = self.models[particle_idx][pop_idx]
 
-    def speed_test(self, dask_client):
+    def speed_test(self, n_processes=8):
         start_time = time.time()
         simulate_particles(
             self.particles,
-            dask_client=dask_client,
+            n_processes=n_processes,
             parallel=True,
         )
         end_time = time.time()
-        # dask_client.restart()
 
         for p in self.particles:
             print(p.sol.shape, p.t.shape)
 
         print("logging")
-        logger.info(f"Dask parallel: {end_time - start_time}")
+        logger.info(f"Parallel: {end_time - start_time}")
 
         start_time = time.time()
-        simulate_particles(self.particles, parallel=False)
+        simulate_particles(self.particles, n_processes=1, parallel=False)
         end_time = time.time()
 
         logger.info(f"Serial: {end_time - start_time}")
@@ -212,6 +211,7 @@ class GeneticAlgorithm(ParameterEstimation):
         max_uptake_sampler,
         k_val_sampler,
         output_dir,
+        n_processes=1,
         n_particles_batch=32,
         population_size=32,
         mutation_probability=0.1,
@@ -220,7 +220,6 @@ class GeneticAlgorithm(ParameterEstimation):
     ):
         self.experiment_name = experiment_name
         self.base_community = base_community
-        self.n_processes = n_particles_batch
         self.n_particles_batch = n_particles_batch
         self.max_uptake_sampler = max_uptake_sampler
         self.k_val_sampler = k_val_sampler
@@ -297,7 +296,7 @@ class GeneticAlgorithm(ParameterEstimation):
 
             particle.load_parameter_vector(particle_param_vec)
 
-    def gen_initial_population(self, dask_client, parallel):
+    def gen_initial_population(self, n_processes, parallel):
         logger.info("Generating initial population")
 
         # Generate initial population
@@ -311,16 +310,16 @@ class GeneticAlgorithm(ParameterEstimation):
                 candidate_particles = self.init_particles(self.n_particles_batch)
                 filtered_particles = filter(candidate_particles)
                 particles.extend(filtered_particles)
-            
-            particles = particles[:self.n_particles_batch]
+
+            particles = particles[: self.n_particles_batch]
 
             if len(particles) == 0:
                 continue
 
             simulate_particles(
                 particles,
+                n_processes=n_processes,
                 parallel=parallel,
-                dask_client=dask_client,
             )
 
             logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
@@ -354,23 +353,18 @@ class GeneticAlgorithm(ParameterEstimation):
 
             self.distance_object.epsilon[dist_idx] = new_epsilon
 
-    def run(self, dask_client=None, parallel=False):
+    def run(self, n_processes=1, parallel=False):
         logger.info("Running genetic algorithm")
 
         if self.gen_idx == 0:
             # Generate initial population
-            self.population = self.gen_initial_population(dask_client, parallel)
+            self.population = self.gen_initial_population(n_processes, parallel)
             self.gen_idx += 1
 
             self.save_checkpoint(self.output_dir)
 
         # Core genetic algorithm loop
         while not self.final_generation:
-            # dask_client.shutdown()
-            # dask_client = Client(processes=True, 
-            # n_workers=6, threads_per_worker=1, silence_logs=False,
-            # timeout="3600s")
-
             batch_idx = 0
             accepted_particles = []
 
@@ -403,8 +397,8 @@ class GeneticAlgorithm(ParameterEstimation):
                 # Simulate
                 simulate_particles(
                     batch_particles,
+                    n_processes=n_processes,
                     parallel=parallel,
-                    dask_client=dask_client,
                 )
 
                 clear_cache()
@@ -484,7 +478,7 @@ class RejectionAlgorithm(ParameterEstimation):
             particles = filter(particles)
 
             print(f"\t Simulating batch {batch_idx}")
-            simulate_particles(particles, parallel=True)
+            simulate_particles(particles, n_processes=self.n_processes, parallel=True)
 
             acceptance_status = self.assess_particles(particles)
 
