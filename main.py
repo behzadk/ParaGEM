@@ -1,4 +1,3 @@
-import sys
 from loguru import logger
 from community import Community
 import distances
@@ -8,10 +7,6 @@ from parameter_estimation import SpeedTest
 
 import pandas as pd
 import sampling
-import numpy as np
-from community import sim_community
-import matplotlib.pyplot as plt
-import pickle
 from pathlib import Path
 
 import argparse
@@ -120,12 +115,12 @@ def genetic_algorithm(experiment_name, output_dir):
     exp_data = pd.read_csv("./data/Figure1B_fake_data.csv")
     exp_sol_keys = [
         ["yeast_dcw", "iMM904"],
-        # ["yeast_ser_mm", "M_ser__L_e"],
+        ["yeast_ser_mm", "M_ser__L_e"],
         # ["yeast_ala_mm", "M_ala__L_e"],
     ]
 
-    epslilon = [3.0]
-    final_epsion = [0.5]
+    epslilon = [3.0, 0.019]
+    final_epsion = [0.75, 0.008]
 
     distance = distances.DistanceTimeseriesEuclidianDistance(
         exp_data,
@@ -135,10 +130,11 @@ def genetic_algorithm(experiment_name, output_dir):
         final_epsion=final_epsion,
     )
 
-    dist_1 = sampling.SampleSkewNormal(loc=-2.0, scale=0.1, alpha=0.0, clip_zero=False)
+    dist_1 = sampling.SampleSkewNormal(loc=-2.0, scale=0.5, alpha=0.0, clip_zero=False)
     dist_2 = sampling.SampleUniform(
         min_val=1e-3, max_val=1e-1, distribution="log_uniform"
     )
+    
     max_uptake_sampler = multi_dist = sampling.MultiDistribution(
         dist_1, dist_2, prob_dist_1=0.95
     )
@@ -157,22 +153,15 @@ def genetic_algorithm(experiment_name, output_dir):
         n_particles_batch=16,
         population_size=25,
         mutation_probability=0.1,
-        epsilon_alpha=0.3,
+        epsilon_alpha=0.2,
         parallel=True
     )
 
-    from pympler import muppy
-    all_objects = muppy.get_objects()
-
-    from pympler import summary
-    sum1 = summary.summarize(all_objects)
-    summary.print_(sum1)   
     logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
-    logger.info(summary.print_(sum1))
 
-    checkpoint_path = './output/exp_yeast_ga_ser_fit/run_0/yeast_ga_0_checkpoint_2021-11-11_102327.pkl'
-    ga = ga.load_checkpoint(checkpoint_path)
-    logger.info(f"Checkpoint loaded. mem usage: {psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2}")
+    # checkpoint_path = './output/exp_yeast_ga_ser_fit/run_0/yeast_ga_0_checkpoint_2021-11-11_102327.pkl'
+    # ga = ga.load_checkpoint(checkpoint_path)
+    # logger.info(f"Checkpoint loaded. mem usage: {psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2}")
     # ga.n_particles_batch = 16
 
     # dask_client = Client(processes=True, 
@@ -185,7 +174,6 @@ def genetic_algorithm(experiment_name, output_dir):
     dask_client = 1
 
     ga.run(dask_client, parallel=True)
-    dask_client.shutdown()
 
 def example_simulation():
     model_paths = [

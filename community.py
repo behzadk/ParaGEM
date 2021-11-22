@@ -1,11 +1,8 @@
 import numpy as np
 import scipy as sp
-import smetana
 from reframed import Environment
-from smetana.interface import load_media_db
 from typing import List
 import pandas as pd
-from smetana.interface import load_communities
 
 import time
 
@@ -20,8 +17,6 @@ import logging
 logging.getLogger("cobra").setLevel(logging.ERROR)
 
 import matplotlib.pyplot as plt
-
-import numba
 import copy
 # import multiprocessing as mp
 import multiprocess as mp
@@ -445,7 +440,6 @@ class Community:
         secretion_mat = np.clip(max_exchange_mat, a_min=0, a_max=None)
 
         return uptake_mat + secretion_mat
-        # return max_uptake
 
     def sim_step(self, y):
         compound_concs = y[self.compound_indexes]

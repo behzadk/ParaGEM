@@ -14,11 +14,7 @@ import psutil
 import os
 import utils
 from sympy.core.cache import *
-from guppy import hpy
-import dask
 import functools
-from dask.distributed import Client
-# pool = ProcessPool(nodes=8)
 
 def clear_lrus():
     gc.collect()
@@ -310,8 +306,14 @@ class GeneticAlgorithm(ParameterEstimation):
         while len(accepted_particles) < self.population_size:
             logger.info(f"Initial accepted particles: {len(accepted_particles)}")
 
-            particles = self.init_particles(self.n_particles_batch)
-            particles = filter(particles)
+            particles = []
+            while len(particles) <= self.n_particles_batch:
+                candidate_particles = self.init_particles(self.n_particles_batch)
+                filtered_particles = filter(candidate_particles)
+                particles.extend(filtered_particles)
+            
+            particles = particles[:self.n_particles_batch]
+
             if len(particles) == 0:
                 continue
 
@@ -321,14 +323,7 @@ class GeneticAlgorithm(ParameterEstimation):
                 dask_client=dask_client,
             )
 
-            from pympler import muppy
-            all_objects = muppy.get_objects()
-
-            from pympler import summary
-            sum1 = summary.summarize(all_objects)
-            summary.print_(sum1)   
             logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
-            logger.info(summary.print_(sum1))
 
             accepted_particles.extend(self.selection(particles))
             self.delete_particle_fba_models(particles)
@@ -402,8 +397,8 @@ class GeneticAlgorithm(ParameterEstimation):
                 self.mutate_particles(batch_particles)
 
                 logger.info(f"Simulating particles...")
-                output_path = f"{self.output_dir}particles_{self.experiment_name}_latest_batch.pkl"
-                self.save_particles(batch_particles, output_path)
+                # output_path = f"{self.output_dir}particles_{self.experiment_name}_latest_batch.pkl"
+                # self.save_particles(batch_particles, output_path)
 
                 # Simulate
                 simulate_particles(
