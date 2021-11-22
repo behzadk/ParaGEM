@@ -92,14 +92,14 @@ def genetic_algorithm(experiment_name, output_dir):
     Path(output_dir).mkdir(parents=True, exist_ok=True)
 
     logger.remove()
-    logger.add(f"./{output_dir}{experiment_name}.log", level="DEBUG")
+    logger.add(f"./{output_dir}info_log.log", level="DEBUG")
 
     model_paths = [
-        # "./models/L_lactis/L_lactis_fbc.xml",
+        "./models/L_lactis/L_lactis_fbc.xml",
         "./models/S_cerevisiae/iMM904.xml"
     ]
 
-    model_names = ["iMM904"]
+    model_names = ["L_lactis_fbc", "iMM904"]
 
     smetana_analysis_path = "./carveme_output/lactis_cerevisiae_detailed.tsv"
     media_path = "./media_db_CDM35.tsv"
@@ -115,13 +115,14 @@ def genetic_algorithm(experiment_name, output_dir):
 
     exp_data = pd.read_csv("./data/Figure1B_fake_data.csv")
     exp_sol_keys = [
-        ["yeast_dcw", "iMM904"],
-        ["yeast_ser_mm", "M_ser__L_e"],
+        ["lactis_dcw", "L_lactis_fbc"],
+        # ["yeast_dcw", "iMM904"],
+        # ["yeast_ser_mm", "M_ser__L_e"],
         # ["yeast_ala_mm", "M_ala__L_e"],
     ]
 
-    epslilon = [3.0, 0.019]
-    final_epsion = [0.75, 0.008]
+    epslilon = [0.0338]
+    final_epsion = [0.01]
 
     distance = distances.DistanceTimeseriesEuclidianDistance(
         exp_data,
@@ -151,7 +152,7 @@ def genetic_algorithm(experiment_name, output_dir):
         max_uptake_sampler=max_uptake_sampler,
         k_val_sampler=k_val_sampler,
         output_dir=output_dir,
-        n_particles_batch=16,
+        n_particles_batch=8,
         population_size=25,
         mutation_probability=0.1,
         epsilon_alpha=0.2,
@@ -159,10 +160,10 @@ def genetic_algorithm(experiment_name, output_dir):
 
     logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
 
-    checkpoint_path = (
-        "./output/exp_yeast_ga_fit/run_0/yeast_ga_0_checkpoint_2021-11-11_180844.pkl"
-    )
-    ga = ga.load_checkpoint(checkpoint_path)
+    # checkpoint_path = (
+    #     "./output/exp_yeast_ga_fit/run_0/yeast_ga_0_checkpoint_2021-11-11_180844.pkl"
+    # )
+    # ga = ga.load_checkpoint(checkpoint_path)
     # logger.info(f"Checkpoint loaded. mem usage: {psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2}")
     # ga.n_particles_batch = 16
 
@@ -288,5 +289,5 @@ if __name__ == "__main__":
     args = vars(parser.parse_args())
 
     run_idx = args["run_idx"]
-    output_dir = f"./output/exp_yeast_ga_ser_fit/run_{run_idx}/"
-    genetic_algorithm(f"yeast_ga_{run_idx}", output_dir)
+    output_dir = f"./output/exp_lactis_yeast_ga_fit/run_{run_idx}/"
+    genetic_algorithm(f"lactis_yeast_ga_fit_{run_idx}", output_dir)
