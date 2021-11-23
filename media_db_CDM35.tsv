@@ -64,27 +64,28 @@ LB	Lysogeny broth	ura	Uracil	1	0		1	1
 LB	Lysogeny broth	uri	Uridine	1	0		1	1
 LB	Lysogeny broth	val__L	L-Valine	1	0		1	1
 LB	Lysogeny broth	zn2	Zn2+	1	0		1	1
-M9	M9 minimal medium	ca2	Ca2+	0	0		0	1
-M9	M9 minimal medium	cl	Cl-	0	0		0	1
-M9	M9 minimal medium	cobalt2	Co2+	0	0		0	1
-M9	M9 minimal medium	cu2	Cu2+	0	0		0	1
-M9	M9 minimal medium	fe2	Fe2+	0	0		0	1
-M9	M9 minimal medium	fe3	Fe3+	0	0		0	1
-M9	M9 minimal medium	glc__D	D-Glucose	0	0		0	1
-M9	M9 minimal medium	h2o	H2O	0	0		0	1
-M9	M9 minimal medium	h	H+	0	0		0	1
-M9	M9 minimal medium	k	K+	0	0		0	1
-M9	M9 minimal medium	mg2	Mg	0	0		0	1
-M9	M9 minimal medium	mn2	Mn2+	0	0		0	1
-M9	M9 minimal medium	mobd	Molybdate	0	0		0	1
-M9	M9 minimal medium	na1	Na+	0	0		0	1
-M9	M9 minimal medium	nh4	Ammonium	0	0		0	1
-M9	M9 minimal medium	ni2	Ni2+	0	0		0	1
-M9	M9 minimal medium	o2	O2	0	0		0	1
-M9	M9 minimal medium	pi	Phosphate	0	0		0	1
-M9	M9 minimal medium	so4	Sulfate	0	0		0	1
-M9	M9 minimal medium	zn2	Zn2+	0	0		0	1
-CDM35	CDM35	glc__D	D-Glucose	15	180.156	0.083261174	10	1
+M9	M9 minimal medium	ca2	Ca2+	0	0		1	1
+M9	M9 minimal medium	cl	Cl-	0	0		1	1
+M9	M9 minimal medium	cobalt2	Co2+	0	0		1	1
+M9	M9 minimal medium	cu2	Cu2+	0	0		1	1
+M9	M9 minimal medium	fe2	Fe2+	0	0		1	1
+M9	M9 minimal medium	fe3	Fe3+	0	0		1	1
+M9	M9 minimal medium	glc__D	D-Glucose	0	0		1	1
+M9	M9 minimal medium	h2o	H2O	0	0		1	1
+M9	M9 minimal medium	h	H+	0	0		1	1
+M9	M9 minimal medium	k	K+	0	0		1	1
+M9	M9 minimal medium	mg2	Mg	0	0		1	1
+M9	M9 minimal medium	mn2	Mn2+	0	0		1	1
+M9	M9 minimal medium	mobd	Molybdate	0	0		1	1
+M9	M9 minimal medium	na1	Na+	0	0		1	1
+M9	M9 minimal medium	nh4	Ammonium	0	0		1	1
+M9	M9 minimal medium	ni2	Ni2+	0	0		1	1
+M9	M9 minimal medium	o2	O2	0	0		1	1
+M9	M9 minimal medium	pi	Phosphate	0	0		1	1
+M9	M9 minimal medium	so4	Sulfate	0	0		1	1
+M9	M9 minimal medium	zn2	Zn2+	0	0		1	1
+CDM35	CDM35	glc__D	D-Glucose	15	180.156	0.083261174	83.261174	1
+CDM35	CDM35	lcts	Lactose	15	342.3	0.043821209	43.82120947	1
 CDM35	CDM35	arg__L	L-Arginine	0.72	174.2	0.00413318	4.133180253	1
 CDM35	CDM35	asn__L	L-Asparagine	0.5	132.12	0.003784438	3.784438389	1
 CDM35	CDM35	his__L	L-Histidine	0.17	155.1546	0.001095681	1.09568134	1
@@ -94,26 +95,30 @@ CDM35	CDM35	met__L	L-Methionine	0.125	149.21	0.000837745	0.837745459	1
 CDM35	CDM35	tyr__L	L-Tyrosine	0.3	181.19	0.001655721	1.655720514	1
 CDM35	CDM35	val__L	L-Valine	0.7	117.151	0.005975194	5.975194407	1
 CDM35	CDM35	btn	Biotin	0.006	244.31	2.46E-05	0.024558962	1
-CDM35	CDM35	pnto__R	(R)-Pantothenate				1	1
+CDM35	CDM35	pnto__R	(R)-Pantothenate				1	0
 CDM35	CDM35	fol	Folate	0.00056	441.4	1.27E-06	0.001268691	1
 CDM35	CDM35	inost	myo-Inositol 	0.002	180.16	1.11E-05	0.011101243	1
 CDM35	CDM35	nac	Nicotinic acid 	0.0009	123.1094	7.31E-06	0.007310571	1
 CDM35	CDM35	4abz	p-Aminobenzoic acid 	0.000056	137.14	4.08E-07	0.000408342	1
 CDM35	CDM35	ribflv	Riboflavin	0.0009	376.36	2.39E-06	0.002391327	1
-CDM35	CDM35	so4	Sulfate	0.005	96.06	5.21E-05	0.052050802	1
-CDM35	CDM35	mn2	Mn2+	0.00034	54.938	6.19E-06	0.006188795	1
+CDM35	CDM35	so4	Sulfate	0.005	96.06	5.21E-05	0.052050802	0
+CDM35	CDM35	mn2	Mn2+	0.00034	54.938	6.19E-06	0.006188795	0
 CDM35	CDM35	o2	O2	1000	N/a	10000000	10000000000	0
-CDM35	CDM35	zn2	Zn2+	0.005	65.38	7.65E-05	0.076475987	1
-CDM35	CDM35	na1	Sodium				1	1
-CDM35	CDM35	k	Potassium				1	1
-CDM35	CDM35	pi	Phosphate	15	180.156	0.083261174	1	1
-CDM35	CDM35	cl	Chloride				1	1
-CDM35	CDM35	ca2	Calcium				1	1
-CDM35	CDM35	cu2	Cu2+				1	1
-CDM35	CDM35	cobalt2	Co2+				1	1
+CDM35	CDM35	zn2	Zn2+	0.005	65.38	7.65E-05	0.076475987	0
+CDM35	CDM35	na1	Sodium				1	0
+CDM35	CDM35	k	Potassium				1	0
+CDM35	CDM35	pi	Phosphate	15	180.156	0.083261174	1	0
+CDM35	CDM35	cl	Chloride				1	0
+CDM35	CDM35	ca2	Calcium				1	0
+CDM35	CDM35	cu2	Cu2+				1	0
+CDM35	CDM35	cobalt2	Co2+				1	0
 CDM35	CDM35	nh4	Ammonium	15	180.156	0.083261174	1	1
 CDM35	CDM35	h2o	H2O	1000	18.01528	55.50843506	10000	0
 CDM35	CDM35	h	H+	1	0		100000	0
+CDM35	CDM35	pi	Phosphate	15	180.156	0.083261174	1	1
+CDM35	CDM35	fe2	fe2	0	0	1	1	0
+CDM35	CDM35	fe3	fe3	0	0	1	1	0
+CDM35	CDM35	mg2	mg2	0	0	1	1	0
 CDM35_N	CDM35_N	glc__D	D-Glucose	15	180.156	0.083261174	10	1
 CDM35_N	CDM35_N	arg__L	L-Arginine	0.72	174.2	0.00413318	4.133180253	1
 CDM35_N	CDM35_N	asn__L	L-Asparagine	0.5	132.12	0.003784438	3.784438389	1

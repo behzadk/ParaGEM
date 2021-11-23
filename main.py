@@ -169,6 +169,91 @@ def genetic_algorithm(experiment_name, output_dir):
 
     ga.run(parallel=True, n_processes=8)
 
+def find_min_requirements(experiment_name, output_dir):
+    # Make output directories
+    Path(output_dir).mkdir(parents=True, exist_ok=True)
+
+    logger.remove()
+    logger.add(f"./{output_dir}info_log.log", level="DEBUG")
+
+    model_paths = [
+        "./models/L_lactis/L_lactis_fbc.xml",
+    ]
+
+    model_names = ["L_lactis_fbc"]
+
+
+    model_paths = [
+        "./models/L_lactis/L_lactis_fbc.xml",
+        "./models/S_cerevisiae/iMM904.xml"
+    ]
+
+    model_names = ["L_lactis_fbc", "iMM904"]
+
+    smetana_analysis_path = "./carveme_output/lactis_cerevisiae_detailed.tsv"
+    media_path = "./media_db_CDM35.tsv"
+
+    comm = Community(
+        model_names,
+        model_paths,
+        smetana_analysis_path,
+        media_path,
+        "CDM35",
+        use_parsimonius_fba=False,
+    )
+
+    exp_data = pd.read_csv("./data/Figure1B_fake_data.csv")
+    exp_sol_keys = [
+        ["lactis_dcw", "L_lactis_fbc"],
+    ]
+    
+    dist_1 = sampling.SampleSkewNormal(loc=-100.0, scale=0.5, alpha=0.0, clip_zero=False)
+    dist_2 = sampling.SampleUniform(
+        min_val=1e-3, max_val=1e-1, distribution="log_uniform"
+    )
+
+    max_uptake_sampler = multi_dist = dist_1
+
+    k_val_sampler = sampling.SampleUniform(
+        min_val=1e-10, max_val=1e-10, distribution="log_uniform"
+    )
+    import numpy as np
+    print(comm.dynamic_compounds)
+    null_compounds = []
+
+    for x in range(1000):
+        array_size = [len(comm.populations), len(comm.dynamic_compounds)]
+        # Sample new max uptake matrix
+        # max_exchange_mat = max_uptake_sampler.sample(size=array_size)
+        max_exchange_mat = np.ones(shape=array_size) * -10
+        comm.set_max_exchange_mat(max_exchange_mat)
+
+        #  Sample new K value matrix
+        k_val_mat = k_val_sampler.sample(size=array_size)
+        comm.set_k_value_matrix(k_val_mat)
+
+        x = comm.init_y.copy()
+
+        # for idx, _ in enumerate(x):
+        #     if x[idx] <= 0.0:
+        #         x[idx] = 10.0
+
+        rand_null_idx = np.random.choice(comm.compound_indexes, size=1)
+        x[rand_null_idx] = 0.0
+        
+        growth, fluxes = comm.sim_step(x)
+        print(growth)
+        if growth[0] < 1e-5:
+            growth, fluxes = comm.sim_step(x)
+            if growth[0] < 1e-5:
+                for i in rand_null_idx:
+                    null_compounds.append(comm.solution_keys[i])
+
+    null_compounds = list(set(null_compounds))
+    for c in null_compounds:
+        print(c)
+        # if growth[0] > 0.0:
+        #     print(growth[0])
 
 def example_simulation():
     model_paths = [
@@ -290,4 +375,7 @@ if __name__ == "__main__":
 
     run_idx = args["run_idx"]
     output_dir = f"./output/exp_lactis_yeast_ga_fit/run_{run_idx}/"
+
+    find_min_requirements(f"lactis_min_reqs{run_idx}", output_dir)
+    exit(0)
     genetic_algorithm(f"lactis_yeast_ga_fit_{run_idx}", output_dir)

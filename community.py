@@ -469,6 +469,8 @@ class Community:
             compound_concs, self.k_vals, self.max_exchange_mat
         )
 
+        self.lower_constraints = lower_constraints
+
         for idx, pop in enumerate(self.populations):
             pop.update_reaction_constraints(lower_constraints[idx])
             with warnings.catch_warnings():
@@ -480,7 +482,7 @@ class Community:
 
                 except UserWarning:
                     flux_matrix[idx] = np.zeros(shape=len(self.dynamic_compounds))
-                    growth_rates[idx] = 0
+                    growth_rates[idx] = 0.0
 
         return growth_rates, flux_matrix
 
@@ -514,87 +516,3 @@ class Community:
 
         return output
 
-
-def sim_community(community):
-    sol, t = community.simulate_community("vode")
-    return [sol, t]
-
-
-def main():
-    # model_paths = ['./models/E_col/E_coli_IAI1.xml']
-    model_paths = [
-        "./models/L_lactis/L_lactis.xml",
-        "./models/L_plantarum/L_plantarum.xml",
-    ]
-
-    # model_paths = ['./models/E_col/Ecoli_K12_MG1655.xml']
-
-    smetana_analysis_path = "./carveme_output/lactis_plant_detailed.tsv"
-
-    # smetana_analysis_path = './carveme_output/lactis_plant_ecol_detailed.tsv'
-
-    media_path = "./media_db_CDM35.tsv"
-
-    comm = Community(
-        model_paths, smetana_analysis_path, media_path, "LB", use_parsimonius_fba=False
-    )
-    comms = [copy.deepcopy(comm) for x in range(2)]
-
-    for c in comms:
-        c.set_population_indexes()
-        c.set_compound_indexes()
-
-    print("multiprocessing:", end="")
-    tstart = time.time()
-    num_processes = 4
-    p = mp.Pool(num_processes)
-    mp_solutions = p.map(sim_community, comms)
-    tend = time.time()
-    tmp = tend - tstart
-    print("mp: %8.3f seconds" % tmp)
-
-    fig, ax = plt.subplots()
-    for idx, _ in enumerate(comms):
-        sol = mp_solutions[idx][0]
-        t = mp_solutions[idx][1]
-        ax.plot(t, sol[:, 0])
-        ax.plot(t, sol[:, 1])
-
-    plt.show()
-
-    start = time.time()
-    for idx, x in enumerate(comms):
-        x.simulate_community(method="vode")
-    end = time.time()
-    tmp = end - start
-    print("serial: %8.3f seconds" % tmp)
-
-    # start = time.time()
-    # comm.simulate_community(method='odeint')
-    # end = time.time()
-    # print("ode time: ", end - start)
-
-    # start = time.time()
-    # comm.simulate_community(method='vode')
-    # end = time.time()
-    # print("VODE time: ", end - start)
-
-    # fba_nn = FluxBalanceNN(comm.populations[0])
-
-    # for i in range(2345, 1000000):
-    #     print(i)
-    #     X, y = fba_nn.generate_constraints_dataset(
-    #             n_batches=1,
-    #             batch_size=100,
-    #             samples_scale='log_uniform',
-    #             min_uptake=1e-5, max_uptake=1, null_mask_probability=0.01)
-
-    #     np.savetxt(f"./nn_train_data/train_data_{i}.csv", X[0], delimiter=",")
-    #     np.savetxt(f"./nn_train_data/train_labels_{i}.csv", y[0], delimiter=",")
-
-    # fba_nn.train(epochs=1000)
-    # comm.simulate_community()
-
-
-if __name__ == "__main__":
-    main()
