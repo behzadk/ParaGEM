@@ -225,18 +225,19 @@ class Community:
                 ]
 
     def load_parameter_vector(self, parameter_vec):
-        n_init_conc = len(self.init_y)
+        
+        n_variables = len(self.init_y)
         n_k_vals = self.k_vals.shape[0] * self.k_vals.shape[1]
         n_max_exchange_vals = (
             self.max_exchange_mat.shape[0] * self.max_exchange_mat.shape[1]
         )
 
-        self.init_y = parameter_vec[0:n_init_conc]
-        self.k_vals = parameter_vec[n_init_conc : n_init_conc + n_k_vals].reshape(
+        self.init_y = parameter_vec[0:n_variables]
+        self.k_vals = parameter_vec[n_variables : n_variables + n_k_vals].reshape(
             self.k_vals.shape
         )
         self.max_exchange_mat = parameter_vec[
-            n_init_conc + n_k_vals : n_init_conc + n_k_vals + n_max_exchange_vals
+            n_variables + n_k_vals : n_variables + n_k_vals + n_max_exchange_vals
         ].reshape(self.max_exchange_mat.shape)
 
     def load_initial_compound_values(self, dynamic_compounds):
@@ -418,7 +419,7 @@ class Community:
             t = []
 
             solver = ode(self.diff_eqs_vode, jac=None).set_integrator(
-                "vode", method="bdf", atol=1e-9, rtol=1e-4
+                "vode", method="bdf", atol=1e-9, rtol=1e-4, max_step=0.1
             )
             # print("solver initiated")
 

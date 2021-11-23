@@ -126,7 +126,7 @@ def genetic_algorithm(experiment_name, output_dir):
     # epslilon = [0.0338, 5.0]
     # final_epsion = [0.01, 1.0]
 
-    epslilon = [9.0]
+    epslilon = [9.5]
     final_epsion = [1.0]
 
     distance = distances.DistanceTimeseriesEuclidianDistance(
@@ -166,7 +166,7 @@ def genetic_algorithm(experiment_name, output_dir):
     logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
 
     # checkpoint_path = (
-    #     "./output/exp_yeast_ga_fit/run_0/yeast_ga_0_checkpoint_2021-11-11_180844.pkl"
+    #     "./output/exp_yeast_ga_fit/run_0/yeast_ga_fit_0_checkpoint_2021-11-23_164707.pkl"
     # )
     # ga = ga.load_checkpoint(checkpoint_path)
     # logger.info(f"Checkpoint loaded. mem usage: {psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2}")

@@ -77,12 +77,7 @@ def filter(particles):
         df.reset_index(drop=True, inplace=True)
 
         ser_flux = df.loc[df["name"] == "EX_ser__L_e"]["fluxes"].values[0]
-        # ala_flux = df.loc[df["name"] == "EX_ala__L_e"]["fluxes"].values[0]
-        # glu_flux = df.loc[df["name"] == "EX_glu__L_e"]["fluxes"].values[0]
-        # gly_flux = df.loc[df["name"] == "EX_gly_e"]["fluxes"].values[0]
         biomass_flux = df.loc[df["name"] == "BIOMASS_SC5_notrace"]["fluxes"].values[0]
-
-        # num_efflux = sum([1 for f in [ser_flux, ala_flux, glu_flux, gly_flux] if f > 0])
 
         if biomass_flux > 0:
             # if ser_flux > 0:
@@ -103,7 +98,6 @@ class ParameterEstimation:
         for i in range(n_particles):
             # Make independent copy of base community
             comm = copy.deepcopy(self.base_community)
-
             # Assign population models
             for idx, pop in enumerate(comm.populations):
                 pop.model = self.models[i][idx]
@@ -321,7 +315,7 @@ class GeneticAlgorithm(ParameterEstimation):
 
             if len(particles) == 0:
                 continue
-
+            
             simulate_particles(
                 particles,
                 n_processes=n_processes,
