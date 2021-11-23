@@ -26,11 +26,12 @@ class MultiDistribution:
 
 
 class SampleSkewNormal:
-    def __init__(self, loc, scale, alpha, clip_zero=True):
+    def __init__(self, loc, scale, alpha, clip_above_zero=False, clip_below_zero=False):
         self.alpha = alpha
         self.loc = loc
         self.scale = scale
-        self.clip_zero = clip_zero
+        self.clip_above_zero = clip_above_zero
+        self.clip_below_zero = clip_below_zero
 
     def random_skew_normal(self, size):
         sigma = self.alpha / np.sqrt(1.0 + self.alpha**2) 
@@ -40,8 +41,12 @@ class SampleSkewNormal:
         u1[u0 < 0] *= -1
         u1 = u1 + self.loc
         
-        if self.clip_zero:
+        if self.clip_below_zero:
             u1 = u1.clip(0)
+        
+        if self.clip_above_zero:
+            u1 = np.clip(u1, a_min=None, a_max=0)
+
 
         return u1
 

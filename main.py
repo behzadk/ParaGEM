@@ -12,7 +12,7 @@ from pathlib import Path
 import argparse
 import psutil
 import os
-
+import numpy as np
 
 def rejection_sampling():
     model_paths = [
@@ -95,11 +95,12 @@ def genetic_algorithm(experiment_name, output_dir):
     logger.add(f"./{output_dir}info_log.log", level="DEBUG")
 
     model_paths = [
-        "./models/L_lactis/L_lactis_fbc.xml",
+        # "./models/L_lactis/L_lactis_fbc.xml",
         "./models/S_cerevisiae/iMM904.xml"
     ]
 
     model_names = ["L_lactis_fbc", "iMM904"]
+    model_names = ["iMM904"]
 
     smetana_analysis_path = "./carveme_output/lactis_cerevisiae_detailed.tsv"
     media_path = "./media_db_CDM35.tsv"
@@ -111,18 +112,22 @@ def genetic_algorithm(experiment_name, output_dir):
         media_path,
         "CDM35",
         use_parsimonius_fba=False,
+        initial_populations=np.array([0.0062])
     )
 
     exp_data = pd.read_csv("./data/Figure1B_fake_data.csv")
     exp_sol_keys = [
-        ["lactis_dcw", "L_lactis_fbc"],
-        # ["yeast_dcw", "iMM904"],
+        # ["lactis_dcw", "L_lactis_fbc"],
+        ["yeast_dcw", "iMM904"],
         # ["yeast_ser_mm", "M_ser__L_e"],
         # ["yeast_ala_mm", "M_ala__L_e"],
     ]
 
-    epslilon = [0.0338]
-    final_epsion = [0.01]
+    # epslilon = [0.0338, 5.0]
+    # final_epsion = [0.01, 1.0]
+
+    epslilon = [9.0]
+    final_epsion = [1.0]
 
     distance = distances.DistanceTimeseriesEuclidianDistance(
         exp_data,
@@ -132,9 +137,9 @@ def genetic_algorithm(experiment_name, output_dir):
         final_epsion=final_epsion,
     )
 
-    dist_1 = sampling.SampleSkewNormal(loc=-2.0, scale=0.5, alpha=0.0, clip_zero=False)
+    dist_1 = sampling.SampleSkewNormal(loc=-2.0, scale=0.25, alpha=0.0, clip_above_zero=True)
     dist_2 = sampling.SampleUniform(
-        min_val=1e-3, max_val=1e-1, distribution="log_uniform"
+        min_val=1e-3, max_val=1e-1, distribution="log_uniform",
     )
 
     max_uptake_sampler = multi_dist = sampling.MultiDistribution(
@@ -153,9 +158,9 @@ def genetic_algorithm(experiment_name, output_dir):
         k_val_sampler=k_val_sampler,
         output_dir=output_dir,
         n_particles_batch=8,
-        population_size=25,
+        population_size=50,
         mutation_probability=0.1,
-        epsilon_alpha=0.2,
+        epsilon_alpha=0.3,
     )
 
     logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
@@ -207,25 +212,23 @@ def find_min_requirements(experiment_name, output_dir):
         ["lactis_dcw", "L_lactis_fbc"],
     ]
     
-    dist_1 = sampling.SampleSkewNormal(loc=-100.0, scale=0.5, alpha=0.0, clip_zero=False)
+    dist_1 = sampling.SampleSkewNormal(loc=-2.0, scale=0.25, alpha=0.0, clip_above_zero=True)
     dist_2 = sampling.SampleUniform(
         min_val=1e-3, max_val=1e-1, distribution="log_uniform"
     )
 
-    max_uptake_sampler = multi_dist = dist_1
+    max_uptake_sampler = multi_dist = sampling.MultiDistribution(dist_1, dist_2, prob_dist_1=0.95)
 
     k_val_sampler = sampling.SampleUniform(
         min_val=1e-10, max_val=1e-10, distribution="log_uniform"
     )
     import numpy as np
-    print(comm.dynamic_compounds)
     null_compounds = []
 
     for x in range(1000):
         array_size = [len(comm.populations), len(comm.dynamic_compounds)]
         # Sample new max uptake matrix
-        # max_exchange_mat = max_uptake_sampler.sample(size=array_size)
-        max_exchange_mat = np.ones(shape=array_size) * -10
+        max_exchange_mat = max_uptake_sampler.sample(size=array_size)
         comm.set_max_exchange_mat(max_exchange_mat)
 
         #  Sample new K value matrix
@@ -236,24 +239,36 @@ def find_min_requirements(experiment_name, output_dir):
 
         # for idx, _ in enumerate(x):
         #     if x[idx] <= 0.0:
-        #         x[idx] = 10.0
+        #         x[idx] = 1.0
 
         rand_null_idx = np.random.choice(comm.compound_indexes, size=1)
         x[rand_null_idx] = 0.0
         
+        # val_idx = comm.dynamic_compounds.index('M_val__L_e')
+        thm_idx = comm.dynamic_compounds.index('M_thm_e')
         growth, fluxes = comm.sim_step(x)
+        
         print(growth)
-        if growth[0] < 1e-5:
-            growth, fluxes = comm.sim_step(x)
-            if growth[0] < 1e-5:
-                for i in rand_null_idx:
-                    null_compounds.append(comm.solution_keys[i])
+
+        if fluxes[1][thm_idx] > 0:
+            print(fluxes[1][thm_idx])
+            print(max_exchange_mat[1][thm_idx])
+            print(growth)
+            exit()
+
+        # if growth[0] < 1e-5:
+        #     growth, fluxes = comm.sim_step(x)
+        #     if growth[0] < 1e-5:
+        #         for i in rand_null_idx:
+        #             null_compounds.append(comm.solution_keys[i])
 
     null_compounds = list(set(null_compounds))
     for c in null_compounds:
         print(c)
         # if growth[0] > 0.0:
         #     print(growth[0])
+    
+    exit()
 
 def example_simulation():
     model_paths = [
@@ -362,11 +377,6 @@ def speed_test():
 
 
 if __name__ == "__main__":
-    # example_simulation()
-    # rejection_sampling()
-    # speed_test()
-    # exit()
-
     parser = argparse.ArgumentParser(description="Description of your program")
     parser.add_argument(
         "-r", "--run_idx", help="Description for foo argument", required=True
@@ -374,8 +384,8 @@ if __name__ == "__main__":
     args = vars(parser.parse_args())
 
     run_idx = args["run_idx"]
-    output_dir = f"./output/exp_lactis_yeast_ga_fit/run_{run_idx}/"
+    output_dir = f"./output/exp_yeast_ga_fit/run_{run_idx}/"
+    genetic_algorithm(f"yeast_ga_fit_{run_idx}", output_dir)
 
-    find_min_requirements(f"lactis_min_reqs{run_idx}", output_dir)
-    exit(0)
-    genetic_algorithm(f"lactis_yeast_ga_fit_{run_idx}", output_dir)
+    # find_min_requirements(f"lactis_yeast_min_reqs{run_idx}", output_dir)
+

@@ -72,7 +72,7 @@ def filter(particles):
     for p in particles:
         p.sim_step(p.init_y)
 
-        df = p.populations[1].model.optimize().to_frame()
+        df = p.populations[0].model.optimize().to_frame()
         df["name"] = df.index
         df.reset_index(drop=True, inplace=True)
 
@@ -93,7 +93,6 @@ def filter(particles):
 
 def sim_community(community):
     sol, t = community.simulate_community("vode")
-    print("returning sim")
     return [sol, t]
 
 

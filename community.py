@@ -147,6 +147,7 @@ class Community:
         media_path: str,
         media_name: str,
         use_parsimonius_fba: bool,
+        initial_populations: List[float]
     ):
         self.model_names = model_names
         self.model_paths = model_paths
@@ -177,7 +178,7 @@ class Community:
             self.dynamic_compounds
         )
 
-        self.init_population_values = self.generate_initial_population_densities()
+        self.init_population_values = initial_populations
 
         k_vals_mat = self.generate_default_k_values(
             self.init_compound_values, media_name
@@ -401,7 +402,6 @@ class Community:
         )
 
     def simulate_community(self, method="odeint"):
-        print("Starting sim")
         init_y = self.init_y
         y0 = init_y
         t_0 = 0.0
@@ -432,7 +432,6 @@ class Community:
             sol = np.array(sol)
             t = np.array(t)
 
-        print("finished sim")
         return sol, t
 
     def print_sol(self, sol):
