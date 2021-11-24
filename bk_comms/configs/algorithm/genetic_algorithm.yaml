@@ -1,0 +1,14 @@
+_target_: bk_comms.parameter_estimation.GeneticAlgorithm
+n_processes: 1
+n_particles_batch: 32
+population_size: 32
+mutation_probability: 0.1
+epsilon_alpha: 0.2
+parallel: True
+experiment_name: ${experiment_name}
+base_community: ${community}
+distance_object: ${distance}
+max_uptake_sampler: ${sampler.max_uptake_sampler}
+k_val_sampler: ${sampler.k_val_sampler}
+output_dir: ${output_dir}
+

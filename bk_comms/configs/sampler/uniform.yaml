@@ -1,0 +1,4 @@
+_target_: bk_comms.sampling.SampleUniform
+min_val: 1e-3
+max_val: 1e-1
+distribution: "log_uniform"
