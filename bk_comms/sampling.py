@@ -1,12 +1,18 @@
 import numpy as np
 
+class SampleDistribution:
+    def sample(self, size):
+        return self.distribution(size)
 
-class MultiDistribution:
+
+class MultiDistribution(SampleDistribution):
     def __init__(self, dist_1, dist_2, prob_dist_1):
         self.dist_1 = dist_1
         self.dist_2 = dist_2
 
         self.prob_dist_1 = prob_dist_1
+
+        self.distribution = self.random_multi_dist
 
     def random_multi_dist(self, size):
         x = np.zeros(size)
@@ -21,17 +27,15 @@ class MultiDistribution:
 
         return x
 
-    def sample(self, size):
-        return self.random_multi_dist(size)
-
-
-class SampleSkewNormal:
+class SampleSkewNormal(SampleDistribution):
     def __init__(self, loc, scale, alpha, clip_above_zero=False, clip_below_zero=False):
         self.alpha = alpha
         self.loc = loc
         self.scale = scale
         self.clip_above_zero = clip_above_zero
         self.clip_below_zero = clip_below_zero
+
+        self.distribution = self.random_skew_normal
 
     def random_skew_normal(self, size):
         sigma = self.alpha / np.sqrt(1.0 + self.alpha**2) 
@@ -47,13 +51,9 @@ class SampleSkewNormal:
         if self.clip_above_zero:
             u1 = np.clip(u1, a_min=None, a_max=0)
 
-
         return u1
 
-    def sample(self, size):
-        return self.random_skew_normal(size)
-
-class SampleUniform:
+class SampleUniform(SampleDistribution):
     def __init__(self, min_val, max_val, distribution='uniform'):
         self.min_val = min_val
         self.max_val = max_val
@@ -64,6 +64,7 @@ class SampleUniform:
             self.distribution in dist_options
         ), f"Error distribution, {self.distribution}, not in {dist_options}"
 
+        self.distribution = self.sample_random_matrix
 
     def sample_random_matrix(self, size):
 
@@ -79,6 +80,3 @@ class SampleUniform:
             raise ("ValueError")
 
         return mat
-
-    def sample(self, size):
-        return self.sample_random_matrix(size)
