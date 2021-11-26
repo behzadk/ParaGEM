@@ -1,0 +1,28 @@
+wd: /Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/
+run_idx: 999
+output_dir: ${cfg.wd}/output/exp_lactis_ga_fit/run_${cfg.run_idx}/
+
+# Information about the data being used
+exp_data_path: ${cfg.wd}/experimental_data/Figure1B_fake_data.csv
+exp_sol_keys:
+  - - lactis_dcw
+    - L_lactis_fbc
+
+exp_t_key: time
+experiment_name: none
+
+epsilon:
+  - 0.0400
+final_epsilon:
+  - 0.00001
+
+defaults:
+  - _self_
+  - community: L_lactis
+  - algorithm: genetic_algorithm
+  - sampler: default_extended
+  - distance: euclidian
+  - filter: L_lactis_viable_growth
+
+parallel: True
+n_processes: 8

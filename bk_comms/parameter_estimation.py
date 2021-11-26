@@ -28,7 +28,7 @@ def clear_lrus():
         wrapper.cache_clear()
 
 
-def simulate_particles(particles, n_processes=1, sim_timeout=15.0, parallel=True):
+def simulate_particles(particles, n_processes=1, sim_timeout=100.0, parallel=True):
     if parallel:
         print("running parallel")
 
@@ -61,30 +61,14 @@ def simulate_particles(particles, n_processes=1, sim_timeout=15.0, parallel=True
     else:
         p_idx = 0
         for p in particles:
+            start = time.time()
             print(f"Simulating particle idx: {p_idx}")
             output = sim_community(p)
             p.sol = output[0]
             p.t = output[1]
             p_idx += 1
-
-
-def filter(particles):
-    filtered_particles = []
-
-    for p in particles:
-        p.sim_step(p.init_y)
-
-        df = p.populations[0].model.optimize().to_frame()
-        df["name"] = df.index
-        df.reset_index(drop=True, inplace=True)
-
-        biomass_flux = df.loc[df["name"] == "Growth"]["fluxes"].values[0]
-
-        if biomass_flux <= 0:
-            # if ser_flux > 0:
-            filtered_particles.append(p)
-
-    return filtered_particles
+            end = time.time()
+            print("Sim time: ", end - start)
 
 
 def sim_community(community):
@@ -154,54 +138,6 @@ class ParameterEstimation:
             return pickle.load(f)
 
 
-class SpeedTest(ParameterEstimation):
-    def __init__(self, particles_path, base_community):
-
-        with open(particles_path, "rb") as f:
-            particles = pickle.load(f)
-
-        particles = particles
-        self.particles = particles
-        self.base_community = base_community
-
-        # Generate a list of models that will be assigned
-        # to new particles. Avoids repeatedly copying models
-        self.models = []
-        for _ in range(len(self.particles)):
-            proc_models = []
-            for pop in self.base_community.populations:
-                proc_models.append(pop.model)
-            self.models.append(proc_models)
-
-        for pop in self.base_community.populations:
-            del pop.model
-
-        for particle_idx, comm in enumerate(self.particles):
-            # Assign population models
-            for pop_idx, pop in enumerate(comm.populations):
-                pop.model = self.models[particle_idx][pop_idx]
-
-    def speed_test(self, n_processes=8):
-        start_time = time.time()
-        simulate_particles(
-            self.particles,
-            n_processes=n_processes,
-            parallel=True,
-        )
-        end_time = time.time()
-
-        for p in self.particles:
-            print(p.sol.shape, p.t.shape)
-
-        print("logging")
-        logger.info(f"Parallel: {end_time - start_time}")
-
-        start_time = time.time()
-        simulate_particles(self.particles, n_processes=1, parallel=False)
-        end_time = time.time()
-
-        logger.info(f"Serial: {end_time - start_time}")
-
 
 class GeneticAlgorithm(ParameterEstimation):
     def __init__(
@@ -212,12 +148,11 @@ class GeneticAlgorithm(ParameterEstimation):
         max_uptake_sampler,
         k_val_sampler,
         output_dir,
-        n_processes=1,
-        n_particles_batch=32,
+        n_particles_batch,
         population_size=32,
         mutation_probability=0.1,
         epsilon_alpha=0.2,
-        parallel=True,
+        filter=None
     ):
         self.experiment_name = experiment_name
         self.base_community = base_community
@@ -232,6 +167,9 @@ class GeneticAlgorithm(ParameterEstimation):
 
         self.gen_idx = 0
         self.final_generation = False
+
+        self.filter = filter
+
 
         # Generate a list of models that will be assigned
         # to new particles. Avoids repeatedly copying models
@@ -288,13 +226,14 @@ class GeneticAlgorithm(ParameterEstimation):
             # Generate a 'mutation particle'
             mut_particle = self.init_particles(1)[0]
             mut_params_vec = mut_particle.generate_parameter_vector()
+            
+            vec_before = particle_param_vec.copy()
 
             for idx in range(len(particle_param_vec)):
                 particle_param_vec[idx] = np.random.choice(
                     [particle_param_vec[idx][0], mut_params_vec[idx][0]],
-                    p=[1 - self.mutation_probability, self.mutation_probability],
-                )
-
+                    p=[1 - self.mutation_probability, self.mutation_probability]
+                ).copy()
             particle.load_parameter_vector(particle_param_vec)
 
     def gen_initial_population(self, n_processes, parallel):
@@ -309,8 +248,11 @@ class GeneticAlgorithm(ParameterEstimation):
             particles = []
             while len(particles) <= self.n_particles_batch:
                 candidate_particles = self.init_particles(self.n_particles_batch)
-                filtered_particles = filter(candidate_particles)
-                particles.extend(filtered_particles)
+                
+                if self.filter is not None: 
+                    candidate_particles = self.filter.filter_particles(candidate_particles)
+               
+                particles.extend(candidate_particles)
 
             particles = particles[: self.n_particles_batch]
 
@@ -322,6 +264,7 @@ class GeneticAlgorithm(ParameterEstimation):
                 n_processes=n_processes,
                 parallel=parallel,
             )
+
 
             logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
 
@@ -340,8 +283,6 @@ class GeneticAlgorithm(ParameterEstimation):
 
         particle_distances = np.vstack(particle_distances)
 
-        print(particle_distances.shape)
-
         new_epsilon = []
         # For each distance, update epsilon
         for dist_idx in range(particle_distances.shape[1]):
@@ -350,7 +291,7 @@ class GeneticAlgorithm(ParameterEstimation):
 
             # Trim distances to largest epsilon out of smallest x
             dists = dists[: int(self.population_size * self.epsilon_alpha)]
-            new_epsilon = max(self.distance_object.final_epsion[dist_idx], dists[-1])
+            new_epsilon = max(self.distance_object.final_epsilon[dist_idx], dists[-1])
 
             self.distance_object.epsilon[dist_idx] = new_epsilon
 
@@ -369,7 +310,7 @@ class GeneticAlgorithm(ParameterEstimation):
             batch_idx = 0
             accepted_particles = []
 
-            if self.distance_object.final_epsion == self.distance_object.epsilon:
+            if self.distance_object.final_epsilon == self.distance_object.epsilon:
                 self.final_generation = True
 
             while len(accepted_particles) < self.population_size:
@@ -378,28 +319,33 @@ class GeneticAlgorithm(ParameterEstimation):
                 )
 
                 logger.info(f"Performing crossover...")
+                batch_particles = []
 
-                # batch_particles = self.population[0:self.n_particles_batch]
+                while len(batch_particles) <= self.n_particles_batch:
+                    # Generate new batch by crossover
+                    candidate_particles = self.crossover(
+                        self.n_particles_batch, self.population
+                    )
 
-                # Generate new batch by crossover
-                batch_particles = self.crossover(
-                    self.n_particles_batch, self.population
-                )
+                    # Mutate batch
+                    self.mutate_particles(candidate_particles)
+                    
+                    for p in candidate_particles:
+                        p.set_init_y()
 
-                logger.info(f"Mutating particles...")
+                    if self.filter is not None:
+                        candidate_particles = self.filter.filter_particles(candidate_particles)
 
-                # Mutate batch
-                self.mutate_particles(batch_particles)
-
+                    batch_particles.extend(candidate_particles)
+                
+                batch_particles = batch_particles[:self.n_particles_batch]
+                
                 logger.info(f"Simulating particles...")
-                # output_path = f"{self.output_dir}particles_{self.experiment_name}_latest_batch.pkl"
-                # self.save_particles(batch_particles, output_path)
-
                 # Simulate
                 simulate_particles(
                     batch_particles,
                     n_processes=n_processes,
-                    parallel=parallel,
+                    parallel=parallel
                 )
 
                 clear_cache()
@@ -428,76 +374,3 @@ class GeneticAlgorithm(ParameterEstimation):
         output_path = f"{self.output_dir}particles_{self.experiment_name}_final_gen_{self.gen_idx}.pkl"
         self.save_particles(accepted_particles, output_path)
         self.save_checkpoint(self.output_dir)
-
-
-class RejectionAlgorithm(ParameterEstimation):
-    def __init__(
-        self,
-        distance_object,
-        base_community,
-        max_uptake_sampler,
-        k_val_sampler,
-        n_particles_batch=32,
-        population_size=32,
-    ):
-        self.base_community = base_community
-        self.n_processes = n_particles_batch
-        self.n_particles_batch = n_particles_batch
-        self.max_uptake_sampler = max_uptake_sampler
-        self.k_val_sampler = k_val_sampler
-        self.output_dir = "./output/exp_test/"
-        self.population_size = population_size
-        self.distance_object = distance_object
-
-    def assess_particles(self, particles):
-        acceptance_status = []
-        for p in particles:
-            accepted_flag, distance = self.distance_object.assess_particle(p)
-
-            with np.printoptions(precision=4, suppress=True):
-                print(f"{accepted_flag}\t {distance}")
-
-            p.distance = distance
-            p.accepted_flag = accepted_flag
-
-            acceptance_status.append(accepted_flag)
-
-        return acceptance_status
-
-        # np.save(f"{self.output_dir}{output_name}.npy",  out_dict)
-
-    def run(self, output_name):
-        accepted_particles = []
-
-        batch_idx = 0
-        while len(accepted_particles) < self.population_size:
-            print(f"Name: {output_name}")
-            print(f"Batch {batch_idx}, Accepted particles: {len(accepted_particles)}")
-
-            print(f"\t Initialising batch {batch_idx}")
-            particles = self.init_particles(self.n_particles_batch)
-            particles = filter(particles)
-
-            print(f"\t Simulating batch {batch_idx}")
-            simulate_particles(particles, n_processes=self.n_processes, parallel=True)
-
-            acceptance_status = self.assess_particles(particles)
-
-            for idx, p in enumerate(particles):
-                if acceptance_status[idx]:
-                    accepted_particles.append(p)
-
-            batch_idx += 1
-
-        if len(accepted_particles) > 0:
-            # Trim population to exact max pop size
-            accepted_particles = accepted_particles[: self.population_size]
-
-            with PdfPages(f"{self.output_dir}{output_name}_{batch_idx}.pdf") as pdf:
-                for acc_idx, p in enumerate(accepted_particles):
-                    self.distance_object.plot_community(
-                        p, pdf=pdf, prefix=output_name, comm_idx=acc_idx, batch_idx=0
-                    )
-
-            # Save accepted particles
-            self.save_particles(accepted_particles, output_name)

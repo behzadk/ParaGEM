@@ -1,0 +1,12 @@
+_target_: bk_comms.community.Community
+_convert_: partial
+model_paths: 
+  - ${cfg.wd}/models/S_cerevisiae/iMM904.xml
+model_names:
+  - iMM904
+smetana_analysis_path: ${cfg.wd}/carveme_output/lactis_cerevisiae_detailed.tsv
+media_path: ${cfg.wd}/media/media_db_CDM35.tsv
+media_name: CDM35
+use_parsimonius_fba: False
+initial_populations:
+  - 0.0062

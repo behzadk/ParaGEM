@@ -5,30 +5,28 @@ from omegaconf import OmegaConf
 
 import hydra
 from hydra.utils import instantiate
+from pathlib import Path
 
-@hydra.main(config_path="../configs", config_name="config")
-def my_app(cfg: DictConfig):
-    # # context initialization
-    # with initialize(config_path="configs", job_name="test_app"):
-    #     cfg = compose(config_name="config")
+from loguru import logger
 
-    # print(instantiate(cfg.sampler['max_uptake_dist']))
-    # dist_1 = sampling.SampleSkewNormal(loc=-2.0, scale=0.25, alpha=0.0, clip_above_zero=True)
-    # print(cfg)
-    print(cfg)
-    # from pathlib import Path
 
-    # fpath = Path(cfg['community']['media_path']).absolute()
-    # alg = instantiate(cfg.algorithm)
-    # cfg.algorithm.max_uptake_sampler = dist_1
-    alg = instantiate(cfg.algorithm)
-    # comm = instantiate(cfg.community)
+@hydra.main(config_path="../configs", config_name="base")
+def run_algorithm(cfg: DictConfig):
+
+    if cfg['load_path'] is not None:
+        cfg['cfg'] = OmegaConf.load(cfg.load_path)
     
-    # alg.base_community = comm
-    exit()
 
-    # print(comm)
-    # print(type(comm))
+    cfg = cfg['cfg']
+    Path(cfg.output_dir).mkdir(parents=True, exist_ok=True)
 
-if __name__ == "__main__":
-    my_app()
+    logger.remove()
+    logger.add(f"{cfg.output_dir}info_log.log", level="DEBUG")
+
+
+    OmegaConf.save(cfg, f'{cfg.output_dir}/cfg.yaml')
+
+    alg = instantiate(cfg.algorithm)
+    
+    # Write config once folder structuer has ben made
+    alg.run(n_processes=cfg.n_processes, parallel=cfg.parallel)

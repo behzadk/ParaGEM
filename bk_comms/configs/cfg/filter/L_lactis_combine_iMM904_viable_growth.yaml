@@ -1,0 +1,16 @@
+_target_: bk_comms.lo_filters.ViableGrowthCombineParticles
+input_experiment_dir: /Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/output/exp_yeast_ga_fit/
+epsilon:
+  - 1.0
+population_names:
+  - L_lactis_fbc
+  - iMM904
+growth_keys:
+  - Growth
+  - BIOMASS_SC5_notrace
+min_growth:
+  - 0.00001
+  - 0.0
+max_growth:
+  - 0.1
+  - 100.0

@@ -3,9 +3,7 @@ from bk_comms import distances
 from bk_comms import sampling
 
 from bk_comms.community import Community
-from bk_comms.parameter_estimation import RejectionAlgorithm
 from bk_comms.parameter_estimation import GeneticAlgorithm
-from bk_comms.parameter_estimation import SpeedTest
 
 import pandas as pd
 from pathlib import Path
@@ -340,7 +338,6 @@ def example_simulation():
 
     # exp_data = pd.read_csv("./data/Figure1B_fake_data.csv")
 
-
 def speed_test():
     output_dir = "./output/exp_yeast_ga_fit/run_0/"
     experiment_name = "speed_test"
@@ -391,7 +388,5 @@ def main():
     
 if __name__ == '__main__':
     main()
-
-
     # find_min_requirements(f"lactis_yeast_min_reqs{run_idx}", output_dir)
 

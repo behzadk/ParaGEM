@@ -8,13 +8,11 @@ import time
 
 from scipy.integrate import ode
 
-import utils
+from bk_comms import utils
 import cobra
 from scipy.integrate import odeint
 
-import logging
-
-logging.getLogger("cobra").setLevel(logging.ERROR)
+from loguru import logger
 
 import matplotlib.pyplot as plt
 import copy
@@ -223,11 +221,10 @@ class Community:
 
                 self.k_vals[this_model_idx] = particle.k_vals[particle_model_idx]
                 self.max_exchange_mat[this_model_idx] = particle.max_exchange_mat[
-                    this_model_idx
+                    particle_model_idx
                 ]
 
     def load_parameter_vector(self, parameter_vec):
-        
         n_variables = len(self.init_y)
         n_k_vals = self.k_vals.shape[0] * self.k_vals.shape[1]
         n_max_exchange_vals = (
@@ -405,8 +402,7 @@ class Community:
         )
 
     def simulate_community(self, method="odeint"):
-        init_y = self.init_y
-        y0 = init_y
+        y0 = copy.deepcopy(self.init_y)
         t_0 = 0.0
         t_end = 24.0
         steps = 100000
@@ -419,21 +415,43 @@ class Community:
 
             sol = []
             t = []
+            steps = 100
+            t_points = list(np.linspace(t_0, t_end, steps))
 
+            # Approximately set atol, rtol
+            atol_list = []
+            rtol_list = []
+            for y in y0:
+                if y > 50.0:
+                    atol_list.append(1e-3)
+                    rtol_list.append(1e-3)
+                else:
+                    atol_list.append(1e-6)
+                    rtol_list.append(1e-3)
+            
+            start = time.time()
             solver = ode(self.diff_eqs_vode, jac=None).set_integrator(
-                "vode", method="bdf", atol=1e-9, rtol=1e-4, max_step=0.1
+                "vode", method="bdf", atol=1e-4, rtol=1e-3, max_step=0.01
             )
             # print("solver initiated")
 
             solver.set_initial_value(y0, t=t_0)
 
             while solver.successful() and solver.t < t_end:
+                # print(solver.t)
                 step_out = solver.integrate(t_end, step=True)
-                sol.append(step_out)
-                t.append(solver.t)
+                
+                if solver.t >= t_points[0]:
+                    mx = np.ma.masked_array(step_out, mask=step_out==0)
+                    print(solver.t, mx.min())
+                    sol.append(step_out)
+                    t.append(solver.t)
+                    t_points.pop(0)
 
             sol = np.array(sol)
             t = np.array(t)
+            end = time.time()
+            logger.info(f'Simulation time: {end - start}')
 
         return sol, t
 
@@ -469,7 +487,8 @@ class Community:
 
         lower_constraints = self.calculate_exchange_reaction_lb_constraints(
             compound_concs, self.k_vals, self.max_exchange_mat
-        )
+        )        
+
 
         self.lower_constraints = lower_constraints
 
@@ -481,14 +500,17 @@ class Community:
                     pop.optimize()
                     flux_matrix[idx] = pop.get_dynamic_compound_fluxes()
                     growth_rates[idx] = pop.get_growth_rate()
+                    
 
                 except UserWarning:
                     flux_matrix[idx] = np.zeros(shape=len(self.dynamic_compounds))
                     growth_rates[idx] = 0.0
+        
 
         return growth_rates, flux_matrix
 
     def diff_eqs(self, y, t):
+        print(t)
         y = y.clip(0)
         # y[y < 1e-25] = 0
         populations = y[self.population_indexes]
@@ -515,6 +537,16 @@ class Community:
 
         output[self.population_indexes] = growth_rates * populations
         output[self.compound_indexes] = np.dot(populations, flux_matrix)
+
+        # # DEBUG
+        # for y_idx, x in enumerate(y):
+        #     if x == 0.0 or x < 0.0:
+        #         print(y_idx, output[y_idx])
+        #         if output[y_idx] < 0.0:
+        #             print(y_idx)
+        #             exit()
+        # # DEBUG
+
 
         return output
 

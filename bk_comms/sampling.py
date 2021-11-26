@@ -54,29 +54,30 @@ class SampleSkewNormal(SampleDistribution):
         return u1
 
 class SampleUniform(SampleDistribution):
-    def __init__(self, min_val, max_val, distribution='uniform'):
+    def __init__(self, min_val, max_val, distribution_type='uniform'):
         self.min_val = min_val
         self.max_val = max_val
-        self.distribution = distribution
+        self.distribution_type = distribution_type
 
         dist_options = ["uniform", "log_uniform"]
         assert (
-            self.distribution in dist_options
-        ), f"Error distribution, {self.distribution}, not in {dist_options}"
+            self.distribution_type in dist_options
+        ), f"Error distribution, {self.distribution_type}, not in {dist_options}"
 
         self.distribution = self.sample_random_matrix
 
     def sample_random_matrix(self, size):
 
-        if self.distribution == "uniform":
+        if self.distribution_type == "uniform":
             mat = np.random.uniform(self.min_val, self.max_val, size=size)
 
-        elif self.distribution == "log_uniform":
+        elif self.distribution_type == "log_uniform":
             mat = np.exp(
                 np.random.uniform(np.log(self.min_val), np.log(self.max_val), size=size)
             )
 
         else:
-            raise ("ValueError")
+            raise ValueError("incorrect distribution definition")
 
         return mat
+

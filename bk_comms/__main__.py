@@ -1,5 +1,5 @@
 import community
 from main import main
 import hydra_test
-hydra_test.my_app()
+hydra_test.run_algorithm()
 # main()

@@ -13,15 +13,14 @@ def get_solution_index(comm, sol_element_key):
     idx = comm.solution_keys.index(sol_element_key)
     return idx
 
-
 class DistanceTimeseriesEuclidianDistance:
-    def __init__(self, exp_data_path: str, exp_t_key, exp_sol_keys, epsilon=1.0, final_epsion=1.0):
+    def __init__(self, exp_data_path: str, exp_t_key, exp_sol_keys, epsilon=1.0, final_epsilon=1.0):
         self.exp_data = pd.read_csv(exp_data_path)
         self.exp_t_key = exp_t_key
         self.exp_sol_keys = exp_sol_keys
 
         self.epsilon = epsilon
-        self.final_epsion = final_epsion
+        self.final_epsilon = final_epsilon
 
     def calculate_distance(self, community):
         n_distances = len(self.exp_sol_keys)
@@ -33,14 +32,12 @@ class DistanceTimeseriesEuclidianDistance:
         sim_data = community.sol
         sim_t = community.t
 
-
         for distance_idx, key_pair in enumerate(self.exp_sol_keys):
             for exp_data_idx, t in enumerate(self.exp_data[self.exp_t_key].values):
                 sim_t_idx = find_nearest(sim_t, t)
 
                 sol_idx = get_solution_index(community, key_pair[1])
 
-                
                 sim_val = sim_data[:, sol_idx][sim_t_idx]
                 exp_val = self.exp_data.loc[self.exp_data[self.exp_t_key] == t][
                     key_pair[0]
@@ -49,8 +46,9 @@ class DistanceTimeseriesEuclidianDistance:
                 if np.isnan(exp_val):
                     continue
 
+                print(exp_data_idx, exp_val, sim_val)
                 distances[distance_idx] += abs(exp_val - sim_val)
-
+        exit()
         return distances
 
     def assess_particle(self, community):
@@ -66,8 +64,6 @@ class DistanceTimeseriesEuclidianDistance:
         return True, distance
 
     def plot_community(self, community, pdf, comm_idx, batch_idx):
-        
-
         for idx, key_pair in enumerate(self.exp_sol_keys):
             f, ax = plt.subplots()
             sol_idx = get_solution_index(community, key_pair[1])

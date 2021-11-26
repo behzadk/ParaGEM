@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 from typing import List
+import glob
 
 from smetana.legacy import Community
 from reframed import Environment
@@ -8,6 +9,45 @@ from smetana.interface import load_communities
 from pathlib import Path
 import psutil
 import os
+import pickle
+
+def get_experiment_repeat_directories(exp_dir, repeat_prefix):
+    exp_path = Path(exp_dir)
+    sub_dirs = list(exp_path.glob("**"))
+    repeat_dirs = []
+
+    for d in sub_dirs:
+        if repeat_prefix in d.stem:
+            repeat_dirs.append(d.absolute())
+
+    return repeat_dirs
+
+def load_pickle(pickle_path):
+    with open(pickle_path, 'rb') as f:
+        data = pickle.load(f)
+        return data
+
+def load_all_particles(repeat_dirs):
+    all_particles = []
+    for d in repeat_dirs:
+        particle_paths = d.glob("particles_*.pkl")
+        for p_path in particle_paths:
+            all_particles.extend(load_pickle(p_path))
+            
+    return all_particles
+
+def filter_particles_by_distance(particles, epsilon):
+    filtered_particles = []
+    for p in particles:
+        for idx, eps in enumerate(epsilon):
+            if p.distance[idx] < eps:
+                filtered_particles.append(p)
+    
+    return filtered_particles
+
+def get_solution_index(comm, sol_element_key):
+    idx = comm.solution_keys.index(sol_element_key)
+    return idx
 
 def get_mem_usage():
     return psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2
