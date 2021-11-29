@@ -1,0 +1,154 @@
+medium	description	compound	name	init_conc_gL	Molecular weight (g/mol)	mol/L	mmol_per_L	dynamic
+LB	Lysogeny broth	adn	Adenosine	1	0		1	1
+LB	Lysogeny broth	ala__L	L-Alanine	1	0		83.26117365	1
+LB	Lysogeny broth	amp	AMP	1	0		1	1
+LB	Lysogeny broth	arg__L	L-Arginine	1	0		83.26117365	1
+LB	Lysogeny broth	aso3	Arsenite 	1	0		1	1
+LB	Lysogeny broth	asp__L	L-Aspartate	1	0		1	1
+LB	Lysogeny broth	ca2	Ca2+	1	0		1	1
+LB	Lysogeny broth	cbl1	Vitamin B12	1	0		1	1
+LB	Lysogeny broth	cd2	Cadmium 	1	0		1	1
+LB	Lysogeny broth	cl	Cl-	1	0		1	1
+LB	Lysogeny broth	cmp	CMP	1	0		1	1
+LB	Lysogeny broth	cobalt2	Co2+	1	0		1	1
+LB	Lysogeny broth	cro4	Chromate 	1	0		1	1
+LB	Lysogeny broth	cu2	Cu2+	1	0		1	1
+LB	Lysogeny broth	cys__L	L-Cysteine	1	0		1	1
+LB	Lysogeny broth	dad_2	Deoxyadenosine 	1	0		1	1
+LB	Lysogeny broth	dcyt	Deoxycytidine	1	0		1	1
+LB	Lysogeny broth	fe2	Fe2+	1	0		1	1
+LB	Lysogeny broth	fe3	Fe3+	1	0		1	1
+LB	Lysogeny broth	fol	Folate	1	0		1	1
+LB	Lysogeny broth	glc__D	D-Glucose	1	0		83.26117365	1
+LB	Lysogeny broth	glu__L	L-Glutamate	1	0		1	1
+LB	Lysogeny broth	gly	Glycine	1	0		1	1
+LB	Lysogeny broth	gmp	GMP	1	0		1	1
+LB	Lysogeny broth	gsn	Guanosine	1	0		1	1
+LB	Lysogeny broth	h2o	H2O	1	0		10000000000	1
+LB	Lysogeny broth	h2s	Hydrogen sulfide	1	0		1	1
+LB	Lysogeny broth	h	H+	1	0		1	1
+LB	Lysogeny broth	hg2	Hg2+ 	1	0		1	1
+LB	Lysogeny broth	his__L	L-Histidine	1	0		1	1
+LB	Lysogeny broth	hxan	Hypoxanthine	1	0		1	1
+LB	Lysogeny broth	ile__L	L-Isoleucine	1	0		1	1
+LB	Lysogeny broth	ins	Inosine	1	0		1	1
+LB	Lysogeny broth	k	K+	1	0		1	1
+LB	Lysogeny broth	leu__L	L-Leucine	1	0		1	1
+LB	Lysogeny broth	lipoate	Lipoate	1	0		1	1
+LB	Lysogeny broth	lys__L	L-Lysine	1	0		1	1
+LB	Lysogeny broth	met__L	L-Methionine	1	0		1	1
+LB	Lysogeny broth	mg2	Mg	1	0		1	1
+LB	Lysogeny broth	mn2	Mn2+	1	0		1	1
+LB	Lysogeny broth	mobd	Molybdate	1	0		1	1
+LB	Lysogeny broth	na1	Na+	1	0		1	1
+LB	Lysogeny broth	nac	Isonicotinic acid	1	0		1	1
+LB	Lysogeny broth	nh4	Ammonium	1	0		1	1
+LB	Lysogeny broth	ni2	Ni2+	1	0		1	1
+LB	Lysogeny broth	o2	O2	1	0		10000000000	1
+LB	Lysogeny broth	phe__L	L-Phenylalanine	1	0		1	1
+LB	Lysogeny broth	pheme	Protoheme	1	0		1	1
+LB	Lysogeny broth	pi	Phosphate	1	0		1	1
+LB	Lysogeny broth	pnto__R	PAN	1	0		1	1
+LB	Lysogeny broth	pro__L	L-Proline	1	0		1	1
+LB	Lysogeny broth	pydx	Pyridoxal	1	0		1	1
+LB	Lysogeny broth	ribflv	Riboflavin	1	0		1	1
+LB	Lysogeny broth	ser__L	L-Serine	1	0		1	1
+LB	Lysogeny broth	so4	Sulfate	1	0		1	1
+LB	Lysogeny broth	thm	Thiamin	1	0		1	1
+LB	Lysogeny broth	thr__L	L-Threonine	1	0		1	1
+LB	Lysogeny broth	thymd	Thymidine	1	0		1	1
+LB	Lysogeny broth	trp__L	L-Tryptophan	1	0		1	1
+LB	Lysogeny broth	tyr__L	L-Tyrosine	1	0		1	1
+LB	Lysogeny broth	ump	UMP	1	0		1	1
+LB	Lysogeny broth	ura	Uracil	1	0		1	1
+LB	Lysogeny broth	uri	Uridine	1	0		1	1
+LB	Lysogeny broth	val__L	L-Valine	1	0		1	1
+LB	Lysogeny broth	zn2	Zn2+	1	0		1	1
+M9	M9 minimal medium	ca2	Ca2+	0	0		1	1
+M9	M9 minimal medium	cl	Cl-	0	0		1	1
+M9	M9 minimal medium	cobalt2	Co2+	0	0		1	1
+M9	M9 minimal medium	cu2	Cu2+	0	0		1	1
+M9	M9 minimal medium	fe2	Fe2+	0	0		1	1
+M9	M9 minimal medium	fe3	Fe3+	0	0		1	1
+M9	M9 minimal medium	glc__D	D-Glucose	0	0		1	1
+M9	M9 minimal medium	h2o	H2O	0	0		1	1
+M9	M9 minimal medium	h	H+	0	0		1	1
+M9	M9 minimal medium	k	K+	0	0		1	1
+M9	M9 minimal medium	mg2	Mg	0	0		1	1
+M9	M9 minimal medium	mn2	Mn2+	0	0		1	1
+M9	M9 minimal medium	mobd	Molybdate	0	0		1	1
+M9	M9 minimal medium	na1	Na+	0	0		1	1
+M9	M9 minimal medium	nh4	Ammonium	0	0		1	1
+M9	M9 minimal medium	ni2	Ni2+	0	0		1	1
+M9	M9 minimal medium	o2	O2	0	0		1	1
+M9	M9 minimal medium	pi	Phosphate	0	0		1	1
+M9	M9 minimal medium	so4	Sulfate	0	0		1	1
+M9	M9 minimal medium	zn2	Zn2+	0	0		1	1
+CDM35	CDM35	glc__D	D-Glucose	15	180.156	0.083261174	83.261174	1
+CDM35	CDM35	lcts	Lactose	15	342.3	0.043821209	43.82120947	1
+CDM35	CDM35	arg__L	L-Arginine	0.72	174.2	0.00413318	4.133180253	1
+CDM35	CDM35	asn__L	L-Asparagine	0.5	132.12	0.003784438	3.784438389	1
+CDM35	CDM35	his__L	L-Histidine	0.17	155.1546	0.001095681	1.09568134	1
+CDM35	CDM35	ile__L	L-Isoleucine	0.24	131.17	0.001829687	1.829686666	1
+CDM35	CDM35	leu__L	L-Leucine	1	131.17	0.007623694	7.623694442	1
+CDM35	CDM35	met__L	L-Methionine	0.125	149.21	0.000837745	0.837745459	1
+CDM35	CDM35	tyr__L	L-Tyrosine	0.3	181.19	0.001655721	1.655720514	1
+CDM35	CDM35	val__L	L-Valine	0.7	117.151	0.005975194	5.975194407	1
+CDM35	CDM35	thm	Thiamin	0.00056	337.3	1.66E-06	0.001660243	1
+CDM35	CDM35	btn	Biotin	0.006	244.31	2.46E-05	0.024558962	1
+CDM35	CDM35	pnto__R	(R)-Pantothenate				1	1
+CDM35	CDM35	fol	Folate	0.00056	441.4	1.27E-06	0.001268691	1
+CDM35	CDM35	inost	myo-Inositol 	0.002	180.16	1.11E-05	0.011101243	1
+CDM35	CDM35	nac	Nicotinic acid 	0.0009	123.1094	7.31E-06	0.007310571	1
+CDM35	CDM35	4abz	p-Aminobenzoic acid 	0.000056	137.14	4.08E-07	0.000408342	1
+CDM35	CDM35	ribflv	Riboflavin	0.0009	376.36	2.39E-06	0.002391327	1
+CDM35	CDM35	so4	Sulfate	0.005	96.06	5.21E-05	0.052050802	1
+CDM35	CDM35	mn2	Mn2+	0.00034	54.938	6.19E-06	0.006188795	1
+CDM35	CDM35	o2	O2	1000	N/a	10000000	10000000000	0
+CDM35	CDM35	zn2	Zn2+	0.005	65.38	7.65E-05	0.076475987	1
+CDM35	CDM35	na1	Sodium				1	1
+CDM35	CDM35	k	Potassium				1	1
+CDM35	CDM35	pi	Phosphate	15	180.156	0.083261174	1	1
+CDM35	CDM35	cl	Chloride				1	1
+CDM35	CDM35	ca2	Calcium				1	1
+CDM35	CDM35	cu2	Cu2+				1	1
+CDM35	CDM35	cobalt2	Co2+				1	1
+CDM35	CDM35	nh4	Ammonium	0.00019	18.039	1.05E-05	0.010532735	1
+CDM35	CDM35	h2o	H2O	1000	18.01528	55.50843506	10000	0
+CDM35	CDM35	h	H+	1	0		100000	0
+CDM35	CDM35	fe2	fe2	0	0	1	1	1
+CDM35	CDM35	fe3	fe3	0	0	1	1	1
+CDM35	CDM35	mg2	mg2	0	0	1	1	1
+CDM35_N	CDM35_N	glc__D	D-Glucose	15	180.156	0.083261174	10	1
+CDM35_N	CDM35_N	arg__L	L-Arginine	0.72	174.2	0.00413318	4.133180253	1
+CDM35_N	CDM35_N	asn__L	L-Asparagine	0.5	132.12	0.003784438	3.784438389	1
+CDM35_N	CDM35_N	his__L	L-Histidine	0.17	155.1546	0.001095681	1.09568134	1
+CDM35_N	CDM35_N	ile__L	L-Isoleucine	0.24	131.17	0.001829687	1.829686666	1
+CDM35_N	CDM35_N	leu__L	L-Leucine	1	131.17	0.007623694	7.623694442	1
+CDM35_N	CDM35_N	met__L	L-Methionine	0.125	149.21	0.000837745	0.837745459	1
+CDM35_N	CDM35_N	tyr__L	L-Tyrosine	0.3	181.19	0.001655721	1.655720514	1
+CDM35_N	CDM35_N	val__L	L-Valine	0.7	117.151	0.005975194	5.975194407	1
+CDM35_N	CDM35_N	btn	Biotin	0.006	244.31	2.46E-05	0.024558962	1
+CDM35_N	CDM35_N	pnto__R	(R)-Pantothenate				1	1
+CDM35_N	CDM35_N	fol	Folate	0.00056	441.4	1.27E-06	0.001268691	1
+CDM35_N	CDM35_N	inost	myo-Inositol 	0.002	180.16	1.11E-05	0.011101243	1
+CDM35_N	CDM35_N	nac	Nicotinic acid 	0.0009	123.1094	7.31E-06	0.007310571	1
+CDM35_N	CDM35_N	4abz	p-Aminobenzoic acid 	0.000056	137.14	4.08E-07	0.000408342	1
+CDM35_N	CDM35_N	ribflv	Riboflavin	0.0009	376.36	2.39E-06	0.002391327	1
+CDM35_N	CDM35_N	so4	Sulfate	0.005	96.06	5.21E-05	0.052050802	1
+CDM35_N	CDM35_N	mn2	Mn2+	0.00034	54.938	6.19E-06	0.006188795	1
+CDM35_N	CDM35_N	o2	O2	1000	N/a	10000000	10000000000	0
+CDM35_N	CDM35_N	zn2	Zn2+	0.005	65.38	7.65E-05	0.076475987	1
+CDM35_N	CDM35_N	na1	Sodium				1	1
+CDM35_N	CDM35_N	k	Potassium				1	1
+CDM35_N	CDM35_N	pi	Phosphate	15	180.156	0.083261174	1	1
+CDM35_N	CDM35_N	cl	Chloride				1	1
+CDM35_N	CDM35_N	ca2	Calcium				1	1
+CDM35_N	CDM35_N	cu2	Cu2+				1	1
+CDM35_N	CDM35_N	cobalt2	Co2+				1	1
+CDM35_N	CDM35_N	nh4	Ammonium	15	180.156	0.083261174	1	1
+CDM35_N	CDM35_N	h2o	H2O	1000	18.01528	55.50843506	10000	0
+CDM35_N	CDM35_N	gln__L	Glutamine				100	1
+CDM35_N	CDM35_N	glu__L	Glutamate				100	1
+CDM35_N	CDM35_N	h	H+	1	0		100000	0
+CDM35_N	CDM35_N	nh4	Ammonium	15	180.156	0.083261174	1	1
