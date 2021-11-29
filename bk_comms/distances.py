@@ -46,9 +46,8 @@ class DistanceTimeseriesEuclidianDistance:
                 if np.isnan(exp_val):
                     continue
 
-                print(exp_data_idx, exp_val, sim_val)
                 distances[distance_idx] += abs(exp_val - sim_val)
-        exit()
+        
         return distances
 
     def assess_particle(self, community):

@@ -443,7 +443,6 @@ class Community:
                 
                 if solver.t >= t_points[0]:
                     mx = np.ma.masked_array(step_out, mask=step_out==0)
-                    print(solver.t, mx.min())
                     sol.append(step_out)
                     t.append(solver.t)
                     t_points.pop(0)
@@ -510,7 +509,6 @@ class Community:
         return growth_rates, flux_matrix
 
     def diff_eqs(self, y, t):
-        print(t)
         y = y.clip(0)
         # y[y < 1e-25] = 0
         populations = y[self.population_indexes]

@@ -28,7 +28,7 @@ def clear_lrus():
         wrapper.cache_clear()
 
 
-def simulate_particles(particles, n_processes=1, sim_timeout=100.0, parallel=True):
+def simulate_particles(particles, n_processes=1, sim_timeout=360.0, parallel=True):
     if parallel:
         print("running parallel")
 
