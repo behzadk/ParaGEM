@@ -14,7 +14,7 @@ experiment_name: none
 epsilon:
   - 0.0400
 final_epsilon:
-  - 0.00001
+  - 0.01
 
 defaults:
   - _self_
