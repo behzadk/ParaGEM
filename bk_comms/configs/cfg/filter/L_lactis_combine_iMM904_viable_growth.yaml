@@ -4,7 +4,7 @@ input_experiment_dirs:
   - ${cfg.wd}/output/exp_lactis_ga_fit/
 epsilon:
   - - 1.0
-  - - 0.01
+  - - 0.02
 population_names:
   - L_lactis_fbc
   - iMM904

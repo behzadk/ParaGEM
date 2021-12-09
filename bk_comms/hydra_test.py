@@ -12,7 +12,6 @@ from loguru import logger
 
 @hydra.main(config_path="../configs", config_name="base")
 def run_algorithm(cfg: DictConfig):
-
     if cfg['load_path'] is not None:
         cfg['cfg'] = OmegaConf.load(cfg.load_path)
     
@@ -22,7 +21,6 @@ def run_algorithm(cfg: DictConfig):
 
     logger.remove()
     logger.add(f"{cfg.output_dir}info_log.log", level="DEBUG")
-
 
     OmegaConf.save(cfg, f'{cfg.output_dir}/cfg.yaml')
 

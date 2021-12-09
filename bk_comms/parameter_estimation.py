@@ -27,7 +27,6 @@ def clear_lrus():
     for wrapper in wrappers:
         wrapper.cache_clear()
 
-
 def simulate_particles(particles, n_processes=1, sim_timeout=360.0, parallel=True):
     if parallel:
         print("running parallel")
@@ -77,7 +76,7 @@ def sim_community(community):
 
 
 class ParameterEstimation:
-    def init_particles(self, n_particles):
+    def init_particles(self, max_uptake_sampler, k_val_sampler, n_particles):
         particles = np.zeros(shape=n_particles, dtype=object)
 
         for i in range(n_particles):
@@ -89,11 +88,11 @@ class ParameterEstimation:
 
             array_size = [len(comm.populations), len(comm.dynamic_compounds)]
             # Sample new max uptake matrix
-            max_exchange_mat = self.max_uptake_sampler.sample(size=array_size)
+            max_exchange_mat = max_uptake_sampler.sample(size=array_size)
             comm.set_max_exchange_mat(max_exchange_mat)
 
             #  Sample new K value matrix
-            k_val_mat = self.k_val_sampler.sample(size=array_size)
+            k_val_mat = k_val_sampler.sample(size=array_size)
             comm.set_k_value_matrix(k_val_mat)
 
             particles[i] = comm
@@ -136,7 +135,6 @@ class ParameterEstimation:
 
         with open(checkpoint_path, "rb") as f:
             return pickle.load(f)
-
 
 
 class GeneticAlgorithm(ParameterEstimation):
@@ -201,7 +199,7 @@ class GeneticAlgorithm(ParameterEstimation):
         return accepted_particles
 
     def crossover(self, n_particles, population):
-        batch_particles = self.init_particles(n_particles)
+        batch_particles = self.init_particles(self.max_uptake_sampler, self.k_val_sampler, n_particles)
 
         for p_batch_idx in range(n_particles):
             # Randomly choose two particles from the population
@@ -224,7 +222,7 @@ class GeneticAlgorithm(ParameterEstimation):
             particle_param_vec = particle.generate_parameter_vector()
 
             # Generate a 'mutation particle'
-            mut_particle = self.init_particles(1)[0]
+            mut_particle = self.init_particles(self.max_uptake_sampler, self.k_val_sampler, 1)[0]
             mut_params_vec = mut_particle.generate_parameter_vector()
             
             vec_before = particle_param_vec.copy()
@@ -247,7 +245,7 @@ class GeneticAlgorithm(ParameterEstimation):
 
             particles = []
             while len(particles) <= self.n_particles_batch:
-                candidate_particles = self.init_particles(self.n_particles_batch)
+                candidate_particles = self.init_particles(self.max_uptake_sampler, self.k_val_sampler, self.n_particles_batch)
                 
                 if self.filter is not None: 
                     candidate_particles = self.filter.filter_particles(candidate_particles)

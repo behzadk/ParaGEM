@@ -22,7 +22,6 @@ import warnings
 # import multiprocessing as mp
 import multiprocess as mp
 
-
 class Population:
     def __init__(
         self,
@@ -535,16 +534,6 @@ class Community:
 
         output[self.population_indexes] = growth_rates * populations
         output[self.compound_indexes] = np.dot(populations, flux_matrix)
-
-        # # DEBUG
-        # for y_idx, x in enumerate(y):
-        #     if x == 0.0 or x < 0.0:
-        #         print(y_idx, output[y_idx])
-        #         if output[y_idx] < 0.0:
-        #             print(y_idx)
-        #             exit()
-        # # DEBUG
-
 
         return output
 

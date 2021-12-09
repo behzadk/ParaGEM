@@ -80,6 +80,11 @@ class DistanceTimeseriesEuclidianDistance:
                 else:
                     ax.scatter(t, exp_val, label=key_pair[0], color='black')
             
+            # Temp fix
+            print("end to end diff: ", abs(sim_data[:, sol_idx][0] - sim_data[:, sol_idx][-1]))
+            if abs(sim_data[:, sol_idx][0] - sim_data[:, sol_idx][-1]) < 1e-10:
+                distances[distance_idx] = 1000
+
             handles, labels = plt.gca().get_legend_handles_labels()
             by_label = dict(zip(labels, handles))
             plt.legend(by_label.values(), by_label.keys())
