@@ -1,6 +1,6 @@
 wd: /Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/
 run_idx: 999
-output_dir: ${cfg.wd}/output/exp_lactis_ga_fit/run_${cfg.run_idx}/
+output_dir: ${cfg.wd}/output/exp_iMM904_ga_fit/run_${cfg.run_idx}/
 
 # Information about the data being used
 exp_data_path: ${cfg.wd}/experimental_data/Figure1B_fake_data.csv
@@ -19,7 +19,7 @@ defaults:
   - _self_
   - community: iMM904
   - algorithm: genetic_algorithm
-  - sampler: default
+  - sampler: default_log_uniform
   - distance: euclidian
   - filter: iMM904_viable_growth
 

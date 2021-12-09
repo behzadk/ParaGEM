@@ -2,7 +2,7 @@ max_uptake_sampler:
   _target_: bk_comms.sampling.MultiDistribution
   dist_1:
     _target_: bk_comms.sampling.SampleUniform
-    min_val: -1e-5
+    min_val: -1e-3
     max_val: -2.0
     distribution_type: "log_uniform"
   dist_2:
