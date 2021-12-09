@@ -72,9 +72,21 @@ class SampleUniform(SampleDistribution):
             mat = np.random.uniform(self.min_val, self.max_val, size=size)
 
         elif self.distribution_type == "log_uniform":
+            is_negative = False
+
+            if self.min_val < 0 and self.max_val < 0:
+                is_negative = True
+            
+            elif self.min_val < 0 or self.max_val < 0:
+                raise ValueError
+
             mat = np.exp(
-                np.random.uniform(np.log(self.min_val), np.log(self.max_val), size=size)
+                np.random.uniform(np.log(abs(self.min_val)), 
+                np.log(abs((self.max_val))), size=size)
             )
+
+            if is_negative:
+                mat = mat * -1
 
         else:
             raise ValueError("incorrect distribution definition")
