@@ -99,6 +99,33 @@ class ParameterEstimation:
 
         return particles
 
+    def init_const_mat_populations(self, n_particles):
+        particles = np.zeros(shape=n_particles, dtype=object)
+
+        for i in range(n_particles):
+            # Make independent copy of base community
+            comm = copy.deepcopy(self.base_community)
+            # Assign population models
+            for idx, pop in enumerate(comm.populations):
+                pop.model = self.models[i][idx]
+
+            array_size = [len(comm.populations), len(comm.dynamic_compounds)]
+        
+            # Sample new max uptake matrix
+            max_exchange_mat = np.ones(shape=array_size)
+            max_exchange_mat = max_exchange_mat * -1
+            comm.set_max_exchange_mat(max_exchange_mat)
+
+            #  Sample new K value matrix
+            k_val_mat = np.ones(shape=array_size)
+            k_val_mat = k_val_mat + 1e-20
+            comm.set_k_value_matrix(k_val_mat)
+
+            particles[i] = comm
+
+        return particles
+
+
     def save_particles(self, particles, output_path):
         particles_out = []
         for idx, p in enumerate(particles):
@@ -167,7 +194,6 @@ class GeneticAlgorithm(ParameterEstimation):
         self.final_generation = False
 
         self.filter = filter
-
 
         # Generate a list of models that will be assigned
         # to new particles. Avoids repeatedly copying models
@@ -245,7 +271,7 @@ class GeneticAlgorithm(ParameterEstimation):
 
             particles = []
             while len(particles) <= self.n_particles_batch:
-                candidate_particles = self.init_particles(self.max_uptake_sampler, self.k_val_sampler, self.n_particles_batch)
+                candidate_particles = self.init_const_mat_populations(self.n_particles_batch)
                 
                 if self.filter is not None: 
                     candidate_particles = self.filter.filter_particles(candidate_particles)
@@ -262,7 +288,6 @@ class GeneticAlgorithm(ParameterEstimation):
                 n_processes=n_processes,
                 parallel=parallel,
             )
-
 
             logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
 
