@@ -113,7 +113,7 @@ class ParameterEstimation:
         
             # Sample new max uptake matrix
             max_exchange_mat = np.ones(shape=array_size)
-            max_exchange_mat = max_exchange_mat * -1
+            max_exchange_mat = max_exchange_mat * -99
             comm.set_max_exchange_mat(max_exchange_mat)
 
             #  Sample new K value matrix
@@ -328,6 +328,10 @@ class GeneticAlgorithm(ParameterEstimation):
 
             self.save_checkpoint(self.output_dir)
 
+            output_path = f"{self.output_dir}particles_{self.experiment_name}_gen_{self.gen_idx}.pkl"
+            self.save_particles(self.population, output_path)
+
+
         # Core genetic algorithm loop
         while not self.final_generation:
             batch_idx = 0
@@ -336,7 +340,7 @@ class GeneticAlgorithm(ParameterEstimation):
             if self.distance_object.final_epsilon == self.distance_object.epsilon:
                 self.final_generation = True
 
-            while len(accepted_particles) < self.population_size:
+            while len(accepted_particles) <= self.population_size:
                 logger.info(
                     f"Gen: {self.gen_idx}, batch: {batch_idx}, epsilon: {self.distance_object.epsilon}, accepted: {len(accepted_particles)}, mem usage (mb): {utils.get_mem_usage()}"
                 )
