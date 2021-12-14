@@ -1,0 +1,33 @@
+wd: /Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/
+run_idx: 999
+output_dir: ${cfg.wd}/output/exp_lactis_iMM904_coculture_ga_fit/run_${cfg.run_idx}/
+
+# Information about the data being used
+exp_data_path: ${cfg.wd}/experimental_data/Figure1B_fake_data.csv
+exp_sol_keys:
+  - - yeast_dcw
+    - iMM904
+  - - lactis_yeast_dcw
+    - L_lactis_fbc_delGLUSx_delGLUSy
+
+exp_t_key: time
+experiment_name: none
+
+epsilon:
+  - 100.0
+  - 100.0
+final_epsilon:
+  - 2.0
+  - 0.01
+
+defaults:
+  - _self_
+  - community: L_lactis_iMM904_coculture
+  - algorithm: genetic_algorithm
+  - simulator: time_series
+  - sampler: default
+  - distance: euclidian
+  - filter: L_lactis_iMM904_growth
+
+parallel: True
+n_processes: 8

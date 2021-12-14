@@ -1,0 +1,9 @@
+_target_: bk_comms.lo_filters.ViableGrowthFilter
+population_names:
+  - L_lactis_fbc
+growth_keys:
+  - Growth
+min_growth:
+  - 0.0
+max_growth:
+  - 0.2

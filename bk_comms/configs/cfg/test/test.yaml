@@ -1,0 +1,15 @@
+_target_: bk_comms.sampling.MultiDistribution
+dist_1:
+  _target_: bk_comms.sampling.SampleSkewNormal
+  loc: -1
+  scale: 0.1
+  alpha: 0.1
+  clip_above_zero: True
+dist_2:
+  _target_: bk_comms.sampling.SampleSkewNormal
+  loc: -1
+  scale: 0.1
+  alpha: 0.1
+  clip_above_zero: True
+prob_dist_1: 0.95
+

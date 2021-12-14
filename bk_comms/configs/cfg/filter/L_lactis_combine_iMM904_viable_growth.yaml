@@ -1,0 +1,19 @@
+_target_: bk_comms.lo_filters.ViableGrowthCombineParticles
+input_experiment_dirs: 
+  - ${cfg.wd}/output/exp_yeast_ga_fit/
+  - ${cfg.wd}/output/exp_lactis_ga_fit/
+epsilon:
+  - - 1.0
+  - - 0.02
+population_names:
+  - L_lactis_fbc
+  - iMM904
+growth_keys:
+  - Growth
+  - BIOMASS_SC5_notrace
+min_growth:
+  - 0.01
+  - -1
+max_growth:
+  - 1.0
+  - 0.0

@@ -4,17 +4,16 @@ from reframed import Environment
 from typing import List
 import pandas as pd
 
+import sympy
 import time
 
 from scipy.integrate import ode
 
-import utils
+from bk_comms import utils
 import cobra
 from scipy.integrate import odeint
 
-import logging
-
-logging.getLogger("cobra").setLevel(logging.ERROR)
+from loguru import logger
 
 import matplotlib.pyplot as plt
 import copy
@@ -64,7 +63,7 @@ class Population:
 
         for met in list(self.model.medium):
             if met in defined_mets:
-                print(met)
+                print("Defined in media file and model media", met)
                 key = met.replace("EX_", "").replace("_e", "")
 
                 medium = self.model.medium
@@ -117,11 +116,9 @@ class Population:
     def optimize(self):
         if self.use_parsimonius_fba:
             self.opt_sol = cobra.flux_analysis.pfba(self.model)
-        
-        
+
         else:
             self.opt_sol = self.model.optimize()
-        
 
     def get_dynamic_compound_fluxes(self):
         compound_fluxes = np.zeros(len(self.dynamic_compounds))
@@ -147,7 +144,7 @@ class Community:
         media_path: str,
         media_name: str,
         use_parsimonius_fba: bool,
-        initial_populations: List[float]
+        initial_populations: List[float],
     ):
         self.model_names = model_names
         self.model_paths = model_paths
@@ -163,6 +160,7 @@ class Community:
         self.dynamic_compounds = self.get_dynamic_compounds(
             model_paths, smetana_analysis_path, self.media_df, flavor="fbc2"
         )
+
         self.reaction_keys = [x.replace("M_", "EX_") for x in self.dynamic_compounds]
 
         self.populations = self.load_populations(
@@ -221,11 +219,10 @@ class Community:
 
                 self.k_vals[this_model_idx] = particle.k_vals[particle_model_idx]
                 self.max_exchange_mat[this_model_idx] = particle.max_exchange_mat[
-                    this_model_idx
+                    particle_model_idx
                 ]
 
     def load_parameter_vector(self, parameter_vec):
-        
         n_variables = len(self.init_y)
         n_k_vals = self.k_vals.shape[0] * self.k_vals.shape[1]
         n_max_exchange_vals = (
@@ -254,7 +251,7 @@ class Community:
                     break
 
             if not found_match:
-                init_compound_values[compound_idx] = 0.00
+                init_compound_values[compound_idx] = 0.0
 
         return init_compound_values
 
@@ -389,51 +386,18 @@ class Community:
 
     def set_population_indexes(self):
         num_populations = len(self.populations)
-        return range(num_populations)
+        return list(range(num_populations))
 
     def set_compound_indexes(self):
         num_dynamic_cmpds = len(self.dynamic_compounds)
         num_populations = len(self.populations)
 
-        return range(num_populations, num_populations + num_dynamic_cmpds)
+        return list(range(num_populations, num_populations + num_dynamic_cmpds))
 
     def set_init_y(self):
         self.init_y = np.concatenate(
             (self.init_population_values, self.init_compound_values), axis=None
         )
-
-    def simulate_community(self, method="odeint"):
-        init_y = self.init_y
-        y0 = init_y
-        t_0 = 0.0
-        t_end = 24.0
-        steps = 100000
-
-        if method == "odeint":
-            t = np.linspace(t_0, t_end, steps)
-            sol = odeint(self.diff_eqs, y0, t, args=())
-
-        elif method == "vode":
-
-            sol = []
-            t = []
-
-            solver = ode(self.diff_eqs_vode, jac=None).set_integrator(
-                "vode", method="bdf", atol=1e-9, rtol=1e-4, max_step=0.1
-            )
-            # print("solver initiated")
-
-            solver.set_initial_value(y0, t=t_0)
-
-            while solver.successful() and solver.t < t_end:
-                step_out = solver.integrate(t_end, step=True)
-                sol.append(step_out)
-                t.append(solver.t)
-
-            sol = np.array(sol)
-            t = np.array(t)
-
-        return sol, t
 
     def print_sol(self, sol):
         count = 1
@@ -484,16 +448,23 @@ class Community:
                     flux_matrix[idx] = np.zeros(shape=len(self.dynamic_compounds))
                     growth_rates[idx] = 0.0
 
+                if growth_rates[idx] < 0.0:
+                    growth_rates[idx] = 0.0
+
         return growth_rates, flux_matrix
 
     def diff_eqs(self, y, t):
+
         y = y.clip(0)
         # y[y < 1e-25] = 0
         populations = y[self.population_indexes]
         compounds = y[self.compound_indexes]
 
         growth_rates, flux_matrix = self.sim_step(y)
+        self.growth_rates = growth_rates
+        self.flux_matrix = flux_matrix
 
+        print(t, self.growth_rates)
         output = np.zeros(len(y))
 
         output[self.population_indexes] = growth_rates * populations
@@ -516,3 +487,39 @@ class Community:
 
         return output
 
+    def calculate_jacobian(self, y, t):
+        print("calc jac", t)
+        symbolic_populations = []
+        symbolic_compounds = []
+
+        for x in self.solution_keys:
+            if x in self.model_names:
+                symbolic_populations.append(sympy.symbols(x, real=True))
+
+        for x in self.solution_keys:
+            if x in self.dynamic_compounds:
+                symbolic_compounds.append(sympy.symbols(x, real=True))
+
+        diff_eqs = []
+        for idx, _ in enumerate(symbolic_populations):
+            diff_eqs.append(symbolic_populations[idx] * self.growth_rates[idx])
+
+        symbolic_compounds = sympy.Matrix(symbolic_compounds)
+
+        flux_mat_sp = sympy.Matrix(self.flux_matrix)
+
+        mat = np.dot(symbolic_populations, flux_mat_sp)
+
+        for x in mat:
+            diff_eqs.append(x)
+
+        symbolic_species = []
+        symbolic_species.extend(symbolic_populations)
+        symbolic_species.extend(symbolic_compounds)
+
+        diff_eqs = sympy.Matrix(diff_eqs)
+        jac = diff_eqs.jacobian(symbolic_species)
+
+        jac = sympy.lambdify(symbolic_species, jac)
+
+        return jac(*y)
