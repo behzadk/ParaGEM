@@ -13,6 +13,7 @@ import psutil
 import os
 import numpy as np
 
+
 def rejection_sampling():
     model_paths = [
         # "./models/L_lactis/L_lactis_fbc.xml",
@@ -112,7 +113,7 @@ def genetic_algorithm(experiment_name, output_dir):
         media_path,
         "CDM35",
         use_parsimonius_fba=False,
-        initial_populations=np.array([0.0039])
+        initial_populations=np.array([0.0039]),
     )
 
     exp_path = "./data/Figure1B_fake_data.csv"
@@ -138,9 +139,13 @@ def genetic_algorithm(experiment_name, output_dir):
         final_epsion=final_epsion,
     )
 
-    dist_1 = sampling.SampleSkewNormal(loc=-2.0, scale=0.25, alpha=0.0, clip_above_zero=True)
+    dist_1 = sampling.SampleSkewNormal(
+        loc=-2.0, scale=0.25, alpha=0.0, clip_above_zero=True
+    )
     dist_2 = sampling.SampleUniform(
-        min_val=1e-3, max_val=1e-1, distribution="log_uniform",
+        min_val=1e-3,
+        max_val=1e-1,
+        distribution="log_uniform",
     )
 
     max_uptake_sampler = multi_dist = sampling.MultiDistribution(
@@ -175,6 +180,7 @@ def genetic_algorithm(experiment_name, output_dir):
 
     ga.run(parallel=True, n_processes=8)
 
+
 def find_min_requirements(experiment_name, output_dir):
     # Make output directories
     Path(output_dir).mkdir(parents=True, exist_ok=True)
@@ -188,10 +194,9 @@ def find_min_requirements(experiment_name, output_dir):
 
     model_names = ["L_lactis_fbc"]
 
-
     model_paths = [
         "./models/L_lactis/L_lactis_fbc.xml",
-        "./models/S_cerevisiae/iMM904.xml"
+        "./models/S_cerevisiae/iMM904.xml",
     ]
 
     model_names = ["L_lactis_fbc", "iMM904"]
@@ -212,18 +217,23 @@ def find_min_requirements(experiment_name, output_dir):
     exp_sol_keys = [
         ["lactis_dcw", "L_lactis_fbc"],
     ]
-    
-    dist_1 = sampling.SampleSkewNormal(loc=-2.0, scale=0.25, alpha=0.0, clip_above_zero=True)
+
+    dist_1 = sampling.SampleSkewNormal(
+        loc=-2.0, scale=0.25, alpha=0.0, clip_above_zero=True
+    )
     dist_2 = sampling.SampleUniform(
         min_val=1e-3, max_val=1e-1, distribution="log_uniform"
     )
 
-    max_uptake_sampler = multi_dist = sampling.MultiDistribution(dist_1, dist_2, prob_dist_1=0.95)
+    max_uptake_sampler = multi_dist = sampling.MultiDistribution(
+        dist_1, dist_2, prob_dist_1=0.95
+    )
 
     k_val_sampler = sampling.SampleUniform(
         min_val=1e-10, max_val=1e-10, distribution="log_uniform"
     )
     import numpy as np
+
     null_compounds = []
 
     for x in range(1000):
@@ -244,11 +254,11 @@ def find_min_requirements(experiment_name, output_dir):
 
         rand_null_idx = np.random.choice(comm.compound_indexes, size=1)
         x[rand_null_idx] = 0.0
-        
+
         # val_idx = comm.dynamic_compounds.index('M_val__L_e')
-        thm_idx = comm.dynamic_compounds.index('M_thm_e')
+        thm_idx = comm.dynamic_compounds.index("M_thm_e")
         growth, fluxes = comm.sim_step(x)
-        
+
         print(growth)
 
         if fluxes[1][thm_idx] > 0:
@@ -268,8 +278,9 @@ def find_min_requirements(experiment_name, output_dir):
         print(c)
         # if growth[0] > 0.0:
         #     print(growth[0])
-    
+
     exit()
+
 
 def example_simulation():
     model_paths = [
@@ -338,6 +349,7 @@ def example_simulation():
 
     # exp_data = pd.read_csv("./data/Figure1B_fake_data.csv")
 
+
 def speed_test():
     output_dir = "./output/exp_yeast_ga_fit/run_0/"
     experiment_name = "speed_test"
@@ -375,6 +387,7 @@ def speed_test():
     s = SpeedTest(particles_path, comm)
     s.speed_test(dask_client=dask_client)
 
+
 def main():
     parser = argparse.ArgumentParser(description="Description of your program")
     parser.add_argument(
@@ -385,8 +398,8 @@ def main():
     run_idx = args["run_idx"]
     output_dir = f"./output/exp_test_ga_fit/run_{run_idx}/"
     genetic_algorithm(f"test_ga_fit_{run_idx}", output_dir)
-    
-if __name__ == '__main__':
+
+
+if __name__ == "__main__":
     main()
     # find_min_requirements(f"lactis_yeast_min_reqs{run_idx}", output_dir)
-

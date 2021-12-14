@@ -72,7 +72,7 @@ class ViableGrowthCombineParticles(Filter):
         population_names,
         growth_keys,
         min_growth,
-        max_growth
+        max_growth,
     ):
         self.input_experiment_dirs = input_experiment_dirs
         self.population_names = population_names
@@ -87,13 +87,13 @@ class ViableGrowthCombineParticles(Filter):
             )
             for x in self.input_experiment_dirs
         ]
-        
+
         self.input_particles = [utils.load_all_particles(x) for x in run_dirs]
 
         for idx, _ in enumerate(self.input_particles):
             self.input_particles[idx] = utils.filter_particles_by_distance(
-            self.input_particles[idx], epsilon=epsilon[idx]
-        )
+                self.input_particles[idx], epsilon=epsilon[idx]
+            )
 
         # Clean up unwanted data
         for idx, _ in enumerate(self.input_particles):

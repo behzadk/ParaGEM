@@ -8,8 +8,9 @@ from scipy.integrate import odeint
 from loguru import logger
 from bk_comms import utils
 
+
 class TimeSeriesSimulation:
-    def __init__(self, t_0, t_end, steps, method='vode'):
+    def __init__(self, t_0, t_end, steps, method="vode"):
         self.t_0 = t_0
         self.t_end = t_end
         self.steps = steps
@@ -24,7 +25,15 @@ class TimeSeriesSimulation:
 
         if method == "odeint":
             t = np.linspace(t_0, t_end, steps)
-            sol = odeint(particle.diff_eqs, y0, t, args=(), Dfun=particle.calculate_jacobian, col_deriv=True, mxstep=10000)
+            sol = odeint(
+                particle.diff_eqs,
+                y0,
+                t,
+                args=(),
+                Dfun=particle.calculate_jacobian,
+                col_deriv=True,
+                mxstep=10000,
+            )
 
         elif method == "vode":
             sol = []
@@ -42,7 +51,7 @@ class TimeSeriesSimulation:
                 else:
                     atol_list.append(1e-6)
                     rtol_list.append(1e-3)
-            
+
             start = time.time()
             solver = ode(particle.diff_eqs_vode, jac=None).set_integrator(
                 "vode", method="bdf", atol=1e-4, rtol=1e-3, max_step=0.01
@@ -53,9 +62,9 @@ class TimeSeriesSimulation:
 
             while solver.successful() and solver.t < t_end:
                 step_out = solver.integrate(t_end, step=True)
-                
+
                 if solver.t >= t_points[0]:
-                    mx = np.ma.masked_array(step_out, mask=step_out==0)
+                    mx = np.ma.masked_array(step_out, mask=step_out == 0)
                     sol.append(step_out)
                     t.append(solver.t)
                     t_points.pop(0)
@@ -63,11 +72,13 @@ class TimeSeriesSimulation:
             sol = np.array(sol)
             t = np.array(t)
             end = time.time()
-            logger.info(f'Simulation time: {end - start}')
+            logger.info(f"Simulation time: {end - start}")
 
         return sol, t
 
-    def simulate_particles(self, particles, n_processes=1, sim_timeout=360.0, parallel=True):
+    def simulate_particles(
+        self, particles, n_processes=1, sim_timeout=360.0, parallel=True
+    ):
         if parallel:
             print("running parallel")
 
@@ -91,7 +102,7 @@ class TimeSeriesSimulation:
 
             print("Terminating pool")
             pool.terminate()
-                    
+
             for idx, p in enumerate(particles):
                 if not hasattr(p, "sol"):
                     print(f"Particle {idx} has no sol")
@@ -109,11 +120,12 @@ class TimeSeriesSimulation:
                 end = time.time()
                 print("Sim time: ", end - start)
 
+
 class GrowthRateConditionedMedia:
     def __init__(self, conditioner_particles_dir, condition_media_time_sample):
         self.conditioner_particles_dir = conditioner_particles_dir
         self.condition_media_time_sample = condition_media_time_sample
-        
+
         repeat_prefix = "run_"
         run_dirs = [
             utils.get_experiment_repeat_directories(
@@ -121,13 +133,13 @@ class GrowthRateConditionedMedia:
             )
             for x in self.conditioner_particles_dir
         ]
-        
+
         self.conditoner_particles = [utils.load_all_particles(x) for x in run_dirs]
 
         for idx, _ in enumerate(self.input_particles):
             self.input_particles[idx] = utils.filter_particles_by_distance(
-            self.input_particles[idx], epsilon=epsilon[idx]
-        )
+                self.input_particles[idx], epsilon=epsilon[idx]
+            )
 
     def simulate(self, particle):
         n_populations = len(particle.populations)
@@ -141,7 +153,7 @@ class GrowthRateConditionedMedia:
 
             growth_rates, flux_matrix = particle.sim_step(conditioned_sol)
             particle_growth_rates[idx] = growth_rates
-    
+
         return particle_growth_rates
 
     def simulate_particles(self, particles):

@@ -27,6 +27,7 @@ def clear_lrus():
     for wrapper in wrappers:
         wrapper.cache_clear()
 
+
 def simulate_particles(particles, n_processes=1, sim_timeout=360.0, parallel=True):
     if parallel:
         print("running parallel")
@@ -51,7 +52,7 @@ def simulate_particles(particles, n_processes=1, sim_timeout=360.0, parallel=Tru
 
         print("Terminating pool")
         pool.terminate()
-                
+
         for idx, p in enumerate(particles):
             if not hasattr(p, "sol"):
                 print(f"Particle {idx} has no sol")
@@ -68,6 +69,7 @@ def simulate_particles(particles, n_processes=1, sim_timeout=360.0, parallel=Tru
             p_idx += 1
             end = time.time()
             print("Sim time: ", end - start)
+
 
 def sim_community(community):
     sol, t = community.simulate_community("vode")
@@ -109,7 +111,7 @@ class ParameterEstimation:
                 pop.model = self.models[i][idx]
 
             array_size = [len(comm.populations), len(comm.dynamic_compounds)]
-        
+
             # Sample new max uptake matrix
             max_exchange_mat = np.ones(shape=array_size)
             max_exchange_mat = max_exchange_mat * -99
@@ -123,7 +125,6 @@ class ParameterEstimation:
             particles[i] = comm
 
         return particles
-
 
     def save_particles(self, particles, output_path):
         particles_out = []
@@ -162,9 +163,9 @@ class ParameterEstimation:
         with open(checkpoint_path, "rb") as f:
             return pickle.load(f)
 
-
     def simulate_particle(self, particle):
         return self.simulator.simulate(particle)
+
 
 class GeneticAlgorithm(ParameterEstimation):
     def __init__(
@@ -180,7 +181,7 @@ class GeneticAlgorithm(ParameterEstimation):
         population_size=32,
         mutation_probability=0.1,
         epsilon_alpha=0.2,
-        filter=None
+        filter=None,
     ):
         self.experiment_name = experiment_name
         self.base_community = base_community
@@ -229,7 +230,9 @@ class GeneticAlgorithm(ParameterEstimation):
         return accepted_particles
 
     def crossover(self, n_particles, population):
-        batch_particles = self.init_particles(self.max_uptake_sampler, self.k_val_sampler, n_particles)
+        batch_particles = self.init_particles(
+            self.max_uptake_sampler, self.k_val_sampler, n_particles
+        )
 
         for p_batch_idx in range(n_particles):
             # Randomly choose two particles from the population
@@ -252,15 +255,17 @@ class GeneticAlgorithm(ParameterEstimation):
             particle_param_vec = particle.generate_parameter_vector()
 
             # Generate a 'mutation particle'
-            mut_particle = self.init_particles(self.max_uptake_sampler, self.k_val_sampler, 1)[0]
+            mut_particle = self.init_particles(
+                self.max_uptake_sampler, self.k_val_sampler, 1
+            )[0]
             mut_params_vec = mut_particle.generate_parameter_vector()
-            
+
             vec_before = particle_param_vec.copy()
 
             for idx in range(len(particle_param_vec)):
                 particle_param_vec[idx] = np.random.choice(
                     [particle_param_vec[idx][0], mut_params_vec[idx][0]],
-                    p=[1 - self.mutation_probability, self.mutation_probability]
+                    p=[1 - self.mutation_probability, self.mutation_probability],
                 ).copy()
             particle.load_parameter_vector(particle_param_vec)
 
@@ -275,19 +280,25 @@ class GeneticAlgorithm(ParameterEstimation):
 
             particles = []
             while len(particles) <= self.n_particles_batch:
-                candidate_particles = self.init_const_mat_populations(self.n_particles_batch)
-                candidate_particles = self.init_particles(self.max_uptake_sampler, self.k_val_sampler, self.n_particles_batch)
+                candidate_particles = self.init_const_mat_populations(
+                    self.n_particles_batch
+                )
+                candidate_particles = self.init_particles(
+                    self.max_uptake_sampler, self.k_val_sampler, self.n_particles_batch
+                )
 
-                if self.filter is not None: 
-                    candidate_particles = self.filter.filter_particles(candidate_particles)
-               
+                if self.filter is not None:
+                    candidate_particles = self.filter.filter_particles(
+                        candidate_particles
+                    )
+
                 particles.extend(candidate_particles)
 
             particles = particles[: self.n_particles_batch]
 
             if len(particles) == 0:
                 continue
-            
+
             self.simulator.simulate_particles(
                 particles,
                 n_processes=n_processes,
@@ -336,7 +347,6 @@ class GeneticAlgorithm(ParameterEstimation):
             output_path = f"{self.output_dir}particles_{self.experiment_name}_gen_{self.gen_idx}.pkl"
             self.save_particles(self.population, output_path)
 
-
         # Core genetic algorithm loop
         while not self.final_generation:
             batch_idx = 0
@@ -361,23 +371,23 @@ class GeneticAlgorithm(ParameterEstimation):
 
                     # Mutate batch
                     self.mutate_particles(candidate_particles)
-                    
+
                     for p in candidate_particles:
                         p.set_init_y()
 
                     if self.filter is not None:
-                        candidate_particles = self.filter.filter_particles(candidate_particles)
+                        candidate_particles = self.filter.filter_particles(
+                            candidate_particles
+                        )
 
                     batch_particles.extend(candidate_particles)
-                
-                batch_particles = batch_particles[:self.n_particles_batch]
-                
+
+                batch_particles = batch_particles[: self.n_particles_batch]
+
                 logger.info(f"Simulating particles...")
                 # Simulate
                 simulate_particles(
-                    batch_particles,
-                    n_processes=n_processes,
-                    parallel=parallel
+                    batch_particles, n_processes=n_processes, parallel=parallel
                 )
 
                 clear_cache()

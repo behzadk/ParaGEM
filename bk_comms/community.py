@@ -23,6 +23,7 @@ import warnings
 # import multiprocessing as mp
 import multiprocess as mp
 
+
 class Population:
     def __init__(
         self,
@@ -59,7 +60,7 @@ class Population:
         dynamic_compounds = [x.replace("M_", "EX_") for x in self.dynamic_compounds]
 
         defined_mets = ["EX_" + x + "_e" for x in self.media_df["compound"].values]
-        
+
         for met in list(self.model.medium):
             if met in defined_mets:
                 print("Defined in media file and model media", met)
@@ -115,11 +116,9 @@ class Population:
     def optimize(self):
         if self.use_parsimonius_fba:
             self.opt_sol = cobra.flux_analysis.pfba(self.model)
-        
-        
+
         else:
             self.opt_sol = self.model.optimize()
-        
 
     def get_dynamic_compound_fluxes(self):
         compound_fluxes = np.zeros(len(self.dynamic_compounds))
@@ -145,7 +144,7 @@ class Community:
         media_path: str,
         media_name: str,
         use_parsimonius_fba: bool,
-        initial_populations: List[float]
+        initial_populations: List[float],
     ):
         self.model_names = model_names
         self.model_paths = model_paths
@@ -400,7 +399,6 @@ class Community:
             (self.init_population_values, self.init_compound_values), axis=None
         )
 
-
     def print_sol(self, sol):
         count = 1
         for idx in self.population_indexes:
@@ -445,7 +443,7 @@ class Community:
                     pop.optimize()
                     flux_matrix[idx] = pop.get_dynamic_compound_fluxes()
                     growth_rates[idx] = pop.get_growth_rate()
-                    
+
                 except UserWarning:
                     flux_matrix[idx] = np.zeros(shape=len(self.dynamic_compounds))
                     growth_rates[idx] = 0.0
@@ -456,7 +454,7 @@ class Community:
         return growth_rates, flux_matrix
 
     def diff_eqs(self, y, t):
-        
+
         y = y.clip(0)
         # y[y < 1e-25] = 0
         populations = y[self.population_indexes]
@@ -496,11 +494,11 @@ class Community:
 
         for x in self.solution_keys:
             if x in self.model_names:
-                symbolic_populations.append(sympy.symbols(x, real = True))
-                
+                symbolic_populations.append(sympy.symbols(x, real=True))
+
         for x in self.solution_keys:
             if x in self.dynamic_compounds:
-                symbolic_compounds.append(sympy.symbols(x, real = True))
+                symbolic_compounds.append(sympy.symbols(x, real=True))
 
         diff_eqs = []
         for idx, _ in enumerate(symbolic_populations):
@@ -514,7 +512,7 @@ class Community:
 
         for x in mat:
             diff_eqs.append(x)
-            
+
         symbolic_species = []
         symbolic_species.extend(symbolic_populations)
         symbolic_species.extend(symbolic_compounds)
@@ -525,4 +523,3 @@ class Community:
         jac = sympy.lambdify(symbolic_species, jac)
 
         return jac(*y)
-
