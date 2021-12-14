@@ -4,6 +4,7 @@ from reframed import Environment
 from typing import List
 import pandas as pd
 
+import sympy
 import time
 
 from scipy.integrate import ode
@@ -157,7 +158,6 @@ class Community:
             self.media_df["medium"] == media_name
         ].reset_index(drop=True)
 
-
         self.dynamic_compounds = self.get_dynamic_compounds(
             model_paths, smetana_analysis_path, self.media_df, flavor="fbc2"
         )
@@ -252,7 +252,7 @@ class Community:
                     break
 
             if not found_match:
-                init_compound_values[compound_idx] = 0.00
+                init_compound_values[compound_idx] = 0.0
 
         return init_compound_values
 
@@ -387,71 +387,19 @@ class Community:
 
     def set_population_indexes(self):
         num_populations = len(self.populations)
-        return range(num_populations)
+        return list(range(num_populations))
 
     def set_compound_indexes(self):
         num_dynamic_cmpds = len(self.dynamic_compounds)
         num_populations = len(self.populations)
 
-        return range(num_populations, num_populations + num_dynamic_cmpds)
+        return list(range(num_populations, num_populations + num_dynamic_cmpds))
 
     def set_init_y(self):
         self.init_y = np.concatenate(
             (self.init_population_values, self.init_compound_values), axis=None
         )
 
-    def simulate_community(self, method="odeint"):
-        y0 = copy.deepcopy(self.init_y)
-        t_0 = 0.0
-        t_end = 24.0
-        steps = 100000
-
-        if method == "odeint":
-            t = np.linspace(t_0, t_end, steps)
-            sol = odeint(self.diff_eqs, y0, t, args=())
-
-        elif method == "vode":
-
-            sol = []
-            t = []
-            steps = 100
-            t_points = list(np.linspace(t_0, t_end, steps))
-
-            # Approximately set atol, rtol
-            atol_list = []
-            rtol_list = []
-            for y in y0:
-                if y > 50.0:
-                    atol_list.append(1e-3)
-                    rtol_list.append(1e-3)
-                else:
-                    atol_list.append(1e-6)
-                    rtol_list.append(1e-3)
-            
-            start = time.time()
-            solver = ode(self.diff_eqs_vode, jac=None).set_integrator(
-                "vode", method="bdf", atol=1e-4, rtol=1e-3, max_step=0.01
-            )
-            # print("solver initiated")
-
-            solver.set_initial_value(y0, t=t_0)
-
-            while solver.successful() and solver.t < t_end:
-                # print(solver.t)
-                step_out = solver.integrate(t_end, step=True)
-                
-                if solver.t >= t_points[0]:
-                    mx = np.ma.masked_array(step_out, mask=step_out==0)
-                    sol.append(step_out)
-                    t.append(solver.t)
-                    t_points.pop(0)
-
-            sol = np.array(sol)
-            t = np.array(t)
-            end = time.time()
-            logger.info(f'Simulation time: {end - start}')
-
-        return sol, t
 
     def print_sol(self, sol):
         count = 1
@@ -485,8 +433,7 @@ class Community:
 
         lower_constraints = self.calculate_exchange_reaction_lb_constraints(
             compound_concs, self.k_vals, self.max_exchange_mat
-        )        
-
+        )
 
         self.lower_constraints = lower_constraints
 
@@ -499,22 +446,27 @@ class Community:
                     flux_matrix[idx] = pop.get_dynamic_compound_fluxes()
                     growth_rates[idx] = pop.get_growth_rate()
                     
-
                 except UserWarning:
                     flux_matrix[idx] = np.zeros(shape=len(self.dynamic_compounds))
                     growth_rates[idx] = 0.0
-        
+
+                if growth_rates[idx] < 0.0:
+                    growth_rates[idx] = 0.0
 
         return growth_rates, flux_matrix
 
     def diff_eqs(self, y, t):
+        
         y = y.clip(0)
         # y[y < 1e-25] = 0
         populations = y[self.population_indexes]
         compounds = y[self.compound_indexes]
 
         growth_rates, flux_matrix = self.sim_step(y)
+        self.growth_rates = growth_rates
+        self.flux_matrix = flux_matrix
 
+        print(t, self.growth_rates)
         output = np.zeros(len(y))
 
         output[self.population_indexes] = growth_rates * populations
@@ -536,4 +488,41 @@ class Community:
         output[self.compound_indexes] = np.dot(populations, flux_matrix)
 
         return output
+
+    def calculate_jacobian(self, y, t):
+        print("calc jac", t)
+        symbolic_populations = []
+        symbolic_compounds = []
+
+        for x in self.solution_keys:
+            if x in self.model_names:
+                symbolic_populations.append(sympy.symbols(x, real = True))
+                
+        for x in self.solution_keys:
+            if x in self.dynamic_compounds:
+                symbolic_compounds.append(sympy.symbols(x, real = True))
+
+        diff_eqs = []
+        for idx, _ in enumerate(symbolic_populations):
+            diff_eqs.append(symbolic_populations[idx] * self.growth_rates[idx])
+
+        symbolic_compounds = sympy.Matrix(symbolic_compounds)
+
+        flux_mat_sp = sympy.Matrix(self.flux_matrix)
+
+        mat = np.dot(symbolic_populations, flux_mat_sp)
+
+        for x in mat:
+            diff_eqs.append(x)
+            
+        symbolic_species = []
+        symbolic_species.extend(symbolic_populations)
+        symbolic_species.extend(symbolic_compounds)
+
+        diff_eqs = sympy.Matrix(diff_eqs)
+        jac = diff_eqs.jacobian(symbolic_species)
+
+        jac = sympy.lambdify(symbolic_species, jac)
+
+        return jac(*y)
 

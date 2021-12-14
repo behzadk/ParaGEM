@@ -2,6 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 from loguru import logger
+from typing import List
 
 def find_nearest(array, value):
     array = np.asarray(array)
@@ -12,6 +13,47 @@ def find_nearest(array, value):
 def get_solution_index(comm, sol_element_key):
     idx = comm.solution_keys.index(sol_element_key)
     return idx
+
+class DistanceGrowthRateMinMax:
+    def __init__(self, min_growth: List[str], max_growth: List[str], pop_keys: List[str], mode: str):
+        self.min_growth = min_growth
+        self.max_growth = max_growth
+        self.mode = mode
+
+        available_modes = ['max', 'mean', 'median']
+
+        if self.mode not in available_modes:
+            raise ValueError(f'{self.mode} not in {available_modes}')
+        
+    
+    def calculate_distance(self, community):
+        n_distances = len(self.pop_keys)
+        distances = np.zeros(n_distances)
+        
+        if community.sol is None or community.t is None:
+            return [np.inf for d in range(n_distances)]
+
+        for idx, p_key in enumerate(self.pop_keys):
+            if self.mode == 'max':
+                distances[idx] =  np.max(community.sol[:, idx])
+
+            elif self.mode == 'mean':
+                distances[idx] =  np.mean(community.sol[:, idx])
+
+            elif self.mode == 'median':
+                distances[idx] =  np.median(community.sol[:, idx])
+
+    def assess_particle(self, community):
+        distance = self.calculate_distance(community)
+
+        for idx, d in enumerate(distance):
+            if d > self.min_growth and d < self.max_growth:
+                continue
+
+            else:    
+                return False, distance
+        
+        return True, distance
 
 class DistanceTimeseriesEuclidianDistance:
     def __init__(self, exp_data_path: str, exp_t_key, exp_sol_keys, epsilon=1.0, final_epsilon=1.0):
@@ -47,7 +89,12 @@ class DistanceTimeseriesEuclidianDistance:
                     continue
 
                 distances[distance_idx] += abs(exp_val - sim_val)
-        
+            
+            # Temp fix
+            print("end to end diff: ", abs(sim_data[:, sol_idx][0] - sim_data[:, sol_idx][-1]))
+            if abs(sim_data[:, sol_idx][0] - sim_data[:, sol_idx][-1]) < 1e-10:
+                distances[distance_idx] = 1000
+
         return distances
 
     def assess_particle(self, community):

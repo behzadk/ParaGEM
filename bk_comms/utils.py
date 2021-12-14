@@ -11,6 +11,13 @@ import psutil
 import os
 import pickle
 
+
+def find_nearest(array, value):
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    return idx
+
+    
 def get_experiment_repeat_directories(exp_dir, repeat_prefix):
     exp_path = Path(exp_dir)
     sub_dirs = list(exp_path.glob("**"))

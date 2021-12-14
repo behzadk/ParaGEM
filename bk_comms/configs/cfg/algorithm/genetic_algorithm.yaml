@@ -2,7 +2,8 @@ _target_: bk_comms.parameter_estimation.GeneticAlgorithm
 n_particles_batch: 8
 population_size: 10
 mutation_probability: 0.1
-epsilon_alpha: 0.5
+epsilon_alpha: 0.2
+simulator: ${cfg.simulator}
 experiment_name: ${cfg.experiment_name}
 base_community: ${cfg.community}
 distance_object: ${cfg.distance}

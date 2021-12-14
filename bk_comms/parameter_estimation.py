@@ -69,7 +69,6 @@ def simulate_particles(particles, n_processes=1, sim_timeout=360.0, parallel=Tru
             end = time.time()
             print("Sim time: ", end - start)
 
-
 def sim_community(community):
     sol, t = community.simulate_community("vode")
     return [sol, t]
@@ -164,6 +163,9 @@ class ParameterEstimation:
             return pickle.load(f)
 
 
+    def simulate_particle(self, particle):
+        return self.simulator.simulate(particle)
+
 class GeneticAlgorithm(ParameterEstimation):
     def __init__(
         self,
@@ -173,6 +175,7 @@ class GeneticAlgorithm(ParameterEstimation):
         max_uptake_sampler,
         k_val_sampler,
         output_dir,
+        simulator,
         n_particles_batch,
         population_size=32,
         mutation_probability=0.1,
@@ -189,6 +192,7 @@ class GeneticAlgorithm(ParameterEstimation):
         self.distance_object = distance_object
         self.mutation_probability = mutation_probability
         self.epsilon_alpha = epsilon_alpha
+        self.simulator = simulator
 
         self.gen_idx = 0
         self.final_generation = False
@@ -272,7 +276,8 @@ class GeneticAlgorithm(ParameterEstimation):
             particles = []
             while len(particles) <= self.n_particles_batch:
                 candidate_particles = self.init_const_mat_populations(self.n_particles_batch)
-                
+                candidate_particles = self.init_particles(self.max_uptake_sampler, self.k_val_sampler, self.n_particles_batch)
+
                 if self.filter is not None: 
                     candidate_particles = self.filter.filter_particles(candidate_particles)
                
@@ -283,7 +288,7 @@ class GeneticAlgorithm(ParameterEstimation):
             if len(particles) == 0:
                 continue
             
-            simulate_particles(
+            self.simulator.simulate_particles(
                 particles,
                 n_processes=n_processes,
                 parallel=parallel,

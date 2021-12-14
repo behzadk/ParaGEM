@@ -12,8 +12,8 @@ growth_keys:
   - Growth
   - BIOMASS_SC5_notrace
 min_growth:
-  - 0.00001
-  - 0.0
+  - 0.01
+  - -1
 max_growth:
-  - 0.1
-  - 100.0
+  - 1.0
+  - 0.0

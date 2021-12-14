@@ -19,6 +19,7 @@ defaults:
   - _self_
   - community: iMM904
   - algorithm: genetic_algorithm
+  - simulator: time_series
   - sampler: default_log_uniform
   - distance: euclidian
   - filter: iMM904_viable_growth

@@ -22,6 +22,7 @@ class Filter:
                         growth_key = self.growth_keys[name_idx]
                         df = population.model.optimize().to_frame()
                         df["name"] = df.index
+
                         df.reset_index(drop=True, inplace=True)
                         biomass_flux = df.loc[df["name"] == growth_key][
                             "fluxes"
@@ -71,7 +72,7 @@ class ViableGrowthCombineParticles(Filter):
         population_names,
         growth_keys,
         min_growth,
-        max_growth,
+        max_growth
     ):
         self.input_experiment_dirs = input_experiment_dirs
         self.population_names = population_names
