@@ -16,6 +16,9 @@ Lactobacillus plantarum         L_plantarum.XML                 (Carveme paper)
 `smetana ./models/L_lactis/L_lactis.xml ./models/L_plantarum/L_plantarum.xml ./models/E_col/E_coli_IAI1.xml -d -o ./carveme_output/lactis_plant_ecol --solver 'gurobi' --flavor cobra`
 
 `smetana ./models/L_lactis/L_lactis_fbc.xml ./models/S_cerevisiae/iMM904.xml -d -o ./carveme_output/lactis_cerevisiae --solver 'gurobi' --flavor fbc2`
+
+`smetana ./models/L_lactis/L_lactis_fbc_delGLUSx_delGLUSy.xml ./models/S_cerevisiae/iMM904.xml -d -o ./carveme_output/L_lactis_fbc_delGLUSx_delGLUSy --solver 'gurobi' --flavor fbc2 --verbose`
+
 `smetana ./models/L_lactis/L_lactis_fbc_delGLUSx_delGLUSy.xml ./models/S_cerevisiae/iMM904.xml -d -o ./carveme_output/L_lactis_fbc_delGLUSx_delGLUSy --solver 'gurobi' --flavor fbc2 --verbose`
 
 `smetana ./models/L_lactis/L_lactis_fbc.xml -d -o ./carveme_output/lactis_only --solver 'gurobi' --flavor fbc2`
