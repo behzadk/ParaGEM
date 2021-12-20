@@ -1,5 +1,6 @@
 import multiprocess as mp
 import copy
+import cometspy
 import numpy as np
 import time
 from scipy.integrate import ode
@@ -7,6 +8,9 @@ from scipy.integrate import odeint
 
 from loguru import logger
 from bk_comms import utils
+import os
+
+import shutil
 
 
 class TimeSeriesSimulation:
@@ -119,6 +123,189 @@ class TimeSeriesSimulation:
                 p_idx += 1
                 end = time.time()
                 print("Sim time: ", end - start)
+
+
+class CometsTimeSeriesSimulation:
+    def __init__(self, t_end, dt, gurobi_home_dir, comets_home_dir):
+        self.dt = dt
+        self.max_cycles = int(np.ceil(t_end / dt))
+
+        os.environ['GUROBI_HOME'] = gurobi_home_dir
+        os.environ['GUROBI_COMETS_HOME'] = gurobi_home_dir
+        os.environ['COMETS_HOME'] = comets_home_dir
+
+    def convert_models(self, community):
+        """Conversts cobrapy models of community to comets model inplace"""
+        for idx, population in enumerate(community.populations):
+            
+            if isinstance(population.model, cometspy.model):
+                continue
+
+            else:
+                population.model = cometspy.model(population.model)
+                population.model.id = population.name
+                population.model.open_exchanges()
+
+    def set_lb_constraint(self, layout, community):
+        """
+        Updates the model exchange bounds according to the community
+        max uptake matrix
+        """
+        for idx, model in enumerate(layout.models):
+            lower_bound_constraints = community.max_exchange_mat[idx]
+
+            for cmpd_idx, cmpd in enumerate(community.dynamic_compounds):
+                cmpd_str = community.dynamic_compounds[cmpd_idx]
+                cmpd_str = cmpd_str.replace('M_', 'EX_')
+
+                # Change michaelis menten vmax
+                # model.change_vmax(cmpd_str, lower_bound_constraints[cmpd_idx])
+
+                # Update model lower bound
+                model.change_bounds(cmpd_str, lower_bound_constraints[cmpd_idx], 1000)
+
+    def set_layout_metabolite_concentrations(self, layout, community):
+        # Set dynamic compound initial concentrations
+        for idx, cmpd in enumerate(community.dynamic_compounds):
+            metabolite_str = cmpd.replace('M_', '')
+            layout.set_specific_metabolite(metabolite_str, 
+            community.init_compound_values[idx])
+
+        #  Fill non dynamic compound concentrations
+        non_dynamic_media_df = community.media_df.loc[community.media_df['dynamic'] == 0]
+        for idx, row in non_dynamic_media_df.iterrows():
+            cmpd_str = row.compound
+            cmpd_str = cmpd_str + '_e'
+
+            layout.set_specific_metabolite(cmpd_str, 
+            row.mmol_per_L)
+
+            # Make static
+            layout.set_specific_static(cmpd_str, row.mmol_per_L)
+
+    def set_model_initial_pop(self, layout, community):
+        for idx, pop in enumerate(community.populations):
+            model_init_pop = community.init_population_values[idx]
+            pop.model.initial_pop = [0, 0, model_init_pop]
+
+    def load_layout_models(self, layout, community):
+        for pop in community.populations:
+            layout.add_model(pop.model)
+
+    def process_experiment(self, comm, experiment):
+        media_df = experiment.media
+        media_df['t'] = media_df['cycle'] * 0.01
+
+        met_df = experiment.get_metabolite_time_series(upper_threshold=None)
+        met_df['t'] = met_df['cycle'] * 0.01
+
+        biomass_df = experiment.total_biomass
+        biomass_df['t'] = biomass_df['cycle'] * 0.01
+
+        t = biomass_df['t'].values
+        sol = np.zeros([len(t), len(comm.solution_keys)])
+
+        for idx, s in enumerate(comm.solution_keys):
+            if s in comm.model_names:
+                for t_val in t:
+                    t_idx = utils.find_nearest(biomass_df['t'].values, t_val)
+                    sol[:, idx][t_idx] = biomass_df[s].values[t_idx]
+
+            else:
+                s = s.replace('M_', '')
+                s_df = met_df[[s, 't']]
+                for t_val in t:
+                    t_idx = utils.find_nearest(s_df['t'].values, t_val)
+                    sol[:, idx][t_idx] = s_df[s].values[t_idx]
+
+        return sol, t
+
+
+    def simulate(self, community, idx=0):
+        self.convert_models(community)
+
+        layout = cometspy.layout()
+        self.set_model_initial_pop(layout, community)
+        self.load_layout_models(layout, community)
+        self.set_layout_metabolite_concentrations(layout, community)
+
+        self.set_lb_constraint(layout, community)
+
+        layout.media.reset_index(inplace=True)
+
+        sim_params = cometspy.params()
+        sim_params.set_param('defaultVmax', 18.5)
+        sim_params.set_param('defaultKm', 0.000015)
+        sim_params.set_param('maxCycles', self.max_cycles)
+        sim_params.set_param('timeStep', self.dt)
+        sim_params.set_param('spaceWidth', 1)
+        sim_params.set_param('maxSpaceBiomass', 10)
+        sim_params.set_param('minSpaceBiomass', 1e-11)
+        sim_params.set_param('writeMediaLog', True)
+
+        tmp_dir = f'./tmp_{os.getpid()}/'
+        if not os.path.exists(tmp_dir):
+            os.mkdir(tmp_dir)
+
+        experiment = cometspy.comets(layout, sim_params, relative_dir=tmp_dir)
+
+        comets_lib = '/Users/bezk/Documents/CAM/research_code/comets/lib'
+
+        experiment.set_classpath("bin","/Users/bezk/Documents/CAM/research_code/comets/bin/comets.jar")
+        experiment.set_classpath("gurobi", "/Library/gurobi950/macos_universal2/lib/gurobi.jar")
+        experiment.set_classpath("jdistlib", f"{comets_lib}/jdistlib/jdistlib-0.4.5-bin.jar")
+
+        experiment.run()
+
+        sol, t = self.process_experiment(community, experiment)
+
+        shutil.rmtree(tmp_dir)
+
+        return sol, t
+
+    def simulate_particles(self, particles, n_processes=1, sim_timeout=360.0, parallel=True):
+        if parallel:
+            print("running parallel")
+
+            def wrapper(args):
+                idx, args = args
+                sol, t = self.simulate(args)
+                return (idx, sol, t)
+
+            pool = mp.get_context("spawn").Pool(n_processes, maxtasksperchild=1)
+            futures_mp_sol = pool.imap_unordered(wrapper, enumerate(particles))
+
+            for particle in particles:
+                try:
+                    idx, sol, t = futures_mp_sol.next(timeout=sim_timeout)
+                    particles[idx].sol = sol
+                    particles[idx].t = t
+
+                except mp.context.TimeoutError:
+                    print("TIMEOUT ERROR")
+                    break
+
+            print("Terminating pool")
+            pool.terminate()
+
+            for idx, p in enumerate(particles):
+                if not hasattr(p, "sol"):
+                    print(f"Particle {idx} has no sol")
+                    p.sol = None
+                    p.t = None
+
+        else:
+            p_idx = 0
+            for p in particles:
+                start = time.time()
+                print(f"Simulating particle idx: {p_idx}")
+                output = sim_community(p)
+                p.sol = output[0]
+                p.t = output[1]
+                p_idx += 1
+                end = time.time()
+                print("Sim time: ", end - start)
+
 
 
 class GrowthRateConditionedMedia:
