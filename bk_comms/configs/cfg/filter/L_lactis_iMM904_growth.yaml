@@ -2,20 +2,12 @@ _target_: bk_comms.lo_filters.ViableGrowthFilter
 population_names:
   - L_lactis_fbc_delGLUSx_delGLUSy
   - iMM904
-  - iMM904
 growth_keys:
   - Growth
   - BIOMASS_SC5_notrace
-  - EX_glu__L_e
-  - EX_thm_e
-  - EX_val__L_e
 min_growth:
-  - -1
-  - 0.01
   - 0.0
+  - 0.001
 max_growth:
-  - 1e-20
+  - 0.0
   - 1.0
-  - 100.0
-  - 100.0
-  - 100.0

@@ -24,7 +24,7 @@ defaults:
   - _self_
   - community: L_lactis_iMM904_coculture
   - algorithm: genetic_algorithm
-  - simulator: time_series
+  - simulator: time_series_comets
   - sampler: default
   - distance: euclidian
   - filter: L_lactis_iMM904_growth

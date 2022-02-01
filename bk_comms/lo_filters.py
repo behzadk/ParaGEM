@@ -28,8 +28,8 @@ class Filter:
                             "fluxes"
                         ].values[0]
                         if (
-                            biomass_flux > self.min_growth[name_idx]
-                            and biomass_flux < self.max_growth[name_idx]
+                            biomass_flux >= self.min_growth[name_idx]
+                            and biomass_flux <= self.max_growth[name_idx]
                         ):
                             print(name, biomass_flux)
                         else:
