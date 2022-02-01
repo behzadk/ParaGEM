@@ -220,7 +220,6 @@ class CometsTimeSeriesSimulation:
 
         return sol, t
 
-
     def simulate(self, community, idx=0):
         self.convert_models(community)
 
