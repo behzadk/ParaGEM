@@ -278,7 +278,7 @@ class Community:
         return k_vals
 
     def set_initial_populations(self, populations_vec):
-        assert len(populations_vec) == ( 
+        assert len(populations_vec) == (
             len(self.populations)
         ), f"Error: length of parameter_vec, {len(populations_vec)} \
             does not match expected  {len(self.populations)}"

@@ -168,12 +168,14 @@ class DistanceTimeseriesEuclidianDistance:
 
 
 class DistanceFoldChangeError:
-    def __init__(self,
+    def __init__(
+        self,
         exp_data_path: str,
         exp_t_key,
         exp_sol_keys,
         epsilon=1.0,
-        final_epsilon=1.0):
+        final_epsilon=1.0,
+    ):
 
         self.exp_data = pd.read_csv(exp_data_path)
         self.exp_t_key = exp_t_key
@@ -182,7 +184,7 @@ class DistanceFoldChangeError:
         # Here, epsilon behaves as a percentage error tolerance
         self.epsilon = epsilon
         self.final_epsilon = final_epsilon
-    
+
     def calculate_distance(self, community):
         n_distances = len(self.exp_sol_keys)
         distances = np.zeros(n_distances)
@@ -204,7 +206,7 @@ class DistanceFoldChangeError:
                 this_sim_val = sim_data[:, sol_idx][sim_t_idx]
 
                 fold_change_sim_val = this_sim_val / init_sim_val
-                
+
                 exp_val = self.exp_data.loc[self.exp_data[self.exp_t_key] == t][
                     key_pair[0]
                 ].values[0]
@@ -212,8 +214,12 @@ class DistanceFoldChangeError:
                 if np.isnan(exp_val):
                     continue
 
-                distances[distance_idx] += abs((fold_change_sim_val - exp_val) / exp_val)
-                print(f"FoldChangeError: {init_sim_val}, {this_sim_val}, {distances[distance_idx]}")
+                distances[distance_idx] += abs(
+                    (fold_change_sim_val - exp_val) / exp_val
+                )
+                print(
+                    f"FoldChangeError: {init_sim_val}, {this_sim_val}, {distances[distance_idx]}"
+                )
 
         return distances
 

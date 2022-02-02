@@ -77,7 +77,9 @@ def sim_community(community):
 
 
 class ParameterEstimation:
-    def init_particles(self, init_population_sampler, max_uptake_sampler, k_val_sampler, n_particles):
+    def init_particles(
+        self, init_population_sampler, max_uptake_sampler, k_val_sampler, n_particles
+    ):
         particles = np.zeros(shape=n_particles, dtype=object)
 
         for i in range(n_particles):
@@ -92,7 +94,9 @@ class ParameterEstimation:
             # Check if population should be sampled
             if init_population_sampler is not None:
                 print(init_population_sampler)
-                populations_vec = init_population_sampler.sample(size=[len(comm.populations), 1])
+                populations_vec = init_population_sampler.sample(
+                    size=[len(comm.populations), 1]
+                )
                 comm.set_initial_populations(populations_vec[0])
 
             # Sample new max uptake matrix
@@ -241,7 +245,10 @@ class GeneticAlgorithm(ParameterEstimation):
 
     def crossover(self, n_particles, population):
         batch_particles = self.init_particles(
-            self.init_population_sampler, self.max_uptake_sampler, self.k_val_sampler, n_particles
+            self.init_population_sampler,
+            self.max_uptake_sampler,
+            self.k_val_sampler,
+            n_particles,
         )
 
         for p_batch_idx in range(n_particles):
@@ -266,7 +273,10 @@ class GeneticAlgorithm(ParameterEstimation):
 
             # Generate a 'mutation particle'
             mut_particle = self.init_particles(
-                self.init_population_sampler, self.max_uptake_sampler, self.k_val_sampler, 1
+                self.init_population_sampler,
+                self.max_uptake_sampler,
+                self.k_val_sampler,
+                1,
             )[0]
             mut_params_vec = mut_particle.generate_parameter_vector()
 
@@ -294,7 +304,10 @@ class GeneticAlgorithm(ParameterEstimation):
                     self.n_particles_batch
                 )
                 candidate_particles = self.init_particles(
-                    self.init_population_sampler, self.max_uptake_sampler, self.k_val_sampler, self.n_particles_batch
+                    self.init_population_sampler,
+                    self.max_uptake_sampler,
+                    self.k_val_sampler,
+                    self.n_particles_batch,
                 )
 
                 if self.filter is not None:
