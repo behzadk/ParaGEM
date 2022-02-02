@@ -1,5 +1,5 @@
 _target_: bk_comms.parameter_estimation.GeneticAlgorithm
-n_particles_batch: 8
+n_particles_batch: 2
 population_size: 10
 mutation_probability: 0.1
 epsilon_alpha: 0.2
@@ -12,4 +12,3 @@ k_val_sampler: ${cfg.sampler.k_val_sampler}
 init_population_sampler: ${cfg.sampler.init_population_sampler}
 output_dir: ${cfg.output_dir}
 filter: ${cfg.filter}
-
