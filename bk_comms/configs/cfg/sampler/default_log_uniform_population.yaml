@@ -19,3 +19,7 @@ k_val_sampler:
   distribution_type: "log_uniform"
 
 init_population_sampler:
+  _target_: bk_comms.sampling.SampleUniform
+  min_val: 0.005
+  max_val: 0.2
+  distribution_type: "log_uniform"

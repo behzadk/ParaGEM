@@ -77,7 +77,7 @@ def sim_community(community):
 
 
 class ParameterEstimation:
-    def init_particles(self, max_uptake_sampler, k_val_sampler, n_particles):
+    def init_particles(self, init_population_sampler, max_uptake_sampler, k_val_sampler, n_particles):
         particles = np.zeros(shape=n_particles, dtype=object)
 
         for i in range(n_particles):
@@ -88,6 +88,13 @@ class ParameterEstimation:
                 pop.model = self.models[i][idx]
 
             array_size = [len(comm.populations), len(comm.dynamic_compounds)]
+
+            # Check if population should be sampled
+            if init_population_sampler is not None:
+                print(init_population_sampler)
+                populations_vec = init_population_sampler.sample(size=[len(comm.populations), 1])
+                comm.set_initial_populations(populations_vec[0])
+
             # Sample new max uptake matrix
             max_exchange_mat = max_uptake_sampler.sample(size=array_size)
             comm.set_max_exchange_mat(max_exchange_mat)
@@ -178,6 +185,7 @@ class GeneticAlgorithm(ParameterEstimation):
         output_dir,
         simulator,
         n_particles_batch,
+        init_population_sampler=None,
         population_size=32,
         mutation_probability=0.1,
         epsilon_alpha=0.2,
@@ -188,6 +196,8 @@ class GeneticAlgorithm(ParameterEstimation):
         self.n_particles_batch = n_particles_batch
         self.max_uptake_sampler = max_uptake_sampler
         self.k_val_sampler = k_val_sampler
+        self.init_population_sampler = init_population_sampler
+
         self.output_dir = output_dir
         self.population_size = population_size
         self.distance_object = distance_object
@@ -231,7 +241,7 @@ class GeneticAlgorithm(ParameterEstimation):
 
     def crossover(self, n_particles, population):
         batch_particles = self.init_particles(
-            self.max_uptake_sampler, self.k_val_sampler, n_particles
+            self.init_population_sampler, self.max_uptake_sampler, self.k_val_sampler, n_particles
         )
 
         for p_batch_idx in range(n_particles):
@@ -256,7 +266,7 @@ class GeneticAlgorithm(ParameterEstimation):
 
             # Generate a 'mutation particle'
             mut_particle = self.init_particles(
-                self.max_uptake_sampler, self.k_val_sampler, 1
+                self.init_population_sampler, self.max_uptake_sampler, self.k_val_sampler, 1
             )[0]
             mut_params_vec = mut_particle.generate_parameter_vector()
 
@@ -284,7 +294,7 @@ class GeneticAlgorithm(ParameterEstimation):
                     self.n_particles_batch
                 )
                 candidate_particles = self.init_particles(
-                    self.max_uptake_sampler, self.k_val_sampler, self.n_particles_batch
+                    self.init_population_sampler, self.max_uptake_sampler, self.k_val_sampler, self.n_particles_batch
                 )
 
                 if self.filter is not None:
