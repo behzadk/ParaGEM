@@ -9,6 +9,7 @@ base_community: ${cfg.community}
 distance_object: ${cfg.distance}
 max_uptake_sampler: ${cfg.sampler.max_uptake_sampler}
 k_val_sampler: ${cfg.sampler.k_val_sampler}
+init_population_sampler: ${cfg.sampler.init_population_sampler}
 output_dir: ${cfg.output_dir}
 filter: ${cfg.filter}
 
