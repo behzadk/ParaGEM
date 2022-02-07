@@ -409,7 +409,7 @@ class GeneticAlgorithm(ParameterEstimation):
 
                 logger.info(f"Simulating particles...")
                 # Simulate
-                simulate_particles(
+                self.simulator.simulate_particles(
                     batch_particles, n_processes=n_processes, parallel=parallel
                 )
 
