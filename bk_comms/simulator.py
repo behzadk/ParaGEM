@@ -126,9 +126,13 @@ class TimeSeriesSimulation:
 
 
 class CometsTimeSeriesSimulation:
-    def __init__(self, t_end, dt, gurobi_home_dir, comets_home_dir):
+    def __init__(self, t_end, dt, gurobi_home_dir, comets_home_dir, batch_dilution=False, dilution_factor=0.0, dilution_time=0.0):
         self.dt = dt
         self.max_cycles = int(np.ceil(t_end / dt))
+
+        self.batch_dilution = batch_dilution
+        self.dilution_factor = dilution_factor
+        self.dilution_time = dilution_time
 
         os.environ["GUROBI_HOME"] = gurobi_home_dir
         os.environ["GUROBI_COMETS_HOME"] = gurobi_home_dir
@@ -196,13 +200,13 @@ class CometsTimeSeriesSimulation:
 
     def process_experiment(self, comm, experiment):
         media_df = experiment.media
-        media_df["t"] = media_df["cycle"] * 0.01
+        media_df["t"] = media_df["cycle"] * self.dt
 
         met_df = experiment.get_metabolite_time_series(upper_threshold=None)
-        met_df["t"] = met_df["cycle"] * 0.01
+        met_df["t"] = met_df["cycle"] * self.dt
 
         biomass_df = experiment.total_biomass
-        biomass_df["t"] = biomass_df["cycle"] * 0.01
+        biomass_df["t"] = biomass_df["cycle"] * self.dt
 
         t = biomass_df["t"].values
         sol = np.zeros([len(t), len(comm.solution_keys)])
@@ -243,6 +247,13 @@ class CometsTimeSeriesSimulation:
         sim_params.set_param("maxSpaceBiomass", 10)
         sim_params.set_param("minSpaceBiomass", 1e-11)
         sim_params.set_param("writeMediaLog", True)
+
+        # Optional parameters
+        if self.batch_dilution:
+            sim_params.set_param('batchDilution', True)
+            sim_params.set_param('dilFactor', self.dilution_factor)
+            sim_params.set_param('dilTime', self.dilution_time)
+
 
         tmp_dir = f"./tmp_{os.getpid()}/"
         if not os.path.exists(tmp_dir):
