@@ -1,0 +1,12 @@
+_convert_: partial
+_target_: bk_comms.community.Community
+initial_populations:
+- 0.05
+media_name: M1
+media_path: null
+model_names:
+- C_perfringens_S107
+model_paths:
+- C_perfringens_S107.xml
+smetana_analysis_path: null
+use_parsimonius_fba: false
