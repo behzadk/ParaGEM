@@ -117,9 +117,9 @@ class TimeSeriesSimulation:
             for p in particles:
                 start = time.time()
                 print(f"Simulating particle idx: {p_idx}")
-                output = sim_community(p)
-                p.sol = output[0]
-                p.t = output[1]
+                sol, t = self.simulate(args)
+                p.sol = sol
+                p.t = t
                 p_idx += 1
                 end = time.time()
                 print("Sim time: ", end - start)
@@ -254,12 +254,12 @@ class CometsTimeSeriesSimulation:
             sim_params.set_param('dilFactor', self.dilution_factor)
             sim_params.set_param('dilTime', self.dilution_time)
 
-
         tmp_dir = f"./tmp_{os.getpid()}/"
         if not os.path.exists(tmp_dir):
             os.mkdir(tmp_dir)
 
         experiment = cometspy.comets(layout, sim_params, relative_dir=tmp_dir)
+        self.experiment = experiment
 
         comets_lib = "/Users/bezk/Documents/CAM/research_code/comets/lib"
 
@@ -319,9 +319,9 @@ class CometsTimeSeriesSimulation:
             for p in particles:
                 start = time.time()
                 print(f"Simulating particle idx: {p_idx}")
-                output = sim_community(p)
-                p.sol = output[0]
-                p.t = output[1]
+                sol, t = self.simulate(p)
+                p.sol = sol
+                p.t = t
                 p_idx += 1
                 end = time.time()
                 print("Sim time: ", end - start)
