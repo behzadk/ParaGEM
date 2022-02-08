@@ -5,8 +5,8 @@ initial_populations:
 media_name: null
 media_path: null
 model_names:
-- L_lactis
+- R_hominis
 model_paths:
-- ${cfg.wd}/models/melanie_data_models/L_lactis.xml
+- ${cfg.wd}/models/melanie_data_models/R_hominis.xml
 smetana_analysis_path: ${cfg.wd}/smetana_analysis/melanie_data_detailed.tsv
 use_parsimonius_fba: false
