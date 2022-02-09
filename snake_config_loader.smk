@@ -18,11 +18,23 @@ rule execute_run:
         'exec_{species_name}_{run_idx}.sh'
 
     output:
-        'mel_indiv_logs/{species_name}_{run_idx}.finished'
+        temp('mel_indiv_logs/{species_name}_{run_idx}.running'),
 
     run:
+        # Signal running
+        shell('touch mel_indiv_logs/{wildcards.species_name}_{wildcards.run_idx}.running')
+
         # Execute
         shell('./exec_{wildcards.species_name}_{wildcards.run_idx}.sh')
-        
-        # Signal finish
+
+rule clean_up:
+    input:
+        'mel_indiv_logs/{species_name}_{run_idx}.running'
+
+    output:
+         'mel_indiv_logs/{species_name}_{run_idx}.finished'
+
+    run:
+        shell('echo finished')
         shell('touch mel_indiv_logs/{wildcards.species_name}_{wildcards.run_idx}.finished')
+
