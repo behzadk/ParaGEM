@@ -364,4 +364,23 @@ class GrowthRateConditionedMedia:
 
     def simulate_particles(self, particles):
         for p in particles:
-            p.sol = self.simulate(particle)
+            p.sol = self.simulate(p)
+
+class GrowthRate:
+    def __init__(self, t_end):
+        self.t_end = t_end
+
+    def simulate(self, particle):
+        n_populations = len(particle.populations)
+        particle_growth_rates = np.zeros(shape=[1, n_populations])
+        
+        growth_rates, flux_matrix = particle.sim_step(particle.init_y)
+        particle_growth_rates[0] = growth_rates
+
+        return particle_growth_rates
+
+    def simulate_particles(self, particles, n_processes=None, parallel=None):
+        for p in particles:
+            p.sol = self.simulate(p)
+            p.t = [self.t_end]
+
