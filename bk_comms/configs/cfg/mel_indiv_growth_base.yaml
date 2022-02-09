@@ -1,0 +1,28 @@
+wd: /Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/
+run_idx: 999
+output_dir: ${cfg.wd}/output/mel_indiv_growth/exp_${cfg.community.model_names.0}_ga_fit_batch_tests/run_${cfg.run_idx}/
+
+# Information about the data being used
+exp_data_path: ${cfg.wd}/experimental_data/mel_target_data/mel_indiv_target_data.csv
+exp_sol_keys:
+  - - null
+    - null
+exp_t_key: time
+experiment_name: none
+
+epsilon:
+  - 5.0
+final_epsilon:
+  - 0.1
+
+defaults:
+  - _self_
+  - community: null
+  - algorithm: genetic_algorithm
+  - simulator: time_series_comets
+  - sampler: default_log_uniform
+  - distance: fold_change_error
+  - filter: default_indiv_growth_filter
+
+parallel: True
+n_processes: 8

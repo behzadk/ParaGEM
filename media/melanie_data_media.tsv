@@ -1,0 +1,820 @@
+Class	name	compound	medium	mass	units	cheb_name	cheb_mass	mmol_per_L	dynamic
+Sugars	D-glucose	glc__D	M1	0.4	g	D-glucose	180.15588	2.220299442904667	1
+Minerals	Na2WO4 . 2H2O	tungs	M1	0.1	mg	tungstate	247.8376	0.00040349002734048426	1
+Minerals	Co(NO3)2 . 6H2O	no3	M1	1.0	mg	nitrate	62.0049	0.01612775764496032	1
+Minerals	FeSO4 . 7H2O	fe2	M1	1.4	mg	iron(2+)	55.845	0.025069388485988005	0
+manual curation	multiple	fe3	M1	10000.0	g	iron(3+)	55.845	179067.06061420002	0
+Buffer	KH2PO4	pi	M1	13.609	g	phosphate(3-)	94.97136	143.29583150120203	0
+Vitamins	Calcium Pantothenate	pnto__R	M1	50.0	µg	(R)-pantothenate	218.22708	0.00022911913590192382	1
+Vitamins	Thiamine HCl	thm	M1	50.0	µg	thiamine(1+) chloride	300.80844	0.0001662187404050232	1
+Vitamins	Vitamin B12	cbl2	M1	1.0	µg		1328.56433	7.526921936854951e-07	1
+Vitamins	Vitamin B12	cbl1	M1	1.0	µg	cob(I)alamin	1330.3557	7.516786675924341e-07	1
+Minerals	Na2MoO4 . 2H2O	mobd	M1	0.1	mg	molybdate	159.9376	0.0006252438450995888	1
+Minerals	NaHCO3	hco3	M1	0.4	g	carbonic acid	62.02478	6.449035369412032	1
+Minerals	MgSO4 * 7 H2O	mg2	M1	30.0	mg	magnesium(2+)	24.305	1.2343139271754782	0
+manual curation	multiple	h2o	M1	10000.0	g	water	18.0153	555083.7343813314	0
+Minerals	Na2SeO3 (anhydrous)	slnt	M1	10.0	µg	selenite(2-)	126.9582	7.876608206480559e-05	1
+Amino Acids	l-Histidine	his__L	M1	31.0	mg	L-histidine	155.15468	0.19980061187970607	1
+SCFAs	Butyric acid	but	M1	2.0	mL			4.0	1
+SCFAs	Propionic acid	ppa	M1	2.0	mL			8.0	1
+SCFAs	Isovaleric acid	3mb	M1	0.1	mL	isovaleric acid	102.1317	1.0	1
+SCFAs	Acetic acid	ac	M1	1.7	mL	acetate	59.04402	30.0	1
+Vitamins	p-Aminobenzoic acid	4abz	M1	50.0	µg	4-aminobenzoic acid	137.136	0.0003646015634115039	1
+Vitamins	Pyridoxine HCl	pydxn	M1	0.1	mg	pyridoxine	169.18	0.0005910864168341411	1
+Vitamins	Niacin	nac	M1	50.0	µg	nicotinate	122.1015	0.0004094953788446497	1
+Vitamins	Folic acid	fol	M1	20.0	µg	folic acid	441.3975	4.531063270634746e-05	1
+Vitamins	Riboflavin	ribflv	M1	50.0	µg	riboflavin	376.369	0.00013284834829648565	1
+Vitamins	Biotin	btn	M1	20.0	µg	biotin	244.31172	8.186263024958442e-05	1
+Vitamins	Lipoic acid	lipoate	M1	50.0	µg	lipoate	205.31962	0.00024352275734778787	1
+Amino Acids	l-Cysteine	cys__L	M1	0.5	g	L-cysteine	121.158	4.126842635236633	1
+Other	Hematin	pheme	M1	1.2	mg	ferroheme b	616.487	0.0019465130651579027	1
+Sugars	Maltose	malt	M1	1.0	g	alpha-maltose	342.29648	2.921444006669306	1
+Sugars	Cellobiose	cellb	M1	1.0	g	beta-cellobiose	342.29648	2.921444006669306	1
+Sugars	Fructose	fru	M1	1.0	g	D-fructose	180.15588	5.550748607261667	1
+Vitamins	Vitamin K (menadione)	mndn	M1	1.0	mg	menadione	172.183	0.0058077742866601235	1
+Minerals	Na2SeO3 (anhydrous)	slnt	M10	10.0	µg	selenite(2-)	126.9582	7.876608206480559e-05	1
+Minerals	Co(NO3)2 . 6H2O	no3	M10	1.0	mg	nitrate	62.0049	0.01612775764496032	1
+Minerals	Na2WO4 . 2H2O	tungs	M10	0.1	mg	tungstate	247.8376	0.00040349002734048426	1
+Minerals	FeSO4 . 7H2O	fe2	M10	4.0	mg	iron(2+)	55.845	0.07162682424568001	0
+Minerals	NaHCO3	hco3	M10	0.4	g	carbonic acid	62.02478	6.449035369412032	1
+Vitamins	Vitamin B12	cbl1	M10	1.0	µg	cob(I)alamin	1330.3557	7.516786675924341e-07	1
+Vitamins	Vitamin B12	cbl2	M10	1.0	µg		1328.56433	7.526921936854951e-07	1
+Vitamins	Thiamine HCl	thm	M10	0.56	mg	thiamine(1+) chloride	300.80844	0.00186164989253626	1
+Vitamins	Calcium Pantothenate	pnto__R	M10	1.57	mg	(R)-pantothenate	218.22708	0.007194340867320408	1
+Vitamins	Pyridoxamine . 2 HCl	pydam	M10	5.0	mg	pyridoxamine(2+)	170.209	0.029375649936254838	1
+Minerals	Ammonium citrate dibasic	cit	M10	1.7	g	citrate(4-)	188.092	9.038130276673117	1
+Amino Acids	l-Tyrosine	tyr__L	M10	30.0	mg	L-tyrosine	181.18858	0.16557334904881973	1
+Sugars	Cellobiose	cellb	M10	1.0	g	beta-cellobiose	342.29648	2.921444006669306	1
+Sugars	Maltose	malt	M10	1.0	g	alpha-maltose	342.29648	2.921444006669306	1
+Sugars	Lactose	lcts	M10	1.0	g	lactose	342.297	2.9214395685618046	1
+Other	NAD (N1511)	nad	M10	2.0	mg	NAD zwitterion	663.42538	0.0030146570515586844	1
+Amino Acids	l-Histidine	his__L	M10	31.0	mg	L-histidine	155.15468	0.19980061187970607	1
+Amino Acids	l-Isoleucine	ile__L	M10	24.0	mg	L-isoleucine	131.175	0.18296169239565466	1
+Amino Acids	l-Leucine	leu__L	M10	0.1	g	L-leucine	131.17296	0.762352240888671	1
+Amino Acids	l-Methionine	met__L	M10	12.5	mg	L-methionine	149.21238	0.08377320970284101	1
+Amino Acids	l-Valine	val__L	M10	70.0	mg	L-valine	117.14638	0.5975430055969293	1
+Sugars	Fructose	fru	M10	1.0	g	D-fructose	180.15588	5.550748607261667	1
+Amino Acids	l-Arginine	arg__L	M10	72.0	mg	L-arginine	174.201	0.413315652608194	1
+Amino Acids	l-Glutamic acid	glu__L	M10	60.0	mg	L-glutamate(1-)	146.12136	0.4106175852729539	1
+Amino Acids	l-Phenylalanine	phe__L	M10	40.0	mg	L-phenylalanine	165.18918	0.24214661032883633	1
+Amino Acids	l-Proline	pro__L	M10	70.0	mg	L-proline	115.1305	0.6080056978819688	1
+Amino Acids	l-Asparagine	asn__L	M10	50.0	mg	L-asparagine	132.118	0.3784495678105936	1
+Amino Acids	l-Aspartic acid	asp__L	M10	5.0	mg	L-aspartate(1-)	132.09478	0.03785160927630903	1
+Amino Acids	l-Glutamine	gln__L	M10	60.0	mg	L-glutamine	146.14458	0.4105523448081345	1
+Amino Acids	l-Serine	ser__L	M10	50.0	mg	L-serine	105.09262	0.4757708010324607	1
+Amino Acids	l-Threonine	thr__L	M10	50.0	mg	L-threonine	119.1192	0.41974761415456113	1
+Amino Acids	l-Alanine	ala__L	M10	40.0	mg	L-alanine	89.09322	0.44896794615796803	1
+Amino Acids	Glycine	gly	M10	30.0	mg	glycine	75.06664	0.3996449021829137	1
+Amino Acids	l-Lysine	lys__L	M10	50.0	mg	L-lysine	146.18764	0.34202617950464215	1
+Amino Acids	l-Tryptophan	trp__L	M10	20.0	mg	L-tryptophan	204.22526	0.09793107865305203	1
+Amino Acids	l-Cysteine	cys__L	M10	50.0	mg	L-cysteine	121.158	0.41268426352366333	1
+Sugars	D-glucose	glc__D	M10	5.0	g	D-glucose	180.15588	27.753743036308336	1
+Nucleotides	Uracil	ura	M10	23.0	mg	uracil	112.08684	0.20519804109028322	1
+manual curation	multiple	h2o	M10	10000.0	g	water	18.0153	555083.7343813314	0
+Nucleotides	Adenine	ade	M10	11.0	mg	adenine	135.1269	0.08140496081831226	1
+SCFAs	Butyric acid	but	M10	2.0	mL			4.0	1
+SCFAs	Propionic acid	ppa	M10	4.0	mL			8.0	1
+SCFAs	Isovaleric acid	3mb	M10	0.1	mL	isovaleric acid	102.1317	1.0	1
+Nucleotides	Guanine	gua	M10	5.6	mg	guanine	151.126	0.037055172505062	1
+Vitamins	Lipoic acid	lipoate	M10	1.05	mg	lipoate	205.31962	0.005113977904303545	1
+Vitamins	Pyridoxine HCl	pydxn	M10	4.8	mg	pyridoxine	169.18	0.028372148008038774	1
+Vitamins	L-Glutathione reduced	gthrd	M10	15.0	mg	glutathione	307.32	0.04880905896134323	1
+Vitamins	myo-Inositol	inost	M10	2.0	mg	myo-inositol	180.15588	0.011101497214523333	1
+Vitamins	Niacin	nac	M10	0.9	mg	nicotinate	122.1015	0.007370916819203694	1
+Vitamins	Folic acid	fol	M10	0.56	mg	folic acid	441.3975	0.0012686977157777288	1
+Vitamins	Ascorbic acid	ascb__L	M10	0.5	g	L-ascorbate	175.11618	2.855247299250132	1
+Vitamins	Riboflavin	ribflv	M10	0.9	mg	riboflavin	376.369	0.0023912702693367413	1
+Vitamins	Biotin	btn	M10	6.02	mg	biotin	244.31172	0.02464065170512491	1
+Vitamins	Vitamin K (menadione)	mndn	M10	1.0	mg	menadione	172.183	0.0058077742866601235	1
+Nucleotides	Xanthine	xan	M10	3.8	mg	9H-xanthine	152.11102	0.02498175345875664	1
+Vitamins	p-Aminobenzoic acid	4abz	M10	50.0	µg	4-aminobenzoic acid	137.136	0.0003646015634115039	1
+Vitamins	Pyridoxamine . 2 HCl	pydam	M11	5.0	mg	pyridoxamine(2+)	170.209	0.029375649936254838	1
+Amino Acids	l-Asparagine	asn__L	M11	0.5	g	L-asparagine	132.118	3.7844956781059356	1
+Amino Acids	l-Proline	pro__L	M11	0.7	g	L-proline	115.1305	6.080056978819687	1
+Amino Acids	l-Glutamic acid	glu__L	M11	0.6	g	L-glutamate(1-)	146.12136	4.106175852729539	1
+Amino Acids	l-Cysteine	cys__L	M11	0.5	g	L-cysteine	121.158	4.126842635236633	1
+Amino Acids	l-Arginine	arg__L	M11	0.72	g	L-arginine	174.201	4.13315652608194	1
+Amino Acids	l-Valine	val__L	M11	0.7	g	L-valine	117.14638	5.975430055969292	1
+Amino Acids	l-Methionine	met__L	M11	0.125	g	L-methionine	149.21238	0.8377320970284101	1
+Amino Acids	l-Leucine	leu__L	M11	1.0	g	L-leucine	131.17296	7.62352240888671	1
+Amino Acids	l-Isoleucine	ile__L	M11	0.24	g	L-isoleucine	131.175	1.8296169239565463	1
+Amino Acids	l-Histidine	his__L	M11	0.171	g	L-histidine	155.15468	1.1021259558525724	1
+Other	NAD (N1511)	nad	M11	2.0	mg	NAD zwitterion	663.42538	0.0030146570515586844	1
+Sugars	Lactose	lcts	M11	1.0	g	lactose	342.297	2.9214395685618046	1
+Sugars	Maltose	malt	M11	1.0	g	alpha-maltose	342.29648	2.921444006669306	1
+Sugars	Cellobiose	cellb	M11	1.0	g	beta-cellobiose	342.29648	2.921444006669306	1
+Sugars	Fructose	fru	M11	1.0	g	D-fructose	180.15588	5.550748607261667	1
+Sugars	D-glucose	glc__D	M11	5.0	g	D-glucose	180.15588	27.753743036308336	1
+Amino Acids	l-Aspartic acid	asp__L	M11	0.05	g	L-aspartate(1-)	132.09478	0.3785160927630903	1
+Amino Acids	l-Glutamine	gln__L	M11	0.6	g	L-glutamine	146.14458	4.105523448081345	1
+Amino Acids	l-Threonine	thr__L	M11	0.5	g	L-threonine	119.1192	4.197476141545612	1
+SCFAs	Isovaleric acid	3mb	M11	0.1	mL	isovaleric acid	102.1317	1.0	1
+Vitamins	Lipoic acid	lipoate	M11	1.05	mg	lipoate	205.31962	0.005113977904303545	1
+Vitamins	p-Aminobenzoic acid	4abz	M11	50.0	µg	4-aminobenzoic acid	137.136	0.0003646015634115039	1
+Vitamins	Pyridoxine HCl	pydxn	M11	4.8	mg	pyridoxine	169.18	0.028372148008038774	1
+Vitamins	L-Glutathione reduced	gthrd	M11	15.0	mg	glutathione	307.32	0.04880905896134323	1
+Vitamins	myo-Inositol	inost	M11	2.0	mg	myo-inositol	180.15588	0.011101497214523333	1
+Vitamins	Niacin	nac	M11	0.9	mg	nicotinate	122.1015	0.007370916819203694	1
+Vitamins	Folic acid	fol	M11	0.56	mg	folic acid	441.3975	0.0012686977157777288	1
+Vitamins	Ascorbic acid	ascb__L	M11	0.5	g	L-ascorbate	175.11618	2.855247299250132	1
+Vitamins	Riboflavin	ribflv	M11	0.9	mg	riboflavin	376.369	0.0023912702693367413	1
+Vitamins	Biotin	btn	M11	6.02	mg	biotin	244.31172	0.02464065170512491	1
+Vitamins	Vitamin K (menadione)	mndn	M11	1.0	mg	menadione	172.183	0.0058077742866601235	1
+Nucleotides	Xanthine	xan	M11	3.8	mg	9H-xanthine	152.11102	0.02498175345875664	1
+Nucleotides	Uracil	ura	M11	23.0	mg	uracil	112.08684	0.20519804109028322	1
+Nucleotides	Guanine	gua	M11	5.6	mg	guanine	151.126	0.037055172505062	1
+Nucleotides	Adenine	ade	M11	11.0	mg	adenine	135.1269	0.08140496081831226	1
+Amino Acids	l-Lysine	lys__L	M11	0.5	g	L-lysine	146.18764	3.4202617950464216	1
+Amino Acids	Glycine	gly	M11	0.3	g	glycine	75.06664	3.9964490218291364	1
+Amino Acids	l-Alanine	ala__L	M11	0.4	g	L-alanine	89.09322	4.489679461579681	1
+Amino Acids	l-Serine	ser__L	M11	0.5	g	L-serine	105.09262	4.757708010324607	1
+SCFAs	Butyric acid	but	M11	2.0	mL			4.0	1
+Minerals	Ammonium citrate dibasic	cit	M11	1.7	g	citrate(4-)	188.092	9.038130276673117	1
+Minerals	NaHCO3	hco3	M11	0.4	g	carbonic acid	62.02478	6.449035369412032	1
+Vitamins	Vitamin B12	cbl1	M11	1.0	µg	cob(I)alamin	1330.3557	7.516786675924341e-07	1
+Vitamins	Vitamin B12	cbl2	M11	1.0	µg		1328.56433	7.526921936854951e-07	1
+Vitamins	Thiamine HCl	thm	M11	0.56	mg	thiamine(1+) chloride	300.80844	0.00186164989253626	1
+Vitamins	Calcium Pantothenate	pnto__R	M11	1.57	mg	(R)-pantothenate	218.22708	0.007194340867320408	1
+manual curation	multiple	h2o	M11	10000.0	g	water	18.0153	555083.7343813314	0
+Minerals	FeSO4 . 7H2O	fe2	M11	4.0	mg	iron(2+)	55.845	0.07162682424568001	0
+Minerals	Co(NO3)2 . 6H2O	no3	M11	1.0	mg	nitrate	62.0049	0.01612775764496032	1
+Minerals	Na2SeO3 (anhydrous)	slnt	M11	10.0	µg	selenite(2-)	126.9582	7.876608206480559e-05	1
+Minerals	Na2WO4 . 2H2O	tungs	M11	0.1	mg	tungstate	247.8376	0.00040349002734048426	1
+SCFAs	Propionic acid	ppa	M11	2.0	mL			8.0	1
+Other	Hematin	pheme	M13	1.2	mg	ferroheme b	616.487	0.0019465130651579027	1
+Buffer	KH2PO4	k	M13	13.6	g	potassium(1+)	39.0983	347.84121048741247	0
+Vitamins	Vitamin B12	cbl2	M13	5.0	µg		1328.56433	3.7634609684274754e-06	1
+Vitamins	Vitamin B12	cbl1	M13	5.0	µg	cob(I)alamin	1330.3557	3.7583933379621707e-06	1
+Minerals	(NH4)2SO4	nh4	M13	1.12	g	ammonia	17.03056	65.76413224227507	1
+Minerals	NaCl	na1	M13	0.88	g	sodium(1+)	22.98977	38.27789490716958	0
+Minerals	CaCl2 (anhydrous)	ca2	M13	5.55	g	calcium(2+)	40.078	138.47996407006335	0
+Minerals	MgCl2	mg2	M13	9.52	mg	magnesium(2+)	24.305	0.39168895289035177	0
+Minerals	FeSO4 . 7H2O	fe2	M13	0.384	mg	iron(2+)	55.845	0.006876175127585281	0
+manual curation	multiple	zn2	M13	10000.0	g	zinc(2+)	65.39	152928.5823520416	0
+manual curation	multiple	mn2	M13	10000.0	g	manganese(2+)	54.93805	182023.20613855062	0
+manual curation	multiple	ni2	M13	10000.0	g	nickel(2+)	58.6934	170376.90779542504	0
+manual curation	multiple	fe3	M13	10000.0	g	iron(3+)	55.845	179067.06061420002	0
+manual curation	multiple	cu2	M13	10000.0	g	copper(2+)	63.546	157366.31731344224	0
+manual curation	multiple	cobalt2	M13	10000.0	g	cobalt(2+)	58.9332	169683.64181819416	0
+manual curation	multiple	h2o	M13	10000.0	g	water	18.0153	555083.7343813314	0
+Sugars	D-glucose	glc__D	M13	5.0	g	D-glucose	180.15588	27.753743036308336	1
+Buffer	KH2PO4	pi	M13	13.6	g	phosphate(3-)	94.97136	143.20106608981905	0
+Buffer	KH2PO4	h	M13	13.6	g	hydron	1.00794	13492.866638887233	0
+Amino Acids	l-Histidine	his__L	M13	31.0	mg	L-histidine	155.15468	0.19980061187970607	1
+Amino Acids	l-Cysteine	cys__L	M13	0.5	g	L-cysteine	121.158	4.126842635236633	1
+Vitamins	Vitamin K (menadione)	mndn	M13	1.0	mg	menadione	172.183	0.0058077742866601235	1
+Amino Acids	l-Lysine	lys__L	M14	0.5	g	L-lysine	146.18764	3.4202617950464216	1
+Vitamins	Biotin	btn	M14	5.0	µg	biotin	244.31172	2.0465657562396106e-05	1
+Amino Acids	l-Tyrosine	tyr__L	M14	0.25	g	L-tyrosine	181.18858	1.3797779087401645	1
+Sugars	D-glucose	glc__D	M14	10.0	g	D-glucose	180.15588	55.50748607261667	1
+Amino Acids	l-Histidine	his__L	M14	0.5	g	L-histidine	155.15468	3.222590514188808	1
+Amino Acids	l-Isoleucine	ile__L	M14	0.5	g	L-isoleucine	131.175	3.811701924909472	1
+Amino Acids	l-Leucine	leu__L	M14	0.5	g	L-leucine	131.17296	3.811761204443355	1
+Amino Acids	l-Methionine	met__L	M14	0.35	g	L-methionine	149.21238	2.3456498716795484	1
+Amino Acids	l-Tryptophan	trp__L	M14	0.25	g	L-tryptophan	204.22526	1.2241384831631503	1
+Amino Acids	l-Valine	val__L	M14	0.375	g	L-valine	117.14638	3.201123244269264	1
+Amino Acids	l-Cysteine	cys__L	M14	0.4	g	L-cysteine	121.158	3.3014741081893066	1
+Amino Acids	l-Glutamic acid	glu__L	M14	1.0	g	L-glutamate(1-)	146.12136	6.843626421215898	1
+Amino Acids	l-Phenylalanine	phe__L	M14	0.25	g	L-phenylalanine	165.18918	1.513416314555227	1
+Amino Acids	l-Proline	pro__L	M14	0.25	g	L-proline	115.1305	2.1714489210070314	1
+Amino Acids	l-Aspartic acid	asp__L	M14	1.0	g	L-aspartate(1-)	132.09478	7.570321855261806	1
+Amino Acids	l-Serine	ser__L	M14	0.375	g	L-serine	105.09262	3.568281007743455	1
+Vitamins	Ascorbic acid	ascb__L	M14	0.25	g	L-ascorbate	175.11618	1.427623649625066	1
+Amino Acids	l-Threonine	thr__L	M14	0.5	g	L-threonine	119.1192	4.197476141545612	1
+Amino Acids	l-Alanine	ala__L	M14	0.25	g	L-alanine	89.09322	2.8060496634873	1
+Amino Acids	Glycine	gly	M14	0.5	g	glycine	75.06664	6.660748369715228	1
+Amino Acids	l-Arginine	arg__L	M14	2.5	g	L-arginine	174.201	14.351237937784514	1
+Vitamins	Niacin	nac	M14	1.0	mg	nicotinate	122.1015	0.008189907576892995	1
+Nucleotides	Uracil	ura	M14	10.0	mg	uracil	112.08684	0.08921653960447096	1
+Minerals	Sodium thioglycollate	thiog	M14	1.0	g	thioglycolate(1-)	91.11002	10.975741197290922	1
+Minerals	MgSO4 * 7 H2O	mg2	M14	0.1	g	magnesium(2+)	24.305	4.114379757251594	0
+Vitamins	Calcium Pantothenate	pnto__R	M14	1.0	mg	(R)-pantothenate	218.22708	0.004582382718038476	1
+Vitamins	Calcium Pantothenate	ca2	M14	1.0	mg	calcium(2+)	40.078	0.024951344877488894	0
+Buffer	KH2PO4	k	M14	0.7	g	potassium(1+)	39.0983	17.90359171626388	0
+Vitamins	Pyridoxamine . 2 HCl	pydam	M14	0.77	mg	pyridoxamine(2+)	170.209	0.004523850090183246	1
+Vitamins	Thiamine HCl	thm	M14	1.0	mg	thiamine(1+) chloride	300.80844	0.003324374808100464	1
+Nucleotides	Adenine	ade	M14	17.4	mg	adenine	135.1269	0.12876784711260303	1
+manual curation	multiple	h2o	M14	10000.0	g	water	18.0153	555083.7343813314	0
+manual curation	multiple	cobalt2	M14	10000.0	g	cobalt(2+)	58.9332	169683.64181819416	0
+manual curation	multiple	cu2	M14	10000.0	g	copper(2+)	63.546	157366.31731344224	0
+manual curation	multiple	fe3	M14	10000.0	g	iron(3+)	55.845	179067.06061420002	0
+manual curation	multiple	ni2	M14	10000.0	g	nickel(2+)	58.6934	170376.90779542504	0
+Minerals	FeSO4 . 7H2O	fe2	M14	50.0	mg	iron(2+)	55.845	0.8953353030710002	0
+Minerals	(NH4)6Mo7O24·4H2O	mobd	M15A	51.703	µg	molybdate	159.9376	0.00032326982523184043	1
+Minerals	NaCl	na1	M15A	2.92	g	sodium(1+)	22.98977	127.01301491924453	0
+Buffer	K2HPO4	pi	M15A	0.2299	g	phosphate(3-)	94.97136	2.420729786327162	0
+Sugars	D-glucose	glc__D	M15A	4.0	g	D-glucose	180.15588	22.20299442904667	1
+manual curation	multiple	h2o	M15A	10000.0	g	water	18.0153	555083.7343813314	0
+Minerals	CaCl2 (anhydrous)	ca2	M15A	55.5	mg	calcium(2+)	40.078	1.3847996407006338	0
+manual curation	multiple	ni2	M15A	10000.0	g	nickel(2+)	58.6934	170376.90779542504	0
+manual curation	multiple	fe3	M15A	10000.0	g	iron(3+)	55.845	179067.06061420002	0
+Minerals	FeSO4 . 7H2O	fe2	M15A	2.78	mg	iron(2+)	55.845	0.049780642850747604	0
+Minerals	MgCl2	mg2	M15A	50.27	mg	magnesium(2+)	24.305	2.0682987039703766	0
+manual curation	multiple	ni2	M15B	10000.0	g	nickel(2+)	58.6934	170376.90779542504	0
+manual curation	multiple	fe3	M15B	10000.0	g	iron(3+)	55.845	179067.06061420002	0
+manual curation	multiple	h2o	M15B	10000.0	g	water	18.0153	555083.7343813314	0
+Minerals	FeSO4 . 7H2O	fe2	M15B	2.78	mg	iron(2+)	55.845	0.049780642850747604	0
+Minerals	MgCl2	mg2	M15B	50.27	mg	magnesium(2+)	24.305	2.0682987039703766	0
+Minerals	NaCl	na1	M15B	2.92	g	sodium(1+)	22.98977	127.01301491924453	0
+Minerals	(NH4)6Mo7O24·4H2O	mobd	M15B	51.703	µg	molybdate	159.9376	0.00032326982523184043	1
+Minerals	CaCl2 (anhydrous)	ca2	M15B	55.5	mg	calcium(2+)	40.078	1.3847996407006338	0
+Sugars	D-glucose	glc__D	M15B	0.5	g	D-glucose	180.15588	2.7753743036308336	1
+Buffer	K2HPO4	pi	M15B	22.99	mg	phosphate(3-)	94.97136	0.2420729786327162	0
+Vitamins	Pyridoxal * HCl	pydx	M16	2.0	mg	pyridoxal(1+)	168.17	0.011892727597074389	1
+Vitamins	Calcium Pantothenate	pnto__R	M16	1.0	mg	(R)-pantothenate	218.22708	0.004582382718038476	1
+Vitamins	Calcium Pantothenate	ca2	M16	1.0	mg	calcium(2+)	40.078	0.024951344877488894	0
+Amino Acids	l-Cysteine	cys__L	M16	50.0	mg	L-cysteine	121.158	0.41268426352366333	1
+Amino Acids	l-Glutamic acid	glu__L	M16	0.5	g	L-glutamate(1-)	146.12136	3.421813210607949	1
+Amino Acids	l-Aspartic acid	asp__L	M16	0.1	g	L-aspartate(1-)	132.09478	0.7570321855261806	1
+Amino Acids	l-Serine	ser__L	M16	0.1	g	L-serine	105.09262	0.9515416020649214	1
+Amino Acids	l-Tyrosine	tyr__L	M16	40.0	mg	L-tyrosine	181.18858	0.2207644653984263	1
+Vitamins	Biotin	btn	M16	20.0	µg	biotin	244.31172	8.186263024958442e-05	1
+Vitamins	Niacin	nac	M16	1.0	mg	nicotinate	122.1015	0.008189907576892995	1
+Vitamins	p-Aminobenzoic acid	4abz	M16	0.5	mg	4-aminobenzoic acid	137.136	0.0036460156341150394	1
+Other	DL-Lactic acid = Sodium-L-Lactate	lac__L	M16	10.0	g	(S)-lactate	89.07	112.27124733355788	1
+Vitamins	Thiamine HCl	thm	M16	2.0	mg	thiamine(1+) chloride	300.80844	0.006648749616200928	1
+Minerals	Sodium thioglycollate	thiog	M16	0.1	g	thioglycolate(1-)	91.11002	1.0975741197290922	1
+Other	Putrescine * 2HCl	ptrc	M16	5.0	mg	putrescine	88.1515	0.056720532265474785	1
+manual curation	multiple	ni2	M16	10000.0	g	nickel(2+)	58.6934	170376.90779542504	0
+manual curation	multiple	fe3	M16	10000.0	g	iron(3+)	55.845	179067.06061420002	0
+manual curation	multiple	cu2	M16	10000.0	g	copper(2+)	63.546	157366.31731344224	0
+Minerals	MgSO4 * 7 H2O	mg2	M16	0.2	g	magnesium(2+)	24.305	8.228759514503189	0
+manual curation	multiple	cobalt2	M16	10000.0	g	cobalt(2+)	58.9332	169683.64181819416	0
+manual curation	multiple	h2o	M16	10000.0	g	water	18.0153	555083.7343813314	0
+Minerals	Fe(NH4)2(SO4)2 * 6H2O	fe2	M16	20.0	mg	iron(2+)	55.845	0.35813412122840005	0
+Minerals	Na2MoO4 . 2H2O	mobd	M16	20.0	mg	molybdate	159.9376	0.12504876901991777	1
+Minerals	(NH4)2CO3	h2co3	M16	0.5	g		60.99312	8.197645898422643	1
+Minerals	FeSO4 . 7H2O	fe2	M2	4.0	mg	iron(2+)	55.845	0.07162682424568001	0
+manual curation	multiple	h2o	M2	10000.0	g	water	18.0153	555083.7343813314	0
+Minerals	Ammonium citrate dibasic	cit	M2	1.7	g	citrate(4-)	188.092	9.038130276673117	1
+Vitamins	Thiamine HCl	thm	M2	0.56	mg	thiamine(1+) chloride	300.80844	0.00186164989253626	1
+Vitamins	Pyridoxamine . 2 HCl	pydam	M2	5.0	mg	pyridoxamine(2+)	170.209	0.029375649936254838	1
+Vitamins	Calcium Pantothenate	pnto__R	M2	1.2	mg	(R)-pantothenate	218.22708	0.005498859261646171	1
+manual curation	multiple	ni2	M2	10000.0	g	nickel(2+)	58.6934	170376.90779542504	0
+Minerals	(NH4)6Mo7O24·4H2O	mobd	M2	0.19	mg	molybdate	159.9376	0.001187963305689219	1
+Minerals	MgCl2	mg2	M2	0.386	g	magnesium(2+)	24.305	15.881505862991155	0
+Minerals	NaCl	na1	M2	3.0	g	sodium(1+)	22.98977	130.49282354716902	0
+Minerals	KCH3CO2 (Potassium acetate)	ac	M2	0.9	g	acetate	59.04402	30.0	1
+Amino Acids	l-Tyrosine	tyr__L	M2	0.3	g	L-tyrosine	181.18858	1.6557334904881973	1
+Amino Acids	l-Lysine	lys__L	M2	0.5	g	L-lysine	146.18764	3.4202617950464216	1
+Amino Acids	Glycine	gly	M2	0.3	g	glycine	75.06664	3.9964490218291364	1
+Amino Acids	l-Alanine	ala__L	M2	0.4	g	L-alanine	89.09322	4.489679461579681	1
+Amino Acids	l-Threonine	thr__L	M2	0.5	g	L-threonine	119.1192	4.197476141545612	1
+Amino Acids	l-Serine	ser__L	M2	0.5	g	L-serine	105.09262	4.757708010324607	1
+Amino Acids	l-Glutamine	gln__L	M2	0.6	g	L-glutamine	146.14458	4.105523448081345	1
+Amino Acids	l-Aspartic acid	asp__L	M2	0.05	g	L-aspartate(1-)	132.09478	0.3785160927630903	1
+Amino Acids	l-Asparagine	asn__L	M2	0.5	g	L-asparagine	132.118	3.7844956781059356	1
+Amino Acids	l-Proline	pro__L	M2	0.7	g	L-proline	115.1305	6.080056978819687	1
+Amino Acids	l-Phenylalanine	phe__L	M2	0.4	g	L-phenylalanine	165.18918	2.4214661032883633	1
+Amino Acids	l-Glutamic acid	glu__L	M2	0.6	g	L-glutamate(1-)	146.12136	4.106175852729539	1
+Amino Acids	l-Cysteine	cys__L	M2	0.2	g	L-cysteine	121.158	1.6507370540946533	1
+Amino Acids	l-Arginine	arg__L	M2	0.72	g	L-arginine	174.201	4.13315652608194	1
+Amino Acids	l-Valine	val__L	M2	0.7	g	L-valine	117.14638	5.975430055969292	1
+Amino Acids	l-Methionine	met__L	M2	0.125	g	L-methionine	149.21238	0.8377320970284101	1
+Amino Acids	l-Leucine	leu__L	M2	1.0	g	L-leucine	131.17296	7.62352240888671	1
+Amino Acids	l-Isoleucine	ile__L	M2	0.24	g	L-isoleucine	131.175	1.8296169239565463	1
+Amino Acids	l-Histidine	his__L	M2	0.17	g	L-histidine	155.15468	1.0956807748241948	1
+Sugars	D-glucose	glc__D	M2	15.0	g	D-glucose	180.15588	83.261229108925	1
+Amino Acids	l-Tryptophan	trp__L	M2	0.2	g	L-tryptophan	204.22526	0.9793107865305204	1
+Nucleotides	Guanine	gua	M2	5.6	mg	guanine	151.126	0.037055172505062	1
+Vitamins	Lipoic acid	lipoate	M2	1.0	mg	lipoate	205.31962	0.004870455146955757	1
+Vitamins	p-Aminobenzoic acid	4abz	M2	56.0	µg	4-aminobenzoic acid	137.136	0.00040835375102088434	1
+Vitamins	Pyridoxine HCl	pydxn	M2	4.8	mg	pyridoxine	169.18	0.028372148008038774	1
+Vitamins	L-Glutathione reduced	gthrd	M2	15.0	mg	glutathione	307.32	0.04880905896134323	1
+Nucleotides	Adenine	ade	M2	11.0	mg	adenine	135.1269	0.08140496081831226	1
+Vitamins	myo-Inositol	inost	M2	2.0	mg	myo-inositol	180.15588	0.011101497214523333	1
+Vitamins	Folic acid	fol	M2	0.56	mg	folic acid	441.3975	0.0012686977157777288	1
+Vitamins	Ascorbic acid	ascb__L	M2	0.5	g	L-ascorbate	175.11618	2.855247299250132	1
+Vitamins	Riboflavin	ribflv	M2	0.9	mg	riboflavin	376.369	0.0023912702693367413	1
+Vitamins	Biotin	btn	M2	6.0	mg	biotin	244.31172	0.024558789074875326	1
+Nucleotides	Xanthine	xan	M2	3.8	mg	9H-xanthine	152.11102	0.02498175345875664	1
+Nucleotides	Uracil	ura	M2	23.0	mg	uracil	112.08684	0.20519804109028322	1
+Vitamins	Niacin	nac	M2	0.9	mg	nicotinate	122.1015	0.007370916819203694	1
+Vitamins	Pyridoxamine . 2 HCl	pydam	M3	5.0	mg	pyridoxamine(2+)	170.209	0.029375649936254838	1
+Minerals	Ammonium citrate dibasic	cit	M3	1.7	g	citrate(4-)	188.092	9.038130276673117	1
+Minerals	NaHCO3	hco3	M3	0.4	g	carbonic acid	62.02478	6.449035369412032	1
+Vitamins	Vitamin B12	cbl1	M3	1.0	µg	cob(I)alamin	1330.3557	7.516786675924341e-07	1
+Vitamins	Vitamin B12	cbl2	M3	1.0	µg		1328.56433	7.526921936854951e-07	1
+Vitamins	Thiamine HCl	thm	M3	0.56	mg	thiamine(1+) chloride	300.80844	0.00186164989253626	1
+Vitamins	Calcium Pantothenate	pnto__R	M3	1.2	mg	(R)-pantothenate	218.22708	0.005498859261646171	1
+Amino Acids	l-Threonine	thr__L	M3	0.5	g	L-threonine	119.1192	4.197476141545612	1
+Amino Acids	Glycine	gly	M3	0.3	g	glycine	75.06664	3.9964490218291364	1
+Amino Acids	l-Lysine	lys__L	M3	0.5	g	L-lysine	146.18764	3.4202617950464216	1
+Amino Acids	l-Tryptophan	trp__L	M3	0.2	g	L-tryptophan	204.22526	0.9793107865305204	1
+Amino Acids	l-Tyrosine	tyr__L	M3	0.3	g	L-tyrosine	181.18858	1.6557334904881973	1
+Nucleotides	Adenine	ade	M3	11.0	mg	adenine	135.1269	0.08140496081831226	1
+Nucleotides	Guanine	gua	M3	5.6	mg	guanine	151.126	0.037055172505062	1
+Nucleotides	Uracil	ura	M3	23.0	mg	uracil	112.08684	0.20519804109028322	1
+Nucleotides	Xanthine	xan	M3	3.8	mg	9H-xanthine	152.11102	0.02498175345875664	1
+Vitamins	Vitamin K (menadione)	mndn	M3	1.0	mg	menadione	172.183	0.0058077742866601235	1
+Vitamins	Biotin	btn	M3	6.02	mg	biotin	244.31172	0.02464065170512491	1
+Vitamins	Riboflavin	ribflv	M3	0.9	mg	riboflavin	376.369	0.0023912702693367413	1
+Vitamins	Ascorbic acid	ascb__L	M3	0.5	g	L-ascorbate	175.11618	2.855247299250132	1
+Vitamins	Folic acid	fol	M3	0.56	mg	folic acid	441.3975	0.0012686977157777288	1
+Vitamins	Niacin	nac	M3	0.9	mg	nicotinate	122.1015	0.007370916819203694	1
+Vitamins	myo-Inositol	inost	M3	2.0	mg	myo-inositol	180.15588	0.011101497214523333	1
+Vitamins	L-Glutathione reduced	gthrd	M3	15.0	mg	glutathione	307.32	0.04880905896134323	1
+Vitamins	Pyridoxine HCl	pydxn	M3	4.8	mg	pyridoxine	169.18	0.028372148008038774	1
+Vitamins	p-Aminobenzoic acid	4abz	M3	50.0	µg	4-aminobenzoic acid	137.136	0.0003646015634115039	1
+Vitamins	Lipoic acid	lipoate	M3	1.05	mg	lipoate	205.31962	0.005113977904303545	1
+SCFAs	Isovaleric acid	3mb	M3	0.1	mL	isovaleric acid	102.1317	1.0	1
+SCFAs	Propionic acid	ppa	M3	2.0	mL			8.0	1
+SCFAs	Butyric acid	but	M3	2.0	mL			4.0	1
+Amino Acids	l-Alanine	ala__L	M3	0.4	g	L-alanine	89.09322	4.489679461579681	1
+Amino Acids	l-Serine	ser__L	M3	0.5	g	L-serine	105.09262	4.757708010324607	1
+Sugars	Maltose	malt	M3	1.0	g	alpha-maltose	342.29648	2.921444006669306	1
+Sugars	Lactose	lcts	M3	1.0	g	lactose	342.297	2.9214395685618046	1
+Other	NAD (N1511)	nad	M3	2.0	mg	NAD zwitterion	663.42538	0.0030146570515586844	1
+Amino Acids	l-Histidine	his__L	M3	0.171	g	L-histidine	155.15468	1.1021259558525724	1
+Amino Acids	l-Isoleucine	ile__L	M3	0.24	g	L-isoleucine	131.175	1.8296169239565463	1
+Amino Acids	l-Leucine	leu__L	M3	1.0	g	L-leucine	131.17296	7.62352240888671	1
+Amino Acids	l-Methionine	met__L	M3	0.125	g	L-methionine	149.21238	0.8377320970284101	1
+Amino Acids	l-Valine	val__L	M3	0.7	g	L-valine	117.14638	5.975430055969292	1
+Amino Acids	l-Arginine	arg__L	M3	0.72	g	L-arginine	174.201	4.13315652608194	1
+Amino Acids	l-Cysteine	cys__L	M3	0.5	g	L-cysteine	121.158	4.126842635236633	1
+Amino Acids	l-Glutamic acid	glu__L	M3	0.6	g	L-glutamate(1-)	146.12136	4.106175852729539	1
+Amino Acids	l-Phenylalanine	phe__L	M3	0.4	g	L-phenylalanine	165.18918	2.4214661032883633	1
+Amino Acids	l-Proline	pro__L	M3	0.7	g	L-proline	115.1305	6.080056978819687	1
+Amino Acids	l-Asparagine	asn__L	M3	0.5	g	L-asparagine	132.118	3.7844956781059356	1
+Amino Acids	l-Aspartic acid	asp__L	M3	0.05	g	L-aspartate(1-)	132.09478	0.3785160927630903	1
+Amino Acids	l-Glutamine	gln__L	M3	0.6	g	L-glutamine	146.14458	4.105523448081345	1
+manual curation	multiple	h2o	M3	10000.0	g	water	18.0153	555083.7343813314	0
+Sugars	Cellobiose	cellb	M3	1.0	g	beta-cellobiose	342.29648	2.921444006669306	1
+Sugars	Fructose	fru	M3	1.0	g	D-fructose	180.15588	5.550748607261667	1
+Sugars	D-glucose	glc__D	M3	5.0	g	D-glucose	180.15588	27.753743036308336	1
+Minerals	Na2WO4 . 2H2O	tungs	M3	0.1	mg	tungstate	247.8376	0.00040349002734048426	1
+Minerals	Na2SeO3 (anhydrous)	slnt	M3	10.0	µg	selenite(2-)	126.9582	7.876608206480559e-05	1
+Minerals	FeSO4 . 7H2O	fe2	M3	4.0	mg	iron(2+)	55.845	0.07162682424568001	0
+Minerals	Co(NO3)2 . 6H2O	no3	M3	1.0	mg	nitrate	62.0049	0.01612775764496032	1
+Vitamins	Ascorbic acid	ascb__L	M4	0.5	g	L-ascorbate	175.11618	2.855247299250132	1
+Nucleotides	Guanine	gua	M4	5.6	mg	guanine	151.126	0.037055172505062	1
+Nucleotides	Uracil	ura	M4	23.0	mg	uracil	112.08684	0.20519804109028322	1
+Nucleotides	Xanthine	xan	M4	3.8	mg	9H-xanthine	152.11102	0.02498175345875664	1
+Vitamins	Vitamin K (menadione)	mndn	M4	1.0	mg	menadione	172.183	0.0058077742866601235	1
+Vitamins	Biotin	btn	M4	20.0	µg	biotin	244.31172	8.186263024958442e-05	1
+Vitamins	Riboflavin	ribflv	M4	50.0	µg	riboflavin	376.369	0.00013284834829648565	1
+Nucleotides	Adenine	ade	M4	11.0	mg	adenine	135.1269	0.08140496081831226	1
+Vitamins	p-Aminobenzoic acid	4abz	M4	50.0	µg	4-aminobenzoic acid	137.136	0.0003646015634115039	1
+Vitamins	Niacin	nac	M4	50.0	µg	nicotinate	122.1015	0.0004094953788446497	1
+Vitamins	myo-Inositol	inost	M4	2.0	mg	myo-inositol	180.15588	0.011101497214523333	1
+Vitamins	L-Glutathione reduced	gthrd	M4	15.0	mg	glutathione	307.32	0.04880905896134323	1
+Vitamins	Pyridoxine HCl	pydxn	M4	0.1	mg	pyridoxine	169.18	0.0005910864168341411	1
+Amino Acids	l-Tyrosine	tyr__L	M4	0.3	g	L-tyrosine	181.18858	1.6557334904881973	1
+Vitamins	Lipoic acid	lipoate	M4	1.05	mg	lipoate	205.31962	0.005113977904303545	1
+SCFAs	Isovaleric acid	3mb	M4	0.1	mL	isovaleric acid	102.1317	1.0	1
+SCFAs	Propionic acid	ppa	M4	2.0	mL			8.0	1
+SCFAs	Butyric acid	but	M4	2.0	mL			4.0	1
+Vitamins	Folic acid	fol	M4	20.0	µg	folic acid	441.3975	4.531063270634746e-05	1
+Amino Acids	l-Tryptophan	trp__L	M4	0.2	g	L-tryptophan	204.22526	0.9793107865305204	1
+Amino Acids	l-Aspartic acid	asp__L	M4	0.05	g	L-aspartate(1-)	132.09478	0.3785160927630903	1
+Amino Acids	Glycine	gly	M4	0.3	g	glycine	75.06664	3.9964490218291364	1
+Sugars	D-glucose	glc__D	M4	5.0	g	D-glucose	180.15588	27.753743036308336	1
+Sugars	Fructose	fru	M4	1.0	g	D-fructose	180.15588	5.550748607261667	1
+Sugars	Cellobiose	cellb	M4	1.0	g	beta-cellobiose	342.29648	2.921444006669306	1
+Sugars	Maltose	malt	M4	1.0	g	alpha-maltose	342.29648	2.921444006669306	1
+Sugars	Lactose	lcts	M4	1.0	g	lactose	342.297	2.9214395685618046	1
+Other	NAD (N1511)	nad	M4	2.0	mg	NAD zwitterion	663.42538	0.0030146570515586844	1
+Amino Acids	l-Histidine	his__L	M4	0.171	g	L-histidine	155.15468	1.1021259558525724	1
+Amino Acids	l-Lysine	lys__L	M4	0.5	g	L-lysine	146.18764	3.4202617950464216	1
+Amino Acids	l-Isoleucine	ile__L	M4	0.24	g	L-isoleucine	131.175	1.8296169239565463	1
+Amino Acids	l-Valine	val__L	M4	0.7	g	L-valine	117.14638	5.975430055969292	1
+Amino Acids	l-Arginine	arg__L	M4	0.72	g	L-arginine	174.201	4.13315652608194	1
+Amino Acids	l-Cysteine	cys__L	M4	0.5	g	L-cysteine	121.158	4.126842635236633	1
+Amino Acids	l-Glutamic acid	glu__L	M4	0.6	g	L-glutamate(1-)	146.12136	4.106175852729539	1
+Amino Acids	l-Phenylalanine	phe__L	M4	0.4	g	L-phenylalanine	165.18918	2.4214661032883633	1
+Amino Acids	l-Proline	pro__L	M4	0.7	g	L-proline	115.1305	6.080056978819687	1
+Amino Acids	l-Asparagine	asn__L	M4	0.5	g	L-asparagine	132.118	3.7844956781059356	1
+Amino Acids	l-Glutamine	gln__L	M4	0.6	g	L-glutamine	146.14458	4.105523448081345	1
+Amino Acids	l-Serine	ser__L	M4	0.5	g	L-serine	105.09262	4.757708010324607	1
+Amino Acids	l-Threonine	thr__L	M4	0.5	g	L-threonine	119.1192	4.197476141545612	1
+Amino Acids	l-Alanine	ala__L	M4	0.4	g	L-alanine	89.09322	4.489679461579681	1
+Amino Acids	l-Leucine	leu__L	M4	1.0	g	L-leucine	131.17296	7.62352240888671	1
+Amino Acids	l-Methionine	met__L	M4	0.125	g	L-methionine	149.21238	0.8377320970284101	1
+Minerals	Ammonium citrate dibasic	cit	M4	1.7	g	citrate(4-)	188.092	9.038130276673117	1
+Minerals	NaHCO3	hco3	M4	0.4	g	carbonic acid	62.02478	6.449035369412032	1
+Vitamins	Calcium Pantothenate	pnto__R	M4	50.0	µg	(R)-pantothenate	218.22708	0.00022911913590192382	1
+Vitamins	Pyridoxamine . 2 HCl	pydam	M4	5.0	mg	pyridoxamine(2+)	170.209	0.029375649936254838	1
+Vitamins	Thiamine HCl	thm	M4	50.0	µg	thiamine(1+) chloride	300.80844	0.0001662187404050232	1
+Vitamins	Vitamin B12	cbl2	M4	1.0	µg		1328.56433	7.526921936854951e-07	1
+manual curation	multiple	h2o	M4	10000.0	g	water	18.0153	555083.7343813314	0
+Minerals	FeSO4 . 7H2O	fe2	M4	1.4	mg	iron(2+)	55.845	0.025069388485988005	0
+Minerals	Co(NO3)2 . 6H2O	no3	M4	1.0	mg	nitrate	62.0049	0.01612775764496032	1
+Minerals	Na2SeO3 (anhydrous)	slnt	M4	10.0	µg	selenite(2-)	126.9582	7.876608206480559e-05	1
+Minerals	Na2WO4 . 2H2O	tungs	M4	0.1	mg	tungstate	247.8376	0.00040349002734048426	1
+Vitamins	Vitamin B12	cbl1	M4	1.0	µg	cob(I)alamin	1330.3557	7.516786675924341e-07	1
+Nucleotides	Uracil	ura	M5	23.0	mg	uracil	112.08684	0.20519804109028322	1
+Amino Acids	l-Histidine	his__L	M5	0.171	g	L-histidine	155.15468	1.1021259558525724	1
+Amino Acids	l-Isoleucine	ile__L	M5	0.24	g	L-isoleucine	131.175	1.8296169239565463	1
+Amino Acids	l-Leucine	leu__L	M5	1.0	g	L-leucine	131.17296	7.62352240888671	1
+Amino Acids	l-Methionine	met__L	M5	0.125	g	L-methionine	149.21238	0.8377320970284101	1
+Amino Acids	l-Valine	val__L	M5	0.7	g	L-valine	117.14638	5.975430055969292	1
+Amino Acids	l-Arginine	arg__L	M5	0.72	g	L-arginine	174.201	4.13315652608194	1
+Amino Acids	l-Cysteine	cys__L	M5	0.5	g	L-cysteine	121.158	4.126842635236633	1
+Amino Acids	l-Glutamic acid	glu__L	M5	0.6	g	L-glutamate(1-)	146.12136	4.106175852729539	1
+Amino Acids	l-Phenylalanine	phe__L	M5	0.4	g	L-phenylalanine	165.18918	2.4214661032883633	1
+Amino Acids	l-Proline	pro__L	M5	0.7	g	L-proline	115.1305	6.080056978819687	1
+Amino Acids	l-Aspartic acid	asp__L	M5	0.05	g	L-aspartate(1-)	132.09478	0.3785160927630903	1
+Amino Acids	l-Glutamine	gln__L	M5	0.6	g	L-glutamine	146.14458	4.105523448081345	1
+Amino Acids	l-Serine	ser__L	M5	0.5	g	L-serine	105.09262	4.757708010324607	1
+Amino Acids	l-Threonine	thr__L	M5	0.5	g	L-threonine	119.1192	4.197476141545612	1
+Amino Acids	l-Alanine	ala__L	M5	0.4	g	L-alanine	89.09322	4.489679461579681	1
+Amino Acids	Glycine	gly	M5	0.3	g	glycine	75.06664	3.9964490218291364	1
+Amino Acids	l-Lysine	lys__L	M5	0.5	g	L-lysine	146.18764	3.4202617950464216	1
+Amino Acids	l-Tryptophan	trp__L	M5	0.2	g	L-tryptophan	204.22526	0.9793107865305204	1
+Amino Acids	l-Tyrosine	tyr__L	M5	0.3	g	L-tyrosine	181.18858	1.6557334904881973	1
+Amino Acids	l-Asparagine	asn__L	M5	0.5	g	L-asparagine	132.118	3.7844956781059356	1
+Other	NAD (N1511)	nad	M5	2.0	mg	NAD zwitterion	663.42538	0.0030146570515586844	1
+Vitamins	Lipoic acid	lipoate	M5	1.05	mg	lipoate	205.31962	0.005113977904303545	1
+Vitamins	p-Aminobenzoic acid	4abz	M5	50.0	µg	4-aminobenzoic acid	137.136	0.0003646015634115039	1
+Vitamins	Pyridoxine HCl	pydxn	M5	4.8	mg	pyridoxine	169.18	0.028372148008038774	1
+Vitamins	L-Glutathione reduced	gthrd	M5	15.0	mg	glutathione	307.32	0.04880905896134323	1
+Vitamins	myo-Inositol	inost	M5	2.0	mg	myo-inositol	180.15588	0.011101497214523333	1
+Vitamins	Niacin	nac	M5	0.9	mg	nicotinate	122.1015	0.007370916819203694	1
+Vitamins	Folic acid	fol	M5	0.56	mg	folic acid	441.3975	0.0012686977157777288	1
+Vitamins	Ascorbic acid	ascb__L	M5	0.5	g	L-ascorbate	175.11618	2.855247299250132	1
+Vitamins	Riboflavin	ribflv	M5	0.9	mg	riboflavin	376.369	0.0023912702693367413	1
+Vitamins	Biotin	btn	M5	6.02	mg	biotin	244.31172	0.02464065170512491	1
+Vitamins	Vitamin K (menadione)	mndn	M5	1.0	mg	menadione	172.183	0.0058077742866601235	1
+Nucleotides	Xanthine	xan	M5	3.8	mg	9H-xanthine	152.11102	0.02498175345875664	1
+Sugars	D-glucose	glc__D	M5	5.0	g	D-glucose	180.15588	27.753743036308336	1
+Sugars	Fructose	fru	M5	1.0	g	D-fructose	180.15588	5.550748607261667	1
+Sugars	Cellobiose	cellb	M5	1.0	g	beta-cellobiose	342.29648	2.921444006669306	1
+Sugars	Maltose	malt	M5	1.0	g	alpha-maltose	342.29648	2.921444006669306	1
+Sugars	Lactose	lcts	M5	1.0	g	lactose	342.297	2.9214395685618046	1
+Nucleotides	Guanine	gua	M5	5.6	mg	guanine	151.126	0.037055172505062	1
+Nucleotides	Adenine	ade	M5	11.0	mg	adenine	135.1269	0.08140496081831226	1
+Vitamins	Vitamin B12	cbl1	M5	1.0	µg	cob(I)alamin	1330.3557	7.516786675924341e-07	1
+Vitamins	Vitamin B12	cbl2	M5	1.0	µg		1328.56433	7.526921936854951e-07	1
+Vitamins	Thiamine HCl	thm	M5	0.56	mg	thiamine(1+) chloride	300.80844	0.00186164989253626	1
+Vitamins	Pyridoxamine . 2 HCl	pydam	M5	5.0	mg	pyridoxamine(2+)	170.209	0.029375649936254838	1
+Vitamins	Calcium Pantothenate	pnto__R	M5	1.2	mg	(R)-pantothenate	218.22708	0.005498859261646171	1
+Minerals	NaHCO3	hco3	M5	0.4	g	carbonic acid	62.02478	6.449035369412032	1
+Minerals	FeSO4 . 7H2O	fe2	M5	4.0	mg	iron(2+)	55.845	0.07162682424568001	0
+Minerals	KCH3CO2 (Potassium acetate)	ac	M5	0.9	g	acetate	59.04402	30.0	1
+Minerals	Na2SeO3 (anhydrous)	slnt	M5	10.0	µg	selenite(2-)	126.9582	7.876608206480559e-05	1
+Minerals	Na2WO4 . 2H2O	tungs	M5	0.1	mg	tungstate	247.8376	0.00040349002734048426	1
+Minerals	Co(NO3)2 . 6H2O	no3	M5	1.0	mg	nitrate	62.0049	0.01612775764496032	1
+Minerals	Ammonium citrate dibasic	cit	M5	1.7	g	citrate(4-)	188.092	9.038130276673117	1
+manual curation	multiple	h2o	M5	10000.0	g	water	18.0153	555083.7343813314	0
+SCFAs	Isovaleric acid	3mb	M7	0.1	mL	isovaleric acid	102.1317	1.0	1
+Nucleotides	Adenine	ade	M7	11.0	mg	adenine	135.1269	0.08140496081831226	1
+Vitamins	Lipoic acid	lipoate	M7	1.05	mg	lipoate	205.31962	0.005113977904303545	1
+Nucleotides	Guanine	gua	M7	5.6	mg	guanine	151.126	0.037055172505062	1
+Nucleotides	Uracil	ura	M7	23.0	mg	uracil	112.08684	0.20519804109028322	1
+Nucleotides	Xanthine	xan	M7	3.8	mg	9H-xanthine	152.11102	0.02498175345875664	1
+Vitamins	Vitamin K (menadione)	mndn	M7	1.0	mg	menadione	172.183	0.0058077742866601235	1
+Vitamins	Biotin	btn	M7	6.02	mg	biotin	244.31172	0.02464065170512491	1
+Vitamins	Riboflavin	ribflv	M7	0.9	mg	riboflavin	376.369	0.0023912702693367413	1
+Amino Acids	l-Tyrosine	tyr__L	M7	0.3	g	L-tyrosine	181.18858	1.6557334904881973	1
+Vitamins	Niacin	nac	M7	0.9	mg	nicotinate	122.1015	0.007370916819203694	1
+Vitamins	myo-Inositol	inost	M7	2.0	mg	myo-inositol	180.15588	0.011101497214523333	1
+Vitamins	L-Glutathione reduced	gthrd	M7	15.0	mg	glutathione	307.32	0.04880905896134323	1
+SCFAs	Butyric acid	but	M7	2.0	mL			4.0	1
+SCFAs	Propionic acid	ppa	M7	2.0	mL			8.0	1
+Vitamins	Ascorbic acid	ascb__L	M7	0.5	g	L-ascorbate	175.11618	2.855247299250132	1
+Vitamins	Folic acid	fol	M7	0.56	mg	folic acid	441.3975	0.0012686977157777288	1
+Amino Acids	l-Tryptophan	trp__L	M7	0.2	g	L-tryptophan	204.22526	0.9793107865305204	1
+Amino Acids	Glycine	gly	M7	0.3	g	glycine	75.06664	3.9964490218291364	1
+Sugars	D-glucose	glc__D	M7	5.0	g	D-glucose	180.15588	27.753743036308336	1
+Sugars	Fructose	fru	M7	1.0	g	D-fructose	180.15588	5.550748607261667	1
+Other	NAD (N1511)	nad	M7	2.0	mg	NAD zwitterion	663.42538	0.0030146570515586844	1
+Amino Acids	l-Histidine	his__L	M7	0.171	g	L-histidine	155.15468	1.1021259558525724	1
+Amino Acids	l-Isoleucine	ile__L	M7	0.24	g	L-isoleucine	131.175	1.8296169239565463	1
+Amino Acids	l-Leucine	leu__L	M7	1.0	g	L-leucine	131.17296	7.62352240888671	1
+Amino Acids	l-Methionine	met__L	M7	0.125	g	L-methionine	149.21238	0.8377320970284101	1
+Amino Acids	l-Valine	val__L	M7	0.7	g	L-valine	117.14638	5.975430055969292	1
+Amino Acids	l-Arginine	arg__L	M7	0.72	g	L-arginine	174.201	4.13315652608194	1
+Amino Acids	l-Cysteine	cys__L	M7	0.5	g	L-cysteine	121.158	4.126842635236633	1
+Amino Acids	l-Glutamic acid	glu__L	M7	0.6	g	L-glutamate(1-)	146.12136	4.106175852729539	1
+Amino Acids	l-Phenylalanine	phe__L	M7	0.4	g	L-phenylalanine	165.18918	2.4214661032883633	1
+Amino Acids	l-Proline	pro__L	M7	0.7	g	L-proline	115.1305	6.080056978819687	1
+Amino Acids	l-Asparagine	asn__L	M7	0.5	g	L-asparagine	132.118	3.7844956781059356	1
+Amino Acids	l-Aspartic acid	asp__L	M7	0.05	g	L-aspartate(1-)	132.09478	0.3785160927630903	1
+Amino Acids	l-Glutamine	gln__L	M7	0.6	g	L-glutamine	146.14458	4.105523448081345	1
+Amino Acids	l-Serine	ser__L	M7	0.5	g	L-serine	105.09262	4.757708010324607	1
+Amino Acids	l-Threonine	thr__L	M7	0.5	g	L-threonine	119.1192	4.197476141545612	1
+Amino Acids	l-Lysine	lys__L	M7	0.5	g	L-lysine	146.18764	3.4202617950464216	1
+Amino Acids	l-Alanine	ala__L	M7	0.4	g	L-alanine	89.09322	4.489679461579681	1
+Minerals	Ammonium citrate dibasic	cit	M7	1.7	g	citrate(4-)	188.092	9.038130276673117	1
+Minerals	NaHCO3	hco3	M7	0.4	g	carbonic acid	62.02478	6.449035369412032	1
+Vitamins	Vitamin B12	cbl1	M7	1.0	µg	cob(I)alamin	1330.3557	7.516786675924341e-07	1
+Vitamins	Vitamin B12	cbl2	M7	1.0	µg		1328.56433	7.526921936854951e-07	1
+Vitamins	Thiamine HCl	thm	M7	0.56	mg	thiamine(1+) chloride	300.80844	0.00186164989253626	1
+Vitamins	Pyridoxamine . 2 HCl	pydam	M7	5.0	mg	pyridoxamine(2+)	170.209	0.029375649936254838	1
+Vitamins	Calcium Pantothenate	pnto__R	M7	1.2	mg	(R)-pantothenate	218.22708	0.005498859261646171	1
+manual curation	multiple	h2o	M7	10000.0	g	water	18.0153	555083.7343813314	0
+Minerals	FeSO4 . 7H2O	fe2	M7	4.0	mg	iron(2+)	55.845	0.07162682424568001	0
+Vitamins	p-Aminobenzoic acid	4abz	M7	50.0	µg	4-aminobenzoic acid	137.136	0.0003646015634115039	1
+Minerals	Co(NO3)2 . 6H2O	no3	M7	1.0	mg	nitrate	62.0049	0.01612775764496032	1
+Minerals	Na2SeO3 (anhydrous)	slnt	M7	10.0	µg	selenite(2-)	126.9582	7.876608206480559e-05	1
+Minerals	Na2WO4 . 2H2O	tungs	M7	0.1	mg	tungstate	247.8376	0.00040349002734048426	1
+Vitamins	Pyridoxine HCl	pydxn	M7	4.8	mg	pyridoxine	169.18	0.028372148008038774	1
+Sugars	Fructose	fru	M8	1.0	g	D-fructose	180.15588	5.550748607261667	1
+Minerals	Ammonium citrate dibasic	cit	M8	1.7	g	citrate(4-)	188.092	9.038130276673117	1
+Vitamins	Calcium Pantothenate	pnto__R	M8	1.2	mg	(R)-pantothenate	218.22708	0.005498859261646171	1
+Vitamins	Pyridoxamine . 2 HCl	pydam	M8	5.0	mg	pyridoxamine(2+)	170.209	0.029375649936254838	1
+Sugars	D-glucose	glc__D	M8	5.0	g	D-glucose	180.15588	27.753743036308336	1
+Vitamins	Vitamin B12	cbl2	M8	1.0	µg		1328.56433	7.526921936854951e-07	1
+Vitamins	Vitamin B12	cbl1	M8	1.0	µg	cob(I)alamin	1330.3557	7.516786675924341e-07	1
+Minerals	NaHCO3	hco3	M8	0.4	g	carbonic acid	62.02478	6.449035369412032	1
+Minerals	Na2WO4 . 2H2O	tungs	M8	0.1	mg	tungstate	247.8376	0.00040349002734048426	1
+manual curation	multiple	h2o	M8	10000.0	g	water	18.0153	555083.7343813314	0
+Vitamins	Riboflavin	ribflv	M8	0.9	mg	riboflavin	376.369	0.0023912702693367413	1
+Vitamins	Ascorbic acid	ascb__L	M8	0.5	g	L-ascorbate	175.11618	2.855247299250132	1
+Vitamins	Folic acid	fol	M8	0.56	mg	folic acid	441.3975	0.0012686977157777288	1
+Vitamins	Niacin	nac	M8	0.9	mg	nicotinate	122.1015	0.007370916819203694	1
+Vitamins	myo-Inositol	inost	M8	2.0	mg	myo-inositol	180.15588	0.011101497214523333	1
+Vitamins	L-Glutathione reduced	gthrd	M8	15.0	mg	glutathione	307.32	0.04880905896134323	1
+Vitamins	Pyridoxine HCl	pydxn	M8	4.8	mg	pyridoxine	169.18	0.028372148008038774	1
+Vitamins	p-Aminobenzoic acid	4abz	M8	50.0	µg	4-aminobenzoic acid	137.136	0.0003646015634115039	1
+Vitamins	Lipoic acid	lipoate	M8	1.05	mg	lipoate	205.31962	0.005113977904303545	1
+SCFAs	Isovaleric acid	3mb	M8	0.1	mL	isovaleric acid	102.1317	1.0	1
+SCFAs	Propionic acid	ppa	M8	2.0	mL			8.0	1
+SCFAs	Butyric acid	but	M8	2.0	mL			4.0	1
+Minerals	Na2SeO3 (anhydrous)	slnt	M8	10.0	µg	selenite(2-)	126.9582	7.876608206480559e-05	1
+Minerals	Co(NO3)2 . 6H2O	no3	M8	1.0	mg	nitrate	62.0049	0.01612775764496032	1
+Minerals	FeSO4 . 7H2O	fe2	M8	4.0	mg	iron(2+)	55.845	0.07162682424568001	0
+Vitamins	Thiamine HCl	thm	M8	0.56	mg	thiamine(1+) chloride	300.80844	0.00186164989253626	1
+Amino Acids	l-Tyrosine	tyr__L	M8	0.3	g	L-tyrosine	181.18858	1.6557334904881973	1
+Amino Acids	l-Cysteine	cys__L	M8	0.5	g	L-cysteine	121.158	4.126842635236633	1
+Amino Acids	l-Arginine	arg__L	M8	0.72	g	L-arginine	174.201	4.13315652608194	1
+Amino Acids	l-Valine	val__L	M8	0.7	g	L-valine	117.14638	5.975430055969292	1
+Amino Acids	l-Methionine	met__L	M8	0.125	g	L-methionine	149.21238	0.8377320970284101	1
+Amino Acids	l-Leucine	leu__L	M8	1.0	g	L-leucine	131.17296	7.62352240888671	1
+Amino Acids	l-Isoleucine	ile__L	M8	0.24	g	L-isoleucine	131.175	1.8296169239565463	1
+Amino Acids	l-Glutamic acid	glu__L	M8	0.6	g	L-glutamate(1-)	146.12136	4.106175852729539	1
+Amino Acids	l-Histidine	his__L	M8	0.171	g	L-histidine	155.15468	1.1021259558525724	1
+Other	NAD (N1511)	nad	M8	2.0	mg	NAD zwitterion	663.42538	0.0030146570515586844	1
+Sugars	Lactose	lcts	M8	1.0	g	lactose	342.297	2.9214395685618046	1
+Sugars	Maltose	malt	M8	1.0	g	alpha-maltose	342.29648	2.921444006669306	1
+Sugars	Cellobiose	cellb	M8	1.0	g	beta-cellobiose	342.29648	2.921444006669306	1
+Amino Acids	l-Phenylalanine	phe__L	M8	0.4	g	L-phenylalanine	165.18918	2.4214661032883633	1
+Amino Acids	l-Asparagine	asn__L	M8	0.5	g	L-asparagine	132.118	3.7844956781059356	1
+Amino Acids	l-Threonine	thr__L	M8	0.5	g	L-threonine	119.1192	4.197476141545612	1
+Amino Acids	l-Alanine	ala__L	M8	0.4	g	L-alanine	89.09322	4.489679461579681	1
+Amino Acids	Glycine	gly	M8	0.3	g	glycine	75.06664	3.9964490218291364	1
+Amino Acids	l-Lysine	lys__L	M8	0.5	g	L-lysine	146.18764	3.4202617950464216	1
+Amino Acids	l-Tryptophan	trp__L	M8	0.2	g	L-tryptophan	204.22526	0.9793107865305204	1
+Amino Acids	l-Aspartic acid	asp__L	M8	0.05	g	L-aspartate(1-)	132.09478	0.3785160927630903	1
+Amino Acids	l-Proline	pro__L	M8	0.7	g	L-proline	115.1305	6.080056978819687	1
+Nucleotides	Adenine	ade	M8	11.0	mg	adenine	135.1269	0.08140496081831226	1
+Nucleotides	Uracil	ura	M8	23.0	mg	uracil	112.08684	0.20519804109028322	1
+Nucleotides	Xanthine	xan	M8	3.8	mg	9H-xanthine	152.11102	0.02498175345875664	1
+Vitamins	Vitamin K (menadione)	mndn	M8	1.0	mg	menadione	172.183	0.0058077742866601235	1
+Vitamins	Biotin	btn	M8	6.02	mg	biotin	244.31172	0.02464065170512491	1
+Nucleotides	Guanine	gua	M8	5.6	mg	guanine	151.126	0.037055172505062	1
+Amino Acids	l-Serine	ser__L	M8	0.5	g	L-serine	105.09262	4.757708010324607	1
+Amino Acids	l-Glutamine	gln__L	M8	0.6	g	L-glutamine	146.14458	4.105523448081345	1
+Amino Acids	l-Cysteine	cys__L	M9	0.5	g	L-cysteine	121.158	4.126842635236633	1
+Nucleotides	Uracil	ura	M9	23.0	mg	uracil	112.08684	0.20519804109028322	1
+Nucleotides	Xanthine	xan	M9	3.8	mg	9H-xanthine	152.11102	0.02498175345875664	1
+Vitamins	Vitamin K (menadione)	mndn	M9	1.0	mg	menadione	172.183	0.0058077742866601235	1
+Vitamins	Biotin	btn	M9	6.02	mg	biotin	244.31172	0.02464065170512491	1
+Vitamins	Riboflavin	ribflv	M9	0.9	mg	riboflavin	376.369	0.0023912702693367413	1
+Vitamins	Ascorbic acid	ascb__L	M9	0.5	g	L-ascorbate	175.11618	2.855247299250132	1
+Vitamins	Folic acid	fol	M9	0.56	mg	folic acid	441.3975	0.0012686977157777288	1
+Nucleotides	Guanine	gua	M9	5.6	mg	guanine	151.126	0.037055172505062	1
+Vitamins	Niacin	nac	M9	0.9	mg	nicotinate	122.1015	0.007370916819203694	1
+Vitamins	L-Glutathione reduced	gthrd	M9	15.0	mg	glutathione	307.32	0.04880905896134323	1
+Vitamins	Pyridoxine HCl	pydxn	M9	4.8	mg	pyridoxine	169.18	0.028372148008038774	1
+Vitamins	p-Aminobenzoic acid	4abz	M9	50.0	µg	4-aminobenzoic acid	137.136	0.0003646015634115039	1
+Vitamins	Lipoic acid	lipoate	M9	1.05	mg	lipoate	205.31962	0.005113977904303545	1
+SCFAs	Isovaleric acid	3mb	M9	0.1	mL	isovaleric acid	102.1317	1.0	1
+SCFAs	Propionic acid	ppa	M9	2.0	mL			8.0	1
+SCFAs	Butyric acid	but	M9	2.0	mL			4.0	1
+Vitamins	myo-Inositol	inost	M9	2.0	mg	myo-inositol	180.15588	0.011101497214523333	1
+Amino Acids	l-Glutamic acid	glu__L	M9	0.6	g	L-glutamate(1-)	146.12136	4.106175852729539	1
+Nucleotides	Adenine	ade	M9	11.0	mg	adenine	135.1269	0.08140496081831226	1
+Amino Acids	l-Tryptophan	trp__L	M9	0.2	g	L-tryptophan	204.22526	0.9793107865305204	1
+Amino Acids	l-Arginine	arg__L	M9	0.72	g	L-arginine	174.201	4.13315652608194	1
+Amino Acids	l-Valine	val__L	M9	0.7	g	L-valine	117.14638	5.975430055969292	1
+Amino Acids	l-Methionine	met__L	M9	0.125	g	L-methionine	149.21238	0.8377320970284101	1
+Amino Acids	l-Leucine	leu__L	M9	1.0	g	L-leucine	131.17296	7.62352240888671	1
+Amino Acids	l-Phenylalanine	phe__L	M9	0.4	g	L-phenylalanine	165.18918	2.4214661032883633	1
+Amino Acids	l-Histidine	his__L	M9	0.171	g	L-histidine	155.15468	1.1021259558525724	1
+Amino Acids	l-Tyrosine	tyr__L	M9	0.3	g	L-tyrosine	181.18858	1.6557334904881973	1
+Other	NAD (N1511)	nad	M9	2.0	mg	NAD zwitterion	663.42538	0.0030146570515586844	1
+Amino Acids	l-Proline	pro__L	M9	0.7	g	L-proline	115.1305	6.080056978819687	1
+Amino Acids	l-Asparagine	asn__L	M9	0.5	g	L-asparagine	132.118	3.7844956781059356	1
+Amino Acids	l-Aspartic acid	asp__L	M9	0.05	g	L-aspartate(1-)	132.09478	0.3785160927630903	1
+Amino Acids	l-Glutamine	gln__L	M9	0.6	g	L-glutamine	146.14458	4.105523448081345	1
+Amino Acids	l-Serine	ser__L	M9	0.5	g	L-serine	105.09262	4.757708010324607	1
+Amino Acids	l-Threonine	thr__L	M9	0.5	g	L-threonine	119.1192	4.197476141545612	1
+Amino Acids	l-Alanine	ala__L	M9	0.4	g	L-alanine	89.09322	4.489679461579681	1
+Amino Acids	Glycine	gly	M9	0.3	g	glycine	75.06664	3.9964490218291364	1
+Amino Acids	l-Lysine	lys__L	M9	0.5	g	L-lysine	146.18764	3.4202617950464216	1
+Amino Acids	l-Isoleucine	ile__L	M9	0.24	g	L-isoleucine	131.175	1.8296169239565463	1
+Minerals	Na2WO4 . 2H2O	tungs	M9	0.1	mg	tungstate	247.8376	0.00040349002734048426	1
+manual curation	multiple	h2o	M9	10000.0	g	water	18.0153	555083.7343813314	0
+Minerals	FeSO4 . 7H2O	fe2	M9	4.0	mg	iron(2+)	55.845	0.07162682424568001	0
+Minerals	Co(NO3)2 . 6H2O	no3	M9	1.0	mg	nitrate	62.0049	0.01612775764496032	1
+Vitamins	Calcium Pantothenate	pnto__R	M9	1.2	mg	(R)-pantothenate	218.22708	0.005498859261646171	1
+Vitamins	Pyridoxamine . 2 HCl	pydam	M9	5.0	mg	pyridoxamine(2+)	170.209	0.029375649936254838	1
+Vitamins	Thiamine HCl	thm	M9	0.56	mg	thiamine(1+) chloride	300.80844	0.00186164989253626	1
+Vitamins	Vitamin B12	cbl2	M9	1.0	µg		1328.56433	7.526921936854951e-07	1
+Vitamins	Vitamin B12	cbl1	M9	1.0	µg	cob(I)alamin	1330.3557	7.516786675924341e-07	1
+Minerals	Na2SeO3 (anhydrous)	slnt	M9	10.0	µg	selenite(2-)	126.9582	7.876608206480559e-05	1
+Minerals	Ammonium citrate dibasic	cit	M9	1.7	g	citrate(4-)	188.092	9.038130276673117	1
+Minerals	NaHCO3	hco3	M9	0.4	g	carbonic acid	62.02478	6.449035369412032	1
+Minerals	CaCl2 (anhydrous) + Calcium Pantothenate	ca2	M1	59.0	mg	calcium(2+)	40.078	1.4721293477718447	0
+Minerals	NiCl2 . 6H2O + CaCl2 (anhydrous) + Thiamine HCl + NaCl	cl	M1	149.2	mg	chloride	35.4527	4.208424182079221	0
+Minerals	NiCl2 . 6H2O + multiple	ni2	M1	10000.2	mg	nickel(2+)	58.6934	170.38031533358097	0
+Minerals	Na2WO4 . 2H2O + Na2SeO3 (anhydrous) + Na2MoO4 . 2H2O + NaHCO3 + NaCl	na1	M1	100.6	mg	sodium(1+)	22.98977	4.375859349615068	0
+Minerals	AlK(SO4)2 (anhydrous) + ZnSO4 * 7 H2O + FeSO4 . 7H2O + MgSO4 * 7 H2O + MnSO4 * H2O + CuSO4 (anhydrous)	so4	M1	37.564	mg	sulfate	96.0636	0.3910326075641554	1
+Minerals	AlK(SO4)2 (anhydrous) + KH2PO4	k	M1	13.709	mg	potassium(1+)	39.0983	0.3506290554832307	0
+Minerals	Co(NO3)2 . 6H2O + multiple	cobalt2	M1	10001.0	mg	cobalt(2+)	58.9332	169.70061018237598	0
+Minerals	ZnSO4 * 7 H2O + multiple	zn2	M1	10001.0	mg	zinc(2+)	65.39	152.94387521027681	0
+manual curation	multiple + MnSO4 * H2O	mn2	M1	10005.0	g	manganese(2+)	54.93805	182114.21774161988	0
+manual curation	multiple + CuSO4 (anhydrous)	cu2	M1	10000.064	g	copper(2+)	63.546	157367.32445787307	0
+Buffer	KH2PO4 + Thiamine HCl + H3BO3	h	M1	63.709	g	hydron	1.00794	63207.135345357856	0
+Minerals	CaCl2 (anhydrous) + Calcium Pantothenate	ca2	M10	31.77	mg	calcium(2+)	40.078	0.7927042267578222	0
+Minerals	MgCl2 + NiCl2 . 6H2O + Thiamine HCl + Pyridoxamine . 2 HCl + FeCl3 + CaCl2 (anhydrous) + CoCl2·6H2O + NaCl	cl	M10	42.546	g	chloride	35.4527	1200.077850206049	0
+Minerals	NiCl2 . 6H2O + multiple	ni2	M10	10000.2	mg	nickel(2+)	58.6934	170.38031533358097	0
+Minerals	Na2WO4 . 2H2O + Na2SeO3 (anhydrous) + Na2MoO4 . 2H2O + NaHCO3 + NaCl	na1	M10	13.61	mg	sodium(1+)	22.98977	0.5920024428256568	0
+Minerals	AlK(SO4)2 (anhydrous) + FeSO4 . 7H2O + ZnSO4 * 7 H2O + MgSO4 * 7 H2O + CuSO4 (anhydrous) + MnSO4 * H2O + K2SO4	so4	M10	67.22	mg	sulfate	96.0636	0.6997447524348454	1
+Minerals	AlK(SO4)2 (anhydrous) + KCH3CO2 (Potassium acetate) + KH2PO4 + K2HPO4 + K2SO4 + KI	k	M10	44.199	mg	potassium(1+)	39.0983	1.1304583575244957	0
+Minerals	Co(NO3)2 . 6H2O + CoCl2·6H2O + multiple	cobalt2	M10	10001.19	mg	cobalt(2+)	58.9332	169.70383417157052	0
+Minerals	ZnSO4 * 7 H2O + multiple	zn2	M10	10005.0	mg	zinc(2+)	65.39	153.0050466432176	0
+Minerals	MnSO4 * H2O + multiple	mn2	M10	10005.0	mg	manganese(2+)	54.93805	182.1142177416199	0
+Minerals	FeCl3 + multiple	fe3	M10	10003.0	mg	iron(3+)	55.845	179.12078073238428	0
+Minerals	CuSO4 (anhydrous) + multiple	cu2	M10	10000.12	mg	copper(2+)	63.546	157.36820570925	0
+Buffer	KH2PO4 + K2HPO4	pi	M10	20.089	g	phosphate(3-)	94.97136	211.52692769693934	0
+Vitamins	Thiamine HCl + KH2PO4 + K2HPO4 + H3BO3 + Pyridoxamine . 2 HCl	h	M10	26.399	mg	hydron	1.00794	26.191043117645894	0
+Minerals	Na2MoO4 . 2H2O + (NH4)6Mo7O24·4H2O	mobd	M10	0.29000000000000004	mg	molybdate	159.9376	0.001813207150788808	1
+Minerals	MgCl2 + MgSO4 * 7 H2O	mg2	M10	30.386	g	magnesium(2+)	24.305	1250.1954330384694	0
+Minerals	KCH3CO2 (Potassium acetate) + Acetic acid	ac	M10	2.6	g	acetate	59.04402	30.0	1
+Other	Hemin + Hematin	pheme	M10	1.7	mg	ferroheme b	616.487	0.002757560175640362	1
+Minerals	(NH4)6Mo7O24·4H2O + Ammonium citrate dibasic	nh4	M10	1.89	mg	ammonia	17.03056	0.11097697315883916	1
+Vitamins	Calcium Pantothenate + CaCl2 (anhydrous)	ca2	M11	31.77	mg	calcium(2+)	40.078	0.7927042267578222	0
+Vitamins	Pyridoxamine . 2 HCl + NaCl + FeCl3 + Thiamine HCl + CoCl2·6H2O + MgCl2 + NiCl2 . 6H2O + CaCl2 (anhydrous)	cl	M11	42.546	mg	chloride	35.4527	1.2000778502060492	0
+manual curation	multiple + NiCl2 . 6H2O	ni2	M11	10000.2	g	nickel(2+)	58.6934	170380.31533358098	0
+Minerals	NaCl + NaHCO3 + Na2MoO4 . 2H2O + Na2SeO3 (anhydrous) + Na2WO4 . 2H2O	na1	M11	13.61	g	sodium(1+)	22.98977	592.0024428256568	0
+Minerals	CuSO4 (anhydrous) + MnSO4 * H2O + K2SO4 + MgSO4 * 7 H2O + FeSO4 . 7H2O + ZnSO4 * 7 H2O + AlK(SO4)2 (anhydrous)	so4	M11	67.22	mg	sulfate	96.0636	0.6997447524348454	1
+Buffer	K2HPO4 + KH2PO4 + KI + K2SO4 + KCH3CO2 (Potassium acetate) + AlK(SO4)2 (anhydrous)	k	M11	44.199	g	potassium(1+)	39.0983	1130.4583575244958	0
+Minerals	CoCl2·6H2O + multiple + Co(NO3)2 . 6H2O	cobalt2	M11	10001.19	mg	cobalt(2+)	58.9332	169.70383417157052	0
+manual curation	multiple + ZnSO4 * 7 H2O	zn2	M11	10005.0	g	zinc(2+)	65.39	153005.04664321762	0
+Minerals	MnSO4 * H2O + multiple	mn2	M11	10005.0	mg	manganese(2+)	54.93805	182.1142177416199	0
+Minerals	FeCl3 + multiple	fe3	M11	10003.0	mg	iron(3+)	55.845	179.12078073238428	0
+Minerals	CuSO4 (anhydrous) + multiple	cu2	M11	10000.12	mg	copper(2+)	63.546	157.36820570925	0
+Buffer	K2HPO4 + KH2PO4	pi	M11	20.089	g	phosphate(3-)	94.97136	211.52692769693934	0
+Vitamins	Pyridoxamine . 2 HCl + K2HPO4 + KH2PO4 + H3BO3 + Thiamine HCl	h	M11	26.398999999999997	mg	hydron	1.00794	26.19104311764589	0
+Minerals	(NH4)6Mo7O24·4H2O + Na2MoO4 . 2H2O	mobd	M11	0.29000000000000004	mg	molybdate	159.9376	0.001813207150788808	1
+Minerals	MgSO4 * 7 H2O + MgCl2	mg2	M11	30.386	mg	magnesium(2+)	24.305	1.2501954330384695	0
+SCFAs	Acetic acid + KCH3CO2 (Potassium acetate)	ac	M11	2.6	mL	acetate	59.04402	30.0	1
+Other	Hematin + Hemin	pheme	M11	1.7	mg	ferroheme b	616.487	0.002757560175640362	1
+Minerals	(NH4)6Mo7O24·4H2O + Ammonium citrate dibasic	nh4	M11	1.89	mg	ammonia	17.03056	0.11097697315883916	1
+Minerals	NaCl + CaCl2 (anhydrous) + MgCl2	cl	M13	15.95	g	chloride	35.4527	449.8952124943939	0
+Minerals	(NH4)2SO4 + FeSO4 . 7H2O	so4	M13	1.504	g	sulfate	96.0636	15.656294371645451	1
+Vitamins	Thiamine HCl + Pyridoxamine . 2 HCl	cl	M14	1.77	mg	chloride	35.4527	0.04992567561850014	0
+Minerals	Na2HPO4 + Sodium thioglycollate	na1	M14	3.85	g	sodium(1+)	22.98977	167.4657902188669	0
+Minerals	MgSO4 * 7 H2O + MnSO4 * H2O + FeSO4 . 7H2O + ZnSO4 * 7 H2O	so4	M14	137.9	g	sulfate	96.0636	1435.5073097406303	1
+manual curation	multiple + ZnSO4 * 7 H2O	zn2	M14	10050.0	g	zinc(2+)	65.39	153693.22526380178	0
+manual curation	multiple + MnSO4 * H2O	mn2	M14	10037.8	g	manganese(2+)	54.93805	182711.25385775432	0
+Buffer	KH2PO4 + Na2HPO4	pi	M14	3.55	g	phosphate(3-)	94.97136	37.37969004550424	0
+Vitamins	Thiamine HCl + Pyridoxamine . 2 HCl + KH2PO4	h	M14	2.4699999999999998	mg	hydron	1.00794	2.450542691033196	0
+Minerals	CoCl2·6H2O + MnCl2*4H2O + NH4Cl + NaCl + CaCl2 (anhydrous) + MgCl2	cl	M15A	132.159	µg	chloride	35.4527	0.0037277555729182824	0
+Minerals	K2SO4 + CuSO4 (anhydrous) + ZnSO4 * 7 H2O + FeSO4 . 7H2O	so4	M15A	55.013999999999996	mg	sulfate	96.0636	0.5726830974479407	1
+Minerals	K2SO4 + K2HPO4	k	M15A	48.3299	mg	potassium(1+)	39.0983	1.236112567554088	0
+Minerals	CoCl2·6H2O + multiple	cobalt2	M15A	10007.128	µg	cobalt(2+)	58.9332	0.16980459231808218	0
+manual curation	multiple + ZnSO4 * 7 H2O	zn2	M15A	10002.538	g	zinc(2+)	65.39	152967.39562624256	0
+Minerals	MnCl2*4H2O + multiple	mn2	M15A	10015.833	µg	manganese(2+)	54.93805	0.18231140348082978	0
+Minerals	CuSO4 (anhydrous) + multiple	cu2	M15A	10001.596	µg	copper(2+)	63.546	0.15739143297768543	0
+Buffer	K2HPO4 + H3BO3	h	M15A	24.9631	g	hydron	1.00794	24766.454352441615	0
+Minerals	(NH4)6Mo7O24·4H2O + NH4Cl	nh4	M15A	52.211000000000006	µg	ammonia	17.03056	0.003065724204019128	1
+Minerals	MgCl2 + NH4Cl + MnCl2*4H2O + NaCl + CoCl2·6H2O + CaCl2 (anhydrous)	cl	M15B	151.981	mg	chloride	35.4527	4.286866726652695	0
+Minerals	FeSO4 . 7H2O + K2SO4 + CuSO4 (anhydrous) + ZnSO4 * 7 H2O	so4	M15B	55.013999999999996	mg	sulfate	96.0636	0.5726830974479407	1
+Buffer	K2HPO4 + K2SO4	k	M15B	71.09	mg	potassium(1+)	39.0983	1.8182376215845701	0
+Minerals	CoCl2·6H2O + multiple	cobalt2	M15B	10007.128	µg	cobalt(2+)	58.9332	0.16980459231808218	0
+Minerals	ZnSO4 * 7 H2O + multiple	zn2	M15B	10002.538	µg	zinc(2+)	65.39	0.15296739562624254	0
+manual curation	multiple + MnCl2*4H2O	mn2	M15B	10015.833	g	manganese(2+)	54.93805	182311.4034808298	0
+manual curation	multiple + CuSO4 (anhydrous)	cu2	M15B	10001.596	g	copper(2+)	63.546	157391.43297768544	0
+Buffer	K2HPO4 + H3BO3	h	M15B	47.7232	mg	hydron	1.00794	47.34726273389288	0
+Minerals	NH4Cl + (NH4)6Mo7O24·4H2O	nh4	M15B	72.033	mg	ammonia	17.03056	4.229631908756964	1
+Vitamins	Thiamine HCl + Pyridoxal * HCl + Putrescine * 2HCl	cl	M16	9.0	mg	chloride	35.4527	0.25385936755169564	0
+Minerals	NaVO3 + Sodium thioglycollate + Na2MoO4 . 2H2O	na1	M16	21.1	mg	sodium(1+)	22.98977	0.9177995256150888	0
+Minerals	ZnSO4 * 7 H2O + MgSO4 * 7 H2O + Fe(NH4)2(SO4)2 * 6H2O + MnSO4 * H2O	so4	M16	35.2	mg	sulfate	96.0636	0.36642391082574466	1
+Buffer	KH2PO4 + K2HPO4	k	M16	0.8	g	potassium(1+)	39.0983	20.461247675730146	0
+Minerals	ZnSO4 * 7 H2O + multiple	zn2	M16	10005.0	mg	zinc(2+)	65.39	153.0050466432176	0
+Minerals	MnSO4 * H2O + multiple	mn2	M16	10010.0	mg	manganese(2+)	54.93805	182.20522934468917	0
+Buffer	KH2PO4 + K2HPO4	pi	M16	0.8	g	phosphate(3-)	94.97136	8.423592122930534	0
+Vitamins	Pyridoxal * HCl + KH2PO4 + Thiamine HCl + Putrescine * 2HCl + K2HPO4	h	M16	9.799999999999999	mg	hydron	1.00794	9.722800960374624	0
+Minerals	Fe(NH4)2(SO4)2 * 6H2O + (NH4)2CO3	nh4	M16	20.5	mg	ammonia	17.03056	1.203718491934499	1
+Vitamins	Calcium Pantothenate + CaCl2 (anhydrous)	ca2	M2	31.4	mg	calcium(2+)	40.078	0.7834722291531512	0
+Minerals	NaCl + FeCl3 + Pyridoxamine . 2 HCl + Thiamine HCl + CoCl2·6H2O + CaCl2 (anhydrous) + MgCl2	cl	M2	42.336000000000006	g	chloride	35.4527	1194.1544649631765	0
+Minerals	MnSO4 * H2O + CuSO4 (anhydrous) + ZnSO4 * 7 H2O + FeSO4 . 7H2O + K2SO4	so4	M2	32.230000000000004	mg	sulfate	96.0636	0.3355068933498225	1
+Buffer	KH2PO4 + KCH3CO2 (Potassium acetate) + K2HPO4 + K2SO4 + KI	k	M2	33.59	g	potassium(1+)	39.0983	859.1166367847196	0
+manual curation	multiple + CoCl2·6H2O	cobalt2	M2	10000.19	g	cobalt(2+)	58.9332	169686.86580738873	0
+Minerals	ZnSO4 * 7 H2O + multiple	zn2	M2	10005.0	mg	zinc(2+)	65.39	153.0050466432176	0
+manual curation	multiple + MnSO4 * H2O	mn2	M2	10000.11	g	manganese(2+)	54.93805	182025.20839381817	0
+Minerals	FeCl3 + multiple	fe3	M2	10003.0	mg	iron(3+)	55.845	179.12078073238428	0
+manual curation	multiple + CuSO4 (anhydrous)	cu2	M2	10000.12	g	copper(2+)	63.546	157368.20570925003	0
+Buffer	KH2PO4 + K2HPO4	pi	M2	9.58	g	phosphate(3-)	94.97136	100.87251567209314	0
+Vitamins	Thiamine HCl + Pyridoxamine . 2 HCl + KH2PO4 + K2HPO4 + H3BO3	h	M2	15.89	mg	hydron	1.00794	15.764827271464572	0
+Minerals	Ammonium citrate dibasic + (NH4)6Mo7O24·4H2O	nh4	M2	1.89	g	ammonia	17.03056	110.97697315883916	1
+Vitamins	Calcium Pantothenate + CaCl2 (anhydrous)	ca2	M3	31.4	mg	calcium(2+)	40.078	0.7834722291531512	0
+Minerals	NaCl + FeCl3 + Thiamine HCl + Pyridoxamine . 2 HCl + CoCl2·6H2O + CaCl2 (anhydrous) + NiCl2 . 6H2O + MgCl2	cl	M3	42.54600000000001	g	chloride	35.4527	1200.0778502060493	0
+manual curation	multiple + NiCl2 . 6H2O	ni2	M3	10000.2	g	nickel(2+)	58.6934	170380.31533358098	0
+Minerals	NaHCO3 + Na2MoO4 . 2H2O + NaCl + Na2WO4 . 2H2O + Na2SeO3 (anhydrous)	na1	M3	13.61	g	sodium(1+)	22.98977	592.0024428256568	0
+Minerals	MgSO4 * 7 H2O + K2SO4 + MnSO4 * H2O + CuSO4 (anhydrous) + FeSO4 . 7H2O + AlK(SO4)2 (anhydrous) + ZnSO4 * 7 H2O	so4	M3	67.22	mg	sulfate	96.0636	0.6997447524348454	1
+Buffer	K2HPO4 + KH2PO4 + KI + KCH3CO2 (Potassium acetate) + K2SO4 + AlK(SO4)2 (anhydrous)	k	M3	44.199	g	potassium(1+)	39.0983	1130.4583575244958	0
+manual curation	multiple + CoCl2·6H2O + Co(NO3)2 . 6H2O	cobalt2	M3	10001.19	g	cobalt(2+)	58.9332	169703.83417157055	0
+manual curation	multiple + ZnSO4 * 7 H2O	zn2	M3	10005.0	g	zinc(2+)	65.39	153005.04664321762	0
+manual curation	multiple + MnSO4 * H2O	mn2	M3	10005.0	g	manganese(2+)	54.93805	182114.21774161988	0
+Minerals	FeCl3 + multiple	fe3	M3	10003.0	mg	iron(3+)	55.845	179.12078073238428	0
+manual curation	multiple + CuSO4 (anhydrous)	cu2	M3	10000.12	g	copper(2+)	63.546	157368.20570925003	0
+Buffer	KH2PO4 + K2HPO4	pi	M3	20.089	g	phosphate(3-)	94.97136	211.52692769693934	0
+Buffer	K2HPO4 + Thiamine HCl + Pyridoxamine . 2 HCl + KH2PO4 + H3BO3	h	M3	26.399	g	hydron	1.00794	26191.04311764589	0
+Minerals	Na2MoO4 . 2H2O + (NH4)6Mo7O24·4H2O	mobd	M3	0.29000000000000004	mg	molybdate	159.9376	0.001813207150788808	1
+Minerals	MgSO4 * 7 H2O + MgCl2	mg2	M3	30.386	mg	magnesium(2+)	24.305	1.2501954330384695	0
+SCFAs	Acetic acid + KCH3CO2 (Potassium acetate)	ac	M3	2.6	mL	acetate	59.04402	30.0	1
+Other	Hemin + Hematin	pheme	M3	1.7	mg	ferroheme b	616.487	0.002757560175640362	1
+Minerals	Ammonium citrate dibasic + (NH4)6Mo7O24·4H2O	nh4	M3	1.89	g	ammonia	17.03056	110.97697315883916	1
+Vitamins	Calcium Pantothenate + CaCl2 (anhydrous)	ca2	M4	59.0	µg	calcium(2+)	40.078	0.0014721293477718447	0
+Minerals	NaCl + FeCl3 + Pyridoxamine . 2 HCl + Thiamine HCl + MgCl2 + NiCl2 . 6H2O + CaCl2 (anhydrous) + CoCl2·6H2O	cl	M4	70.786	g	chloride	35.4527	1996.6321323904808	0
+manual curation	multiple + NiCl2 . 6H2O	ni2	M4	10000.2	g	nickel(2+)	58.6934	170380.31533358098	0
+Minerals	NaCl + NaHCO3 + Na2MoO4 . 2H2O + Na2SeO3 (anhydrous) + Na2WO4 . 2H2O	na1	M4	13.61	g	sodium(1+)	22.98977	592.0024428256568	0
+Minerals	FeSO4 . 7H2O + K2SO4 + MgSO4 * 7 H2O + MnSO4 * H2O + CuSO4 (anhydrous) + ZnSO4 * 7 H2O + AlK(SO4)2 (anhydrous)	so4	M4	60.564	mg	sulfate	96.0636	0.630457322024159	1
+Minerals	KI + K2SO4 + K2HPO4 + KH2PO4 + KCH3CO2 (Potassium acetate) + AlK(SO4)2 (anhydrous)	k	M4	33.699	mg	potassium(1+)	39.0983	0.8619044817805377	0
+manual curation	multiple + Co(NO3)2 . 6H2O + CoCl2·6H2O	cobalt2	M4	10001.19	g	cobalt(2+)	58.9332	169703.83417157055	0
+manual curation	multiple + ZnSO4 * 7 H2O	zn2	M4	10001.0	g	zinc(2+)	65.39	152943.87521027678	0
+Minerals	MnSO4 * H2O + multiple	mn2	M4	10005.0	mg	manganese(2+)	54.93805	182.1142177416199	0
+Minerals	FeCl3 + multiple	fe3	M4	10003.0	mg	iron(3+)	55.845	179.12078073238428	0
+manual curation	multiple + CuSO4 (anhydrous)	cu2	M4	10000.064	g	copper(2+)	63.546	157367.32445787307	0
+Buffer	K2HPO4 + KH2PO4	pi	M4	9.589	g	phosphate(3-)	94.97136	100.96728108347611	0
+Minerals	H3BO3 + Pyridoxamine . 2 HCl + KH2PO4 + Thiamine HCl + K2HPO4	h	M4	64.68900000000001	mg	hydron	1.00794	64.17941544139532	0
+Minerals	(NH4)6Mo7O24·4H2O + Na2MoO4 . 2H2O	mobd	M4	0.29000000000000004	mg	molybdate	159.9376	0.001813207150788808	1
+Minerals	MgSO4 * 7 H2O + MgCl2	mg2	M4	30.386	mg	magnesium(2+)	24.305	1.2501954330384695	0
+SCFAs	Acetic acid + KCH3CO2 (Potassium acetate)	ac	M4	2.6	mL	acetate	59.04402	30.0	1
+Other	Hemin + Hematin	pheme	M4	1.7	mg	ferroheme b	616.487	0.002757560175640362	1
+Minerals	Ammonium citrate dibasic + (NH4)6Mo7O24·4H2O	nh4	M4	1.89	g	ammonia	17.03056	110.97697315883916	1
+Vitamins	Calcium Pantothenate + CaCl2 (anhydrous)	ca2	M5	31.4	mg	calcium(2+)	40.078	0.7834722291531512	0
+Vitamins	Thiamine HCl + Pyridoxamine . 2 HCl + MgCl2 + NiCl2 . 6H2O + CaCl2 (anhydrous) + CoCl2·6H2O + NaCl + FeCl3	cl	M5	42.546	mg	chloride	35.4527	1.2000778502060492	0
+Minerals	NiCl2 . 6H2O + multiple	ni2	M5	10000.2	mg	nickel(2+)	58.6934	170.38031533358097	0
+Minerals	Na2MoO4 . 2H2O + NaHCO3 + Na2SeO3 (anhydrous) + Na2WO4 . 2H2O + NaCl	na1	M5	13.61	mg	sodium(1+)	22.98977	0.5920024428256568	0
+Minerals	ZnSO4 * 7 H2O + FeSO4 . 7H2O + MgSO4 * 7 H2O + CuSO4 (anhydrous) + MnSO4 * H2O + K2SO4 + AlK(SO4)2 (anhydrous)	so4	M5	67.22	mg	sulfate	96.0636	0.6997447524348454	1
+Minerals	KI + K2SO4 + K2HPO4 + KH2PO4 + KCH3CO2 (Potassium acetate) + AlK(SO4)2 (anhydrous)	k	M5	44.199	mg	potassium(1+)	39.0983	1.1304583575244957	0
+Minerals	CoCl2·6H2O + Co(NO3)2 . 6H2O + multiple	cobalt2	M5	10001.19	mg	cobalt(2+)	58.9332	169.70383417157052	0
+Minerals	ZnSO4 * 7 H2O + multiple	zn2	M5	10005.0	mg	zinc(2+)	65.39	153.0050466432176	0
+Minerals	MnSO4 * H2O + multiple	mn2	M5	10005.0	mg	manganese(2+)	54.93805	182.1142177416199	0
+Minerals	FeCl3 + multiple	fe3	M5	10003.0	mg	iron(3+)	55.845	179.12078073238428	0
+Minerals	CuSO4 (anhydrous) + multiple	cu2	M5	10000.12	mg	copper(2+)	63.546	157.36820570925	0
+Buffer	KH2PO4 + K2HPO4	pi	M5	20.089	g	phosphate(3-)	94.97136	211.52692769693934	0
+Minerals	H3BO3 + Thiamine HCl + Pyridoxamine . 2 HCl + KH2PO4 + K2HPO4	h	M5	26.399	mg	hydron	1.00794	26.191043117645894	0
+Minerals	Na2MoO4 . 2H2O + (NH4)6Mo7O24·4H2O	mobd	M5	0.29000000000000004	mg	molybdate	159.9376	0.001813207150788808	1
+Minerals	MgCl2 + MgSO4 * 7 H2O	mg2	M5	30.386	g	magnesium(2+)	24.305	1250.1954330384694	0
+Other	Hematin + Hemin	pheme	M5	1.7	mg	ferroheme b	616.487	0.002757560175640362	1
+Minerals	Ammonium citrate dibasic + (NH4)6Mo7O24·4H2O	nh4	M5	1.89	g	ammonia	17.03056	110.97697315883916	1
+Vitamins	Calcium Pantothenate + CaCl2 (anhydrous)	ca2	M7	31.4	mg	calcium(2+)	40.078	0.7834722291531512	0
+Minerals	NaCl + FeCl3 + Thiamine HCl + Pyridoxamine . 2 HCl + MgCl2 + NiCl2 . 6H2O + CaCl2 (anhydrous) + CoCl2·6H2O	cl	M7	42.54599999999999	g	chloride	35.4527	1200.0778502060489	0
+manual curation	multiple + NiCl2 . 6H2O	ni2	M7	10000.2	g	nickel(2+)	58.6934	170380.31533358098	0
+Minerals	NaCl + NaHCO3 + Na2MoO4 . 2H2O + Na2SeO3 (anhydrous) + Na2WO4 . 2H2O	na1	M7	13.61	g	sodium(1+)	22.98977	592.0024428256568	0
+Minerals	K2SO4 + MgSO4 * 7 H2O + MnSO4 * H2O + CuSO4 (anhydrous) + FeSO4 . 7H2O + ZnSO4 * 7 H2O + AlK(SO4)2 (anhydrous)	so4	M7	67.22	mg	sulfate	96.0636	0.6997447524348454	1
+Minerals	KI + K2SO4 + KH2PO4 + K2HPO4 + KCH3CO2 (Potassium acetate) + AlK(SO4)2 (anhydrous)	k	M7	44.199	mg	potassium(1+)	39.0983	1.1304583575244957	0
+manual curation	multiple + CoCl2·6H2O + Co(NO3)2 . 6H2O	cobalt2	M7	10001.19	g	cobalt(2+)	58.9332	169703.83417157055	0
+manual curation	multiple + ZnSO4 * 7 H2O	zn2	M7	10005.0	g	zinc(2+)	65.39	153005.04664321762	0
+Minerals	MnSO4 * H2O + multiple	mn2	M7	10005.0	mg	manganese(2+)	54.93805	182.1142177416199	0
+Minerals	FeCl3 + multiple	fe3	M7	10003.0	mg	iron(3+)	55.845	179.12078073238428	0
+manual curation	multiple + CuSO4 (anhydrous)	cu2	M7	10000.12	g	copper(2+)	63.546	157368.20570925003	0
+Buffer	K2HPO4 + KH2PO4	pi	M7	20.089	g	phosphate(3-)	94.97136	211.52692769693934	0
+Minerals	H3BO3 + K2HPO4 + Thiamine HCl + Pyridoxamine . 2 HCl + KH2PO4	h	M7	26.399	mg	hydron	1.00794	26.191043117645894	0
+Minerals	(NH4)6Mo7O24·4H2O + Na2MoO4 . 2H2O	mobd	M7	0.29000000000000004	mg	molybdate	159.9376	0.001813207150788808	1
+Minerals	MgSO4 * 7 H2O + MgCl2	mg2	M7	30.386	mg	magnesium(2+)	24.305	1.2501954330384695	0
+SCFAs	Acetic acid + KCH3CO2 (Potassium acetate)	ac	M7	2.6	mL	acetate	59.04402	30.0	1
+Other	Hemin + Hematin	pheme	M7	1.7	mg	ferroheme b	616.487	0.002757560175640362	1
+Minerals	Ammonium citrate dibasic + (NH4)6Mo7O24·4H2O	nh4	M7	1.89	g	ammonia	17.03056	110.97697315883916	1
+Vitamins	Calcium Pantothenate + CaCl2 (anhydrous)	ca2	M8	31.4	mg	calcium(2+)	40.078	0.7834722291531512	0
+Minerals	NiCl2 . 6H2O + NaCl + KCl + CoCl2·6H2O + FeCl3 + CaCl2 (anhydrous) + Pyridoxamine . 2 HCl + Thiamine HCl + MgCl2	cl	M8	90.34599999999999	mg	chloride	35.4527	2.5483531578694993	0
+Minerals	NiCl2 . 6H2O + multiple	ni2	M8	10000.2	mg	nickel(2+)	58.6934	170.38031533358097	0
+Minerals	NaCl + NaHCO3 + Na2MoO4 . 2H2O + Na2WO4 . 2H2O + Na2SeO3 (anhydrous)	na1	M8	11.41	g	sodium(1+)	22.98977	496.30770555773285	0
+Minerals	K2SO4 + MnSO4 * H2O + CuSO4 (anhydrous) + MgSO4 * 7 H2O + AlK(SO4)2 (anhydrous) + ZnSO4 * 7 H2O + FeSO4 . 7H2O	so4	M8	67.22	mg	sulfate	96.0636	0.6997447524348454	1
+Minerals	KCl + K2SO4 + K2HPO4 + KH2PO4 + AlK(SO4)2 (anhydrous) + KCH3CO2 (Potassium acetate) + KI	k	M8	94.199	mg	potassium(1+)	39.0983	2.4092863372576305	0
+Minerals	CoCl2·6H2O + multiple + Co(NO3)2 . 6H2O	cobalt2	M8	10001.19	mg	cobalt(2+)	58.9332	169.70383417157052	0
+Minerals	ZnSO4 * 7 H2O + multiple	zn2	M8	10005.0	mg	zinc(2+)	65.39	153.0050466432176	0
+Minerals	MnSO4 * H2O + multiple	mn2	M8	10005.0	mg	manganese(2+)	54.93805	182.1142177416199	0
+Minerals	FeCl3 + multiple	fe3	M8	10003.0	mg	iron(3+)	55.845	179.12078073238428	0
+Minerals	CuSO4 (anhydrous) + multiple	cu2	M8	10000.12	mg	copper(2+)	63.546	157.36820570925	0
+Buffer	KH2PO4 + K2HPO4	pi	M8	20.089	g	phosphate(3-)	94.97136	211.52692769693934	0
+Buffer	KH2PO4 + Pyridoxamine . 2 HCl + Thiamine HCl + K2HPO4 + H3BO3	h	M8	26.399	g	hydron	1.00794	26191.04311764589	0
+Minerals	(NH4)6Mo7O24·4H2O + Na2MoO4 . 2H2O	mobd	M8	0.29000000000000004	mg	molybdate	159.9376	0.001813207150788808	1
+Minerals	MgSO4 * 7 H2O + MgCl2	mg2	M8	30.386	mg	magnesium(2+)	24.305	1.2501954330384695	0
+SCFAs	Acetic acid + KCH3CO2 (Potassium acetate)	ac	M8	2.6	mL	acetate	59.04402	30.0	1
+Other	Hematin + Hemin	pheme	M8	1.7	mg	ferroheme b	616.487	0.002757560175640362	1
+Minerals	Ammonium citrate dibasic + (NH4)6Mo7O24·4H2O	nh4	M8	1.89	g	ammonia	17.03056	110.97697315883916	1
+Minerals	CaCl2 (anhydrous) + Calcium Pantothenate	ca2	M9	31.4	mg	calcium(2+)	40.078	0.7834722291531512	0
+Minerals	CoCl2·6H2O + CaCl2 (anhydrous) + NiCl2 . 6H2O + MgCl2 + Pyridoxamine . 2 HCl + Thiamine HCl + KCl + NaCl + FeCl3	cl	M9	90.346	mg	chloride	35.4527	2.5483531578695	0
+Minerals	NiCl2 . 6H2O + multiple	ni2	M9	10000.2	mg	nickel(2+)	58.6934	170.38031533358097	0
+Minerals	Na2SeO3 (anhydrous) + Na2WO4 . 2H2O + NaCl + NaHCO3 + Na2MoO4 . 2H2O	na1	M9	11.41	µg	sodium(1+)	22.98977	0.0004963077055577329	0
+Minerals	CuSO4 (anhydrous) + MnSO4 * H2O + FeSO4 . 7H2O + ZnSO4 * 7 H2O + AlK(SO4)2 (anhydrous) + K2SO4 + MgSO4 * 7 H2O	so4	M9	67.22	mg	sulfate	96.0636	0.6997447524348454	1
+Minerals	KI + KCH3CO2 (Potassium acetate) + AlK(SO4)2 (anhydrous) + K2SO4 + K2HPO4 + KH2PO4 + KCl	k	M9	94.199	mg	potassium(1+)	39.0983	2.4092863372576305	0
+Minerals	CoCl2·6H2O + multiple + Co(NO3)2 . 6H2O	cobalt2	M9	10001.19	mg	cobalt(2+)	58.9332	169.70383417157052	0
+manual curation	multiple + ZnSO4 * 7 H2O	zn2	M9	10005.0	g	zinc(2+)	65.39	153005.04664321762	0
+Minerals	MnSO4 * H2O + multiple	mn2	M9	10005.0	mg	manganese(2+)	54.93805	182.1142177416199	0
+manual curation	multiple + FeCl3	fe3	M9	10003.0	g	iron(3+)	55.845	179120.78073238427	0
+Minerals	CuSO4 (anhydrous) + multiple	cu2	M9	10000.12	mg	copper(2+)	63.546	157.36820570925	0
+Buffer	K2HPO4 + KH2PO4	pi	M9	20.089	g	phosphate(3-)	94.97136	211.52692769693934	0
+Minerals	H3BO3 + K2HPO4 + KH2PO4 + Pyridoxamine . 2 HCl + Thiamine HCl	h	M9	26.398999999999997	mg	hydron	1.00794	26.19104311764589	0
+Minerals	(NH4)6Mo7O24·4H2O + Na2MoO4 . 2H2O	mobd	M9	0.29000000000000004	mg	molybdate	159.9376	0.001813207150788808	1
+Minerals	MgCl2 + MgSO4 * 7 H2O	mg2	M9	30.386	g	magnesium(2+)	24.305	1250.1954330384694	0
+SCFAs	Acetic acid + KCH3CO2 (Potassium acetate)	ac	M9	2.6	mL	acetate	59.04402	30.0	1
+Other	Hematin + Hemin	pheme	M9	1.7	mg	ferroheme b	616.487	0.002757560175640362	1
+Minerals	(NH4)6Mo7O24·4H2O + Ammonium citrate dibasic	nh4	M9	1.89	mg	ammonia	17.03056	0.11097697315883916	1

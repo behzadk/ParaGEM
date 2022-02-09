@@ -1,0 +1,12 @@
+_convert_: partial
+_target_: bk_comms.community.Community
+initial_populations:
+- 0.05
+media_name: null
+media_path: null
+model_names:
+- A_muciniphila
+model_paths:
+- ${cfg.wd}/models/melanie_data_models/A_muciniphila.xml
+smetana_analysis_path: ${cfg.wd}/smetana_analysis/melanie_data_detailed.tsv
+use_parsimonius_fba: false
