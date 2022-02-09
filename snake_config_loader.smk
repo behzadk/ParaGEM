@@ -1,7 +1,7 @@
 from python_command_generator import write_execution_command
 
 # Path to file with species specific configs
-submission_path = './submission_configs.csv'
+submission_path = './snake_make_submission_configs/submission_configs.csv'
 
 rule all:
     output:
