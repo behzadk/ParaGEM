@@ -134,6 +134,9 @@ class CometsTimeSeriesSimulation:
         self.dilution_factor = dilution_factor
         self.dilution_time = dilution_time
 
+        self.comets_home_dir = comets_home_dir
+        self.gurobi_home_dir = gurobi_home_dir
+
         os.environ["GUROBI_HOME"] = gurobi_home_dir
         os.environ["GUROBI_COMETS_HOME"] = gurobi_home_dir
         os.environ["COMETS_HOME"] = comets_home_dir
@@ -261,16 +264,16 @@ class CometsTimeSeriesSimulation:
         experiment = cometspy.comets(layout, sim_params, relative_dir=tmp_dir)
         self.experiment = experiment
 
-        comets_lib = "/Users/bezk/Documents/CAM/research_code/comets/lib"
+        experiment.set_classpath(
+            "bin", f"{self.comets_home_dir}/bin/comets.jar"
+        )
+
+        # experiment.set_classpath(
+        #     "gurobi", f"{self.gurobi_home_dir}/lib/gurobi.jar"
+        # )
 
         experiment.set_classpath(
-            "bin", "/Users/bezk/Documents/CAM/research_code/comets/bin/comets.jar"
-        )
-        experiment.set_classpath(
-            "gurobi", "/Library/gurobi950/macos_universal2/lib/gurobi.jar"
-        )
-        experiment.set_classpath(
-            "jdistlib", f"{comets_lib}/jdistlib/jdistlib-0.4.5-bin.jar"
+            "jdistlib", f"{self.comets_home_dir}/lib/jdistlib/jdistlib-0.4.5-bin.jar"
         )
 
         experiment.run()
