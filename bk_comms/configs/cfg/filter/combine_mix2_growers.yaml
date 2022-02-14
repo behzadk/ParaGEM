@@ -1,0 +1,48 @@
+_target_: bk_comms.lo_filters.ViableGrowthCombineParticles
+input_experiment_dirs: 
+  - ${cfg.wd}/output/mel_indiv_growth/exp_B_longum_subsp_longum_ga_fit_batch_tests/
+  - ${cfg.wd}/output/mel_indiv_growth/exp_C_perfringens_S107_ga_fit_batch_tests/
+  - ${cfg.wd}/output/mel_indiv_growth/exp_E_coli_IAI1_ga_fit_batch_tests/
+  - ${cfg.wd}/output/mel_indiv_growth/exp_L_paracasei_ga_fit_batch_tests/
+  - ${cfg.wd}/output/mel_indiv_growth/exp_L_plantarum_ga_fit_batch_tests/
+  - ${cfg.wd}/output/mel_indiv_growth/exp_L_salivarius_ga_fit_batch_tests/
+
+epsilon:
+  - - 0.1
+  - - 0.1
+  - - 0.1
+  - - 0.1
+  - - 0.1
+  - - 0.1
+
+population_names:
+  - B_longum_subsp_longum
+  - C_perfringens_S107
+  - E_coli_IAI1
+  - L_paracasei
+  - L_plantarum
+  - L_salivarius
+
+growth_keys:
+  - Growth
+  - Growth
+  - Growth
+  - Growth
+  - Growth
+  - Growth
+
+min_growth:
+  - -1
+  - -1
+  - -1
+  - -1
+  - -1
+  - -1
+
+max_growth:
+  - 100.0
+  - 100.0
+  - 100.0
+  - 100.0
+  - 100.0
+  - 100.0
