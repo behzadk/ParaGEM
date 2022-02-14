@@ -1,0 +1,29 @@
+_convert_: partial
+_target_: bk_comms.community.Community
+initial_populations:
+- 0.05
+- 0.05
+- 0.05
+- 0.05
+- 0.05
+- 0.05
+
+media_name: M2
+media_path: ${cfg.wd}/media/melanie_data_media.tsv
+model_names:
+  - B_longum_subsp_longum
+  - C_perfringens_S107
+  - E_coli_IAI1
+  - L_paracasei
+  - L_plantarum
+  - L_salivarius
+model_paths:
+- ${cfg.wd}/models/melanie_data_models/B_longum_subsp_longum.xml
+- ${cfg.wd}/models/melanie_data_models/C_perfringens_S107.xml
+- ${cfg.wd}/models/melanie_data_models/E_coli_IAI1.xml
+- ${cfg.wd}/models/melanie_data_models/L_paracasei.xml
+- ${cfg.wd}/models/melanie_data_models/L_plantarum.xml
+- ${cfg.wd}/models/melanie_data_models/L_salivarius.xml
+
+smetana_analysis_path: ${cfg.wd}/smetana_analysis/melanie_data_detailed.tsv
+use_parsimonius_fba: false
