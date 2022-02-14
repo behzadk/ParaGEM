@@ -9,7 +9,7 @@ input_experiment_dirs:
 
 epsilon:
   - - 0.1
-  - - 0.1
+  - - 0.25
   - - 0.1
   - - 0.1
   - - 0.1
