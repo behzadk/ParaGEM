@@ -52,7 +52,7 @@ class Population:
         """
 
         model = cobra.io.read_sbml_model(model_path, name=str(np.random.randint(10)))
-        model.solver = "glpk"
+        model.solver = "cplex"
 
         return model
 

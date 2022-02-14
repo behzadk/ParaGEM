@@ -9,6 +9,8 @@ from pathlib import Path
 
 from loguru import logger
 
+import warnings
+warnings.filterwarnings('ignore')
 
 @hydra.main(config_path="../configs", config_name="base")
 def run_algorithm(cfg: DictConfig):

@@ -17,6 +17,10 @@ import os
 from sympy.core.cache import *
 import functools
 
+from contextlib import contextmanager
+import signal
+import time
+import sys
 
 def clear_lrus():
     gc.collect()
@@ -299,6 +303,7 @@ class GeneticAlgorithm(ParameterEstimation):
             logger.info(f"Initial accepted particles: {len(accepted_particles)}")
 
             particles = []
+            filter_iteration = 0
             while len(particles) <= self.n_particles_batch:
                 candidate_particles = self.init_const_mat_populations(
                     self.n_particles_batch
@@ -314,6 +319,10 @@ class GeneticAlgorithm(ParameterEstimation):
                     candidate_particles = self.filter.filter_particles(
                         candidate_particles
                     )
+
+                filter_iteration += 1
+                if filter_iteration % 10 == 0:
+                    print("fitler iteration: ", filter_iteration )
 
                 particles.extend(candidate_particles)
 
@@ -365,7 +374,7 @@ class GeneticAlgorithm(ParameterEstimation):
             self.population = self.gen_initial_population(n_processes, parallel)
             self.gen_idx += 1
 
-            self.save_checkpoint(self.output_dir)
+            self.update_epsilon(self.population)
 
             output_path = f"{self.output_dir}particles_{self.experiment_name}_gen_{self.gen_idx}.pkl"
             self.save_particles(self.population, output_path)
@@ -431,11 +440,9 @@ class GeneticAlgorithm(ParameterEstimation):
 
             # Set new population
             self.population = accepted_particles
-            self.save_checkpoint(self.output_dir)
             # Update epsilon
             self.update_epsilon(self.population)
             self.gen_idx += 1
 
         output_path = f"{self.output_dir}particles_{self.experiment_name}_final_gen_{self.gen_idx}.pkl"
         self.save_particles(accepted_particles, output_path)
-        self.save_checkpoint(self.output_dir)

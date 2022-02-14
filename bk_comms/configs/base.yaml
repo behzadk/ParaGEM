@@ -4,7 +4,7 @@ hydra.run.dir: .
 hydra.output_subdir: null
 defaults:
   - _self_
-  - cfg: cfg_1
+  - cfg: iMM904_CDM35_base_cfg
   - override hydra/job_logging: none 
   - override hydra/hydra_logging: none
   # - override hydra.output_subdir: null
