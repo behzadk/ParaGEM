@@ -241,3 +241,75 @@ class DistanceFoldChangeError:
                 return False, distance
 
         return True, distance
+
+
+class DistanceAbundanceError:
+    def __init__(
+        self,
+        exp_data_path: str,
+        exp_t_key,
+        exp_sol_keys,
+        epsilon=1.0,
+        final_epsilon=1.0,
+    ):
+        self.exp_data = pd.read_csv(exp_data_path)
+        self.exp_t_key = exp_t_key
+        self.exp_sol_keys = exp_sol_keys
+
+        # Here, epsilon behaves as a percentage error tolerance
+        self.epsilon = epsilon
+        self.final_epsilon = final_epsilon
+
+    def assess_particle(self, community):
+        distance = self.calculate_distance(community)
+
+        for idx, d in enumerate(distance):
+            if d < self.epsilon[idx]:
+                continue
+
+            else:
+                return False, distance
+
+        return True, distance
+
+
+    def get_total_biomass(self, community, sim_data, sim_t_idx):
+        species_initial_abundance = 0
+
+        for distance_idx, key_pair in enumerate(self.exp_sol_keys):
+            sol_idx = get_solution_index(community, key_pair[1])
+
+            sim_val = sim_data[:, sol_idx][sim_t_idx]
+            species_initial_abundance += sim_val
+
+        return species_initial_abundance
+
+
+    def calculate_distance(self, community):
+        n_distances = len(self.exp_sol_keys)
+        distances = np.zeros(n_distances)
+
+        if community.sol is None or community.t is None:
+            return [np.inf for d in range(n_distances)]
+
+        sim_data = community.sol
+        sim_t = community.t
+
+        for distance_idx, key_pair in enumerate(self.exp_sol_keys):
+            for exp_data_idx, t in enumerate(self.exp_data[self.exp_t_key].values):
+                sim_t = community.t
+                sim_t_idx = find_nearest(sim_t, t)
+                sol_idx = get_solution_index(community, key_pair[1])
+
+                exp_val = self.exp_data.loc[self.exp_data[self.exp_t_key] == t][
+                    key_pair[0]
+                ].values[0]
+
+                total_biomass = self.get_total_biomass(community, sim_data, sim_t_idx)
+
+                # Calculate fold change compared with starting value
+                curr_biomass_abundance = sim_data[:, sol_idx][sim_t_idx] / total_biomass
+
+                distances[distance_idx] += abs(curr_biomass_abundance)
+
+        return distances
