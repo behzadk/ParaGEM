@@ -5,7 +5,7 @@ input_experiment_dirs:
   - ${cfg.wd}/output/mel_indiv_growth/exp_E_coli_IAI1_ga_fit_batch_tests/
   - ${cfg.wd}/output/mel_indiv_growth/exp_L_paracasei_ga_fit_batch_tests/
   - ${cfg.wd}/output/mel_indiv_growth/exp_L_plantarum_ga_fit_batch_tests/
-  - ${cfg.wd}/output/mel_indiv_growth/exp_L_salivarius_ga_fit_batch_tests/
+  - ${cfg.wd}/output/mel_indiv_growth/exp_S_salivarius_ga_fit_batch_tests/
 
 epsilon:
   - - 0.1
@@ -21,7 +21,7 @@ population_names:
   - E_coli_IAI1
   - L_paracasei
   - L_plantarum
-  - L_salivarius
+  - S_salivarius
 
 growth_keys:
   - Growth
