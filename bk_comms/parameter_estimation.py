@@ -99,7 +99,7 @@ class ParameterEstimation:
             if init_population_sampler is not None:
                 print(init_population_sampler)
                 populations_vec = init_population_sampler.sample(
-                    size=[len(comm.populations), 1]
+                    size=[1, len(comm.populations)]
                 )
                 comm.set_initial_populations(populations_vec[0])
 
