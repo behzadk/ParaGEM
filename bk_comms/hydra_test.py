@@ -17,10 +17,12 @@ def run_algorithm(cfg: DictConfig):
     if cfg["load_path"] is not None:
         cfg["cfg"] = OmegaConf.load(cfg.load_path)
 
-    OmegaConf.save(cfg, f"{cfg.output_dir}/cfg.yaml")
+    Path(cfg.cfg.output_dir).mkdir(parents=True, exist_ok=True)
+    OmegaConf.save(cfg, f"{cfg.cfg.output_dir}/cfg.yaml")
+
+
 
     cfg = cfg["cfg"]
-    Path(cfg.output_dir).mkdir(parents=True, exist_ok=True)
 
     logger.remove()
     logger.add(f"{cfg.output_dir}info_log.log", level="DEBUG")
