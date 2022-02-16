@@ -13,7 +13,7 @@ from omegaconf import OmegaConf
 import plotly.express as px
 import plotly.graph_objects as go
 
-colours = ["#003f5c", "#58508d", "#bc5090", "#ff6361", "#ffa600"]
+colours = ["#003f5c", "#58508d", "#bc5090", "#ff6361", "#ffa600", "#ffa800",]
 
 
 class DataAnalysis:
@@ -38,7 +38,7 @@ class DataAnalysis:
         # have the same config (dangerous)
         conf = OmegaConf.load(self.run_directories[0] + "/cfg.yaml")
 
-        return conf
+        return conf['cfg']
 
     def make_output_dir(self):
         if not os.path.exists(self.output_dir):
@@ -75,9 +75,20 @@ class DataAnalysis:
         idx = comm.solution_keys.index(sol_element_key)
         return idx
 
+    def get_total_biomass(self, particle, sim_data, sim_t_idx):
+        species_initial_abundance = 0
+
+        for pop in particle.populations:
+            sol_idx = self.get_solution_index(particle, pop.name)
+
+            sim_val = sim_data[:, sol_idx][sim_t_idx]
+            species_initial_abundance += sim_val
+
+        return species_initial_abundance
+
     def plot_population_timeseries(self, plot_n_particles=10):
         n_sol_keys = len(self.config["exp_sol_keys"])
-        fig = make_subplots(rows=n_sol_keys, cols=1)
+        fig = make_subplots(rows=n_sol_keys, cols=1, shared_xaxes=True, shared_yaxes='all')
 
         for idx, key_pair in enumerate(self.config["exp_sol_keys"]):
             # Plot particle simulations
@@ -106,10 +117,66 @@ class DataAnalysis:
         )
 
         fig.update_xaxes(title="Time")
-        fig.update_yaxes(title="Population")
+        fig.update_yaxes(title="Population", type='log')
         fig.update_layout(template="simple_white")
 
         fig.write_image(f"{self.output_dir}/solution_timeseries.png")
+
+    def plot_population_abundance_timeseries(self, plot_n_particles=10):
+        n_sol_keys = len(self.config["exp_sol_keys"])
+        fig = make_subplots(rows=n_sol_keys, cols=1, shared_xaxes=True, shared_yaxes='all')
+
+        for idx, key_pair in enumerate(self.config["exp_sol_keys"]):
+            # Plot particle simulations
+            for p in self.particles[:plot_n_particles]:
+                total_biomasses = np.array([self.get_total_biomass(p, p.sol, sim_t_idx) for sim_t_idx, t in enumerate(p.t)])
+                sim_sol = p.sol[:, self.get_solution_index(p, key_pair[1])]
+
+                abundance_sol = sim_sol / total_biomasses
+                print(abundance_sol)
+
+                fig.add_trace(
+                    go.Line(
+                        x=p.t,
+                        y=sim_sol,
+                        name=key_pair[1],
+                        opacity=0.2,
+                        marker={"color": colours[idx]},
+                    ),
+                    row=idx + 1,
+                    col=1,
+                )
+        
+            # Plot experimental data
+            exp_data = self.target_data[key_pair[0]].values
+
+            fig.add_trace(
+                go.Scatter(
+                    x=self.target_data.time,
+                    y=exp_data,
+                    name="Experiment",
+                    legendgroup="Experiment",
+                    marker={"color": colours[-1]},
+                ),
+                row=idx + 1,
+                col=1,
+            )
+
+
+        names = set()
+        fig.for_each_trace(
+            lambda trace: trace.update(showlegend=False)
+            if (trace.name in names)
+            else names.add(trace.name)
+        )
+
+
+
+        fig.update_xaxes(title="Time")
+        fig.update_yaxes(title="Abundance", type='log')
+        fig.update_layout(template="simple_white", width=800, height=800)
+
+        fig.write_image(f"{self.output_dir}/species_abundance_timeseries.png")
 
     def plot_fold_change_timeseries(self, plot_n_particles=10):
         n_sol_keys = len(self.config["exp_sol_keys"])
@@ -176,7 +243,7 @@ class DataAnalysis:
             [p.distance for p in self.particles], columns=distance_columns
         )
 
-        fig = make_subplots(rows=1, cols=n_distances)
+        fig = make_subplots(rows=n_distances, cols=1)
 
         for idx, d in enumerate(distance_columns):
 
@@ -185,8 +252,8 @@ class DataAnalysis:
                     x=df[d],
                     marker={"color": colours[0]},
                 ),
-                row=1,
-                col=idx + 1,
+                row=idx + 1,
+                col=1,
             )
 
         fig.update_xaxes(title="Distance")
@@ -194,21 +261,66 @@ class DataAnalysis:
 
         fig.write_image(f"{self.output_dir}/distance_distribution.png")
 
+    def plot_abundance_bar(self):
+        n_sol_keys = len(self.config["exp_sol_keys"])
+
+        for p_idx, p in enumerate(self.particles):
+            # Make df containing experimental and simulation abundances
+
+            data_dict = {'dataset_label': [], 'species_label': [], 'abundance': []}
+            for idx, key_pair in enumerate(self.config["exp_sol_keys"]):
+                exp_data = self.target_data[key_pair[0]].values
+
+                data_dict['dataset_label'].append('experiment')
+                data_dict['species_label'].append(key_pair[1])
+                data_dict['abundance'].append(exp_data[0])
+
+
+                total_biomasses = np.array([self.get_total_biomass(p, p.sol, sim_t_idx) for sim_t_idx, t in enumerate(p.t)])
+                sim_sol = p.sol[:, self.get_solution_index(p, key_pair[1])]
+
+                abundance_sol = sim_sol / total_biomasses
+
+                data_dict['dataset_label'].append('simulation')
+                data_dict['species_label'].append(key_pair[1])
+                data_dict['abundance'].append(abundance_sol[-1])
+
+            df = pd.DataFrame.from_dict(data_dict)
+
+            # Make figure
+            fig = px.bar(df, x="dataset_label", y="abundance", color="species_label")
+            fig.update_layout(template="simple_white")
+            # fig.update_yaxes(title="Abundance", type='log')
+            fig.write_image(f"{self.output_dir}/abundance_bar_particle_{p_idx}.png")
+
 
 if __name__ == "__main__":
 
     data_directories = glob("./output/mel_indiv_growth/**/")
-    data_directories = [
-        "./output/mel_indiv_growth/exp_C_perfringens_S107_ga_fit_batch_tests/"
-    ]
-    for x in data_directories:
-        d = DataAnalysis(experiment_dir=x)
-        d.particles = d.filter_particles_by_distance([0.30])
+    # data_directories = [
+    #     "./output/mel_indiv_growth/exp_L_salivarius_ga_fit_batch_tests/"
+    # ]
 
+    data_directories = [
+        "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/output/mel_mixes_growth/mel_multi_mix2_m2_growers/"
+    ]
+
+    mix_target_data_path = "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/experimental_data/mel_target_data/target_data_Mix2_Med2.csv"
+    mel_indiv_target_data_path = "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/experimental_data/mel_target_data/mel_indiv_target_data.csv"
+
+    target_data_path = mix_target_data_path
+
+    for x in data_directories:
+        d = DataAnalysis(experiment_dir=x, data_path=target_data_path)
+        # d.particles = d.filter_particles_by_distance([1.0, 1.0, 1.0, 1.5, 1.5])
+        # d.particles = d.filter_particles_by_distance([0.25])
+
+        print(x, len(d.particles))
         if len(d.particles) == 0:
             print(x)
             continue
-
+        d.plot_abundance_bar()
         d.plot_distance_distributions()
         d.plot_population_timeseries(plot_n_particles=100)
         d.plot_fold_change_timeseries(plot_n_particles=100)
+        d.plot_population_abundance_timeseries(plot_n_particles=100)
