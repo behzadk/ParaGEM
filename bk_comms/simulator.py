@@ -285,7 +285,7 @@ class CometsTimeSeriesSimulation:
         return sol, t
 
     def simulate_particles(
-        self, particles, n_processes=1, sim_timeout=360.0, parallel=True
+        self, particles, n_processes=1, sim_timeout=1000.0, parallel=True
     ):
         if parallel:
             print("running parallel")
