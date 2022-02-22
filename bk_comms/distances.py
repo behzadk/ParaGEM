@@ -218,11 +218,14 @@ class DistanceFoldChangeError:
                 if exp_val == 0.0:
                     print("here")
                     fold_change_error = ((fold_change_sim_val + 1) - (exp_val + 1)) / (exp_val + 1)
+                
+                elif fold_change_sim_val == 0.0:
+                    distances[distance_idx] += 10000
 
                 else:
                     fold_change_error = (fold_change_sim_val - exp_val) / exp_val
                 
-                distances[distance_idx] += abs(fold_change_error)
+                    distances[distance_idx] += abs(fold_change_error)
 
                 print(
                     f"FoldChangeError: {init_sim_val}, {this_sim_val}, {exp_val}, {fold_change_sim_val}, {distances[distance_idx]}"

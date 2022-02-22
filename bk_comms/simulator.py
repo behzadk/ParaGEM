@@ -170,6 +170,20 @@ class CometsTimeSeriesSimulation:
 
                 # Update model lower bound
                 model.change_bounds(cmpd_str, lower_bound_constraints[cmpd_idx], 1000)
+    
+    def set_k_values(self, layout, community):
+        for idx, model in enumerate(layout.models):
+            k_values = community.k_vals[idx]
+
+            for cmpd_idx, cmpd in enumerate(community.dynamic_compounds):
+                cmpd_str = community.dynamic_compounds[cmpd_idx]
+                cmpd_str = cmpd_str.replace("M_", "EX_")
+
+                # Change michaelis menten vmax
+                # model.change_vmax(cmpd_str, lower_bound_constraints[cmpd_idx])
+
+                # Update model lower bound
+                model.change_km(cmpd_str, k_values[cmpd_idx])
 
     def set_layout_metabolite_concentrations(self, layout, community):
         # Set dynamic compound initial concentrations
@@ -238,6 +252,7 @@ class CometsTimeSeriesSimulation:
         self.set_layout_metabolite_concentrations(layout, community)
 
         self.set_lb_constraint(layout, community)
+        self.set_k_values(layout, community)
 
         layout.media.reset_index(inplace=True)
 

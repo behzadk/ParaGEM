@@ -372,12 +372,13 @@ class GeneticAlgorithm(ParameterEstimation):
         if self.gen_idx == 0:
             # Generate initial population
             self.population = self.gen_initial_population(n_processes, parallel)
-            self.gen_idx += 1
+            
 
             self.update_epsilon(self.population)
 
             output_path = f"{self.output_dir}particles_{self.experiment_name}_gen_{self.gen_idx}.pkl"
             self.save_particles(self.population, output_path)
+            self.gen_idx += 1
 
         # Core genetic algorithm loop
         while not self.final_generation:

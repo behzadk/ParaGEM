@@ -12,6 +12,8 @@ from plotly.subplots import make_subplots
 from omegaconf import OmegaConf
 import plotly.express as px
 import plotly.graph_objects as go
+from sklearn import manifold
+
 
 colours = ["#003f5c", "#58508d", "#bc5090", "#ff6361", "#ffa600", "#ffa800",]
 
@@ -86,6 +88,55 @@ class DataAnalysis:
 
         return species_initial_abundance
 
+    def generate_particle_parameter_df(self, particles):
+        init_particle = particles[0]
+        
+        init_species_col = [f'init_species_{x}' for x in init_particle.model_names]
+        init_conc_cols = [f'init_met_{x}' for x in init_particle.dynamic_compounds]
+
+        k_val_cols = []
+        lb_constraint_cols = []
+        
+        for m in init_particle.model_names:
+            # Make column headings
+            k_val_cols += [f'K_{x}_{m}' for x in init_particle.dynamic_compounds]
+            lb_constraint_cols += [f'lb_constr_{x}_{m}' for x in init_particle.dynamic_compounds] 
+        column_headings = []
+        column_headings += init_conc_cols + init_species_col + k_val_cols + lb_constraint_cols
+
+        parameters = np.zeros([len(particles), len(column_headings)])
+        for idx, p in enumerate(particles):
+            parameters[idx] = p.generate_parameter_vector().reshape(-1)
+
+        df = pd.DataFrame(data=parameters, columns=column_headings)
+
+        return df
+
+    def plot_tsne(self, include_init_metabolites=True, include_lb_constraints=True, include_k_values=True, include_init_species=True):
+        params_df = self.generate_particle_parameter_df(self.particles)
+
+        if not include_init_species:
+            params_df = params_df.loc[:, ~params_df.columns.str.contains('init_species_')]
+
+        if not include_init_metabolites:
+            params_df = params_df.loc[:, ~params_df.columns.str.contains('init_met_')]
+
+        if not include_lb_constraints:
+            params_df = params_df.loc[:, ~params_df.columns.str.contains('lb_constr_')]
+
+        if not include_k_values:
+            params_df = params_df.loc[:, ~params_df.columns.str.contains('K_')]
+
+        tsne = manifold.TSNE(n_components=2, n_jobs=5).fit_transform(params_df)
+        
+        
+        fig = px.scatter(x=tsne[:, 0], y=tsne[:, 1])
+        fig.update_layout(template="simple_white", width=800, height=800)
+        fig.write_image(f"{self.output_dir}/parameter_tsne.png")
+
+
+
+
     def plot_population_timeseries(self, plot_n_particles=10):
         n_sol_keys = len(self.config["exp_sol_keys"])
         fig = make_subplots(rows=n_sol_keys, cols=1, shared_xaxes=True, shared_yaxes='all')
@@ -117,7 +168,7 @@ class DataAnalysis:
         )
 
         fig.update_xaxes(title="Time")
-        fig.update_yaxes(title="Population", type='log')
+        # fig.update_yaxes(title="Population", type='log')
         fig.update_layout(template="simple_white")
 
         fig.write_image(f"{self.output_dir}/solution_timeseries.png")
@@ -133,7 +184,6 @@ class DataAnalysis:
                 sim_sol = p.sol[:, self.get_solution_index(p, key_pair[1])]
 
                 abundance_sol = sim_sol / total_biomasses
-                print(abundance_sol)
 
                 fig.add_trace(
                     go.Line(
@@ -173,7 +223,7 @@ class DataAnalysis:
 
 
         fig.update_xaxes(title="Time")
-        fig.update_yaxes(title="Abundance", type='log')
+        # fig.update_yaxes(title="Abundance", type='log')
         fig.update_layout(template="simple_white", width=800, height=800)
 
         fig.write_image(f"{self.output_dir}/species_abundance_timeseries.png")
@@ -294,32 +344,42 @@ class DataAnalysis:
             fig.write_image(f"{self.output_dir}/abundance_bar_particle_{p_idx}.png")
 
 
+
 if __name__ == "__main__":
 
     data_directories = glob("./output/mel_indiv_growth/**/")
     # data_directories = [
-    #     "./output/mel_indiv_growth/exp_L_salivarius_ga_fit_batch_tests/"
+    #     "./output/mel_indiv_growth/exp_S_salivarius_ga_fit_batch_tests/"
     # ]
 
-    data_directories = [
-        "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/output/mel_mixes_growth/mel_multi_mix2_m2_growers/"
-    ]
+    # data_directories = [
+    #     "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/output/mel_mixes_growth/mel_multi_mix2_m2_growers/"
+    # ]
 
-    mix_target_data_path = "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/experimental_data/mel_target_data/target_data_Mix2_Med2.csv"
+    mix_target_data_path = "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/experimental_data/mel_target_data/target_data_pH71_Mix2_Med2.csv"
     mel_indiv_target_data_path = "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/experimental_data/mel_target_data/mel_indiv_target_data.csv"
 
-    target_data_path = mix_target_data_path
+    target_data_path = mel_indiv_target_data_path
 
     for x in data_directories:
+        if not ('E_coli') in (x):
+            continue
+        print(x)
         d = DataAnalysis(experiment_dir=x, data_path=target_data_path)
         # d.particles = d.filter_particles_by_distance([1.0, 1.0, 1.0, 1.5, 1.5])
-        # d.particles = d.filter_particles_by_distance([0.25])
+
+        if len(d.filter_particles_by_distance([5.0])) == 0:
+            print(x)
+            d.particles = d.filter_particles_by_distance([5.0])
+            
+            
+        else:
+            d.particles = d.filter_particles_by_distance([5.0])
 
         print(x, len(d.particles))
-        if len(d.particles) == 0:
-            print(x)
-            continue
-        d.plot_abundance_bar()
+
+        # d.plot_tsne(include_init_metabolites=False, include_lb_constraints=True, include_k_values=False, include_init_species=False)
+        # d.plot_abundance_bar()
         d.plot_distance_distributions()
         d.plot_population_timeseries(plot_n_particles=100)
         d.plot_fold_change_timeseries(plot_n_particles=100)
