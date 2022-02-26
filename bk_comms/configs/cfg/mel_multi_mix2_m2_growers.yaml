@@ -30,19 +30,19 @@ epsilon:
   - 100.0
 
 final_epsilon:
-  - 0.1
-  - 0.1
-  - 0.1
-  - 0.1
-  - 0.1
-  - 0.1
+  - 100.0
+  - 100.0
+  - 100.0
+  - 100.0
+  - 100.0
+  - 100.0
 
 defaults:
   - _self_
   - community: mix2_m2_growers
   - algorithm: genetic_algorithm
   - simulator: time_series_comets_batch_dilution
-  - sampler: default_log_uniform
+  - sampler: default_log_uniform_population
   - distance: abundance_error
   - filter: combine_mix2_growers
 
