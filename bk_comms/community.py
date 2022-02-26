@@ -35,13 +35,18 @@ class Population:
         use_parsimonius_fba=False,
     ):
         self.name = name
+        logger.info(f"Loading model {name}")
         self.model = self.load_model(model_path)
         self.media_df = media_df
 
         self.dynamic_compounds = dynamic_compounds
         self.reaction_keys = reaction_keys
 
+        logger.info(f"Model  {name}, making dynamic compound mask")
         self.dynamic_compound_mask = self.set_dynamic_compound_mask(dynamic_compounds)
+
+        logger.info(f"Model  {name}, setting media")
+
         self.set_media()
 
         self.use_parsimonius_fba = use_parsimonius_fba
@@ -172,23 +177,34 @@ class Community:
             self.use_parsimonius_fba,
         )
 
+        logger.info(f"Loading compound values")
+
         self.init_compound_values = self.load_initial_compound_values(
             self.dynamic_compounds
         )
 
         self.init_population_values = initial_populations
 
+        logger.info(f"Generating k values")
         k_vals_mat = self.generate_default_k_values(
             self.init_compound_values, media_name
         )
+
+        logger.info(f"Setting k val mat")
         self.set_k_value_matrix(k_vals_mat)
 
+        logger.info(f"Setting max exchange mat")
         self.set_max_exchange_mat(
             np.ones(shape=[len(self.populations), len(self.dynamic_compounds)]) * -1
         )
 
+        logger.info(f"Setting pop indexes")
         self.population_indexes = self.set_population_indexes()
+
+        logger.info(f"Setting compound indexes")
         self.compound_indexes = self.set_compound_indexes()
+
+        logger.info(f"Setting solution key order")
         self.solution_keys = self.set_solution_key_order()
 
         self.set_init_y()
