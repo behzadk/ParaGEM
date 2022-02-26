@@ -199,6 +199,8 @@ class GeneticAlgorithm(ParameterEstimation):
         epsilon_alpha=0.2,
         filter=None,
     ):
+        logger.info(f"Initialising GA")
+
         self.experiment_name = experiment_name
         self.base_community = base_community
         self.n_particles_batch = n_particles_batch
@@ -221,12 +223,15 @@ class GeneticAlgorithm(ParameterEstimation):
         # Generate a list of models that will be assigned
         # to new particles. Avoids repeatedly copying models
         self.models = []
+        logger.info(f"Copying base comm")
+
         for _ in range(self.n_particles_batch):
             proc_models = []
             for pop in self.base_community.populations:
                 proc_models.append(copy.deepcopy(pop.model))
             self.models.append(proc_models)
 
+        logger.info(f"Deleting basecomm models")
         for pop in self.base_community.populations:
             del pop.model
 
