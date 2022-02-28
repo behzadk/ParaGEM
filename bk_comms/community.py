@@ -17,7 +17,7 @@ from loguru import logger
 
 import matplotlib.pyplot as plt
 import copy
-
+import gc
 import warnings
 
 # import multiprocessing as mp
@@ -42,11 +42,10 @@ class Population:
         self.dynamic_compounds = dynamic_compounds
         self.reaction_keys = reaction_keys
 
-        logger.info(f"Model  {name}, making dynamic compound mask")
+        logger.info(f"Model  {name}, making dynamic compound mask, mem usage (mb): {utils.get_mem_usage()}")
         self.dynamic_compound_mask = self.set_dynamic_compound_mask(dynamic_compounds)
 
-        logger.info(f"Model  {name}, setting media")
-
+        logger.info(f"Model  {name}, setting media, mem usage (mb): {utils.get_mem_usage()}")        
         self.set_media()
 
         self.use_parsimonius_fba = use_parsimonius_fba
@@ -185,29 +184,33 @@ class Community:
 
         self.init_population_values = initial_populations
 
-        logger.info(f"Generating k values")
+        logger.info(f"Generating k values, mem usage (mb): {utils.get_mem_usage()}")
         k_vals_mat = self.generate_default_k_values(
             self.init_compound_values, media_name
         )
 
-        logger.info(f"Setting k val mat")
+        logger.info(f"Setting k val mat, mem usage (mb): {utils.get_mem_usage()}")
         self.set_k_value_matrix(k_vals_mat)
 
-        logger.info(f"Setting max exchange mat")
+        logger.info(f"Setting max exchange mat, mem usage (mb): {utils.get_mem_usage()}")
         self.set_max_exchange_mat(
             np.ones(shape=[len(self.populations), len(self.dynamic_compounds)]) * -1
         )
 
-        logger.info(f"Setting pop indexes")
+        logger.info(f"Setting pop indexesmem usage (mb): {utils.get_mem_usage()}")
         self.population_indexes = self.set_population_indexes()
 
-        logger.info(f"Setting compound indexes")
+        logger.info(f"Setting compound indexes, mem usage (mb): {utils.get_mem_usage()}")
         self.compound_indexes = self.set_compound_indexes()
 
-        logger.info(f"Setting solution key order")
+        logger.info(f"Setting solution key order,  mem usage (mb): {utils.get_mem_usage()}")
         self.solution_keys = self.set_solution_key_order()
 
         self.set_init_y()
+        logger.info(f"Community initialisation finished,  mem usage (mb): {utils.get_mem_usage()}")
+        
+        gc.collect()
+
 
     def generate_initial_population_densities(self):
         return np.array([0.01 * 0.56 for x in self.populations])
