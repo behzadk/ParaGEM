@@ -1,7 +1,8 @@
 from bk_comms import utils
 import numpy as np
 import copy
-
+from loguru import logger
+import gc
 
 class Filter:
     def filter_particles(self, particles):
@@ -88,12 +89,17 @@ class ViableGrowthCombineParticles(Filter):
             for x in self.input_experiment_dirs
         ]
 
-        self.input_particles = [utils.load_all_particles(x) for x in run_dirs]
+        # self.input_particles = [utils.load_all_particles(x) for x in run_dirs]
+        self.input_particles = []
 
-        for idx, _ in enumerate(self.input_particles):
-            self.input_particles[idx] = utils.filter_particles_by_distance(
-                self.input_particles[idx], epsilon=epsilon[idx]
-            )
+        for idx, x in enumerate(run_dirs):
+            logger.info(f"Loading {x},  mem usage (mb): {utils.get_mem_usage()}")
+            gc.collect()
+
+            filtered_particles = utils.load_all_particles(x, epsilon[idx])
+
+            self.input_particles.append(filtered_particles)
+
 
         # Clean up unwanted data
         for idx, _ in enumerate(self.input_particles):
