@@ -61,25 +61,26 @@ def run_algorithm(cfg: DictConfig):
 
     print(cfg.filter)
     filter = instantiate(cfg.filter)
+    alg = instantiate(cfg.algorithm)
+    
+    # logger.info("Instantiating algorithm")
 
-    logger.info("Instantiating algorithm")
-
-    alg = GeneticAlgorithm(
-        n_particles_batch=n_particles_batch, 
-        population_size=population_size,
-        mutation_probability=mutation_probability,
-        epsilon_alpha=epsilon_alpha,
-        simulator=simulator,
-        base_community=base_community,
-        experiment_name=experiment_name,
-        distance_object=distance_object,
-        max_uptake_sampler=max_uptake_sampler,
-        k_val_sampler=k_val_sampler,
-        init_population_sampler=init_population_sampler,
-        output_dir=output_dir,
-        filter=filter
-        )
-    logger.info("Run")
+    # alg = GeneticAlgorithm(
+    #     n_particles_batch=n_particles_batch, 
+    #     population_size=population_size,
+    #     mutation_probability=mutation_probability,
+    #     epsilon_alpha=epsilon_alpha,
+    #     simulator=simulator,
+    #     base_community=base_community,
+    #     experiment_name=experiment_name,
+    #     distance_object=distance_object,
+    #     max_uptake_sampler=max_uptake_sampler,
+    #     k_val_sampler=k_val_sampler,
+    #     init_population_sampler=init_population_sampler,
+    #     output_dir=output_dir,
+    #     filter=filter
+    #     )
+    # logger.info("Run")
 
     # Write config once folder structuer has ben made
     alg.run(n_processes=cfg.n_processes, parallel=cfg.parallel)
