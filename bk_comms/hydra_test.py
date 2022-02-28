@@ -41,7 +41,7 @@ def run_algorithm(cfg: DictConfig):
 
     logger.info("Community")
 
-    base_community =  instantiate(cfg.community)
+    # base_community =  instantiate(cfg.community)
     experiment_name = cfg.experiment_name
     logger.info("Distance")
 
