@@ -336,51 +336,62 @@ class DataAnalysis:
                 data_dict['abundance'].append(abundance_sol[-1])
 
             df = pd.DataFrame.from_dict(data_dict)
-
+            title_str = ''
+            for idx, d in enumerate(p.distance):
+                title_str += p.model_names[idx][:3] + ' ' + str(round(d, 3))
+                title_str += '  '
             # Make figure
             fig = px.bar(df, x="dataset_label", y="abundance", color="species_label")
-            fig.update_layout(template="simple_white")
+            fig.update_layout(template="simple_white", title=title_str)
+
             # fig.update_yaxes(title="Abundance", type='log')
             fig.write_image(f"{self.output_dir}/abundance_bar_particle_{p_idx}.png")
 
+def vis_multi():
+    data_directories = [
+        "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/output/mel_mixes_growth/mel_multi_mix2_m2_growers_test/"
+    ]
+
+    mix_target_data_path = "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/experimental_data/mel_target_data/target_data_pH7_Mix2_Med2.csv"
+    
+    target_data_path = mix_target_data_path
+
+    for x in data_directories:
+        d = DataAnalysis(experiment_dir=x, data_path=target_data_path)
+        # d.particles = d.filter_particles_by_distance([100.0, 0.2, 0.2, 0.5, 0.25, 100.0])
+
+        d.plot_tsne(include_init_metabolites=False, include_lb_constraints=True, include_k_values=False, include_init_species=False)
+        d.plot_abundance_bar()
+        d.plot_distance_distributions()
+        d.plot_population_timeseries(plot_n_particles=100)
+        d.plot_fold_change_timeseries(plot_n_particles=100)
+        d.plot_population_abundance_timeseries(plot_n_particles=100)
 
 
-if __name__ == "__main__":
-
+def vis_indiv():
     data_directories = glob("./output/mel_indiv_growth/**/")
-    # data_directories = [
-    #     "./output/mel_indiv_growth/exp_S_salivarius_ga_fit_batch_tests/"
-    # ]
-
-    # data_directories = [
-    #     "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/output/mel_mixes_growth/mel_multi_mix2_m2_growers/"
-    # ]
-
-    mix_target_data_path = "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/experimental_data/mel_target_data/target_data_pH71_Mix2_Med2.csv"
     mel_indiv_target_data_path = "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/experimental_data/mel_target_data/mel_indiv_target_data.csv"
 
     target_data_path = mel_indiv_target_data_path
 
     for x in data_directories:
-        if not ('E_coli') in (x):
-            continue
-        print(x)
         d = DataAnalysis(experiment_dir=x, data_path=target_data_path)
         # d.particles = d.filter_particles_by_distance([1.0, 1.0, 1.0, 1.5, 1.5])
 
-        if len(d.filter_particles_by_distance([5.0])) == 0:
-            print(x)
-            d.particles = d.filter_particles_by_distance([5.0])
-            
-            
-        else:
-            d.particles = d.filter_particles_by_distance([5.0])
+        epsilon = 0.24
+        while len(d.filter_particles_by_distance([epsilon])) < 100:
+            # print(f'epsilon: {epsilon}', f'particles: {len(d.filter_particles_by_distance([epsilon]))}')
+            epsilon += 0.01
 
-        print(x, len(d.particles))
+        
+        d.particles = d.filter_particles_by_distance([epsilon])
 
-        # d.plot_tsne(include_init_metabolites=False, include_lb_constraints=True, include_k_values=False, include_init_species=False)
-        # d.plot_abundance_bar()
+        print(x, f'epsilon: {epsilon}', f'particles: {len(d.particles)}')
+
         d.plot_distance_distributions()
         d.plot_population_timeseries(plot_n_particles=100)
         d.plot_fold_change_timeseries(plot_n_particles=100)
         d.plot_population_abundance_timeseries(plot_n_particles=100)
+
+if __name__ == "__main__":
+    vis_multi()
