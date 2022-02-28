@@ -8,12 +8,12 @@ input_experiment_dirs:
   - ${cfg.wd}/output/mel_indiv_growth/exp_S_salivarius_ga_fit_batch_tests/
 
 epsilon:
-  - - 0.1
   - - 0.25
-  - - 0.1
-  - - 0.1
-  - - 0.1
-  - - 0.1
+  - - 1.17
+  - - 0.25
+  - - 0.51
+  - - 1.22
+  - - 0.25
 
 population_names:
   - B_longum_subsp_longum
