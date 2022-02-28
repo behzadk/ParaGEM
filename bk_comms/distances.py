@@ -313,6 +313,8 @@ class DistanceAbundanceError:
                 # Calculate fold change compared with starting value
                 curr_biomass_abundance = sim_data[:, sol_idx][sim_t_idx] / total_biomass
 
-                distances[distance_idx] += abs(curr_biomass_abundance)
+                abundance_error = abs(curr_biomass_abundance - exp_val)
+
+                distances[distance_idx] += abundance_error
 
         return distances
