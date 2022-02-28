@@ -36,12 +36,14 @@ def load_pickle(pickle_path):
         return data
 
 
-def load_all_particles(repeat_dirs):
+def load_all_particles(repeat_dirs, distance_filter_epsilon):
     all_particles = []
     for d in repeat_dirs:
         particle_paths = d.glob("particles_*.pkl")
         for p_path in particle_paths:
-            all_particles.extend(load_pickle(p_path))
+            p = load_pickle(p_path)
+            filtered_p = filter_particles_by_distance(p, distance_filter_epsilon)
+            all_particles.extend(filtered_p)
 
     return all_particles
 
