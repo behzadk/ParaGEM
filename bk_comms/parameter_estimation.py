@@ -17,7 +17,6 @@ import time
 import sys
 
 
-
 class ParameterEstimation:
     def init_particles(
         self, init_population_sampler, max_uptake_sampler, k_val_sampler, n_particles
@@ -115,7 +114,6 @@ class ParameterEstimation:
 
         with open(checkpoint_path, "rb") as f:
             return pickle.load(f)
-
 
 
 class GeneticAlgorithm(ParameterEstimation):
@@ -225,7 +223,6 @@ class GeneticAlgorithm(ParameterEstimation):
             )[0]
             mut_params_vec = mut_particle.generate_parameter_vector()
 
-
             for idx in range(len(particle_param_vec)):
                 particle_param_vec[idx] = np.random.choice(
                     [particle_param_vec[idx][0], mut_params_vec[idx][0]],
@@ -262,7 +259,7 @@ class GeneticAlgorithm(ParameterEstimation):
 
                 filter_iteration += 1
                 if filter_iteration % 10 == 0:
-                    print("fitler iteration: ", filter_iteration )
+                    print("fitler iteration: ", filter_iteration)
 
                 particles.extend(candidate_particles)
 
@@ -312,7 +309,6 @@ class GeneticAlgorithm(ParameterEstimation):
         if self.gen_idx == 0:
             # Generate initial population
             self.population = self.gen_initial_population(n_processes, parallel)
-            
 
             self.update_epsilon(self.population)
 

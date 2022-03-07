@@ -128,7 +128,6 @@ class DistanceTimeseriesEuclidianDistance:
         return True, distance
 
 
-
 class DistanceFoldChangeError:
     def __init__(
         self,
@@ -167,7 +166,6 @@ class DistanceFoldChangeError:
                 init_sim_val = sim_data[:, sol_idx][0]
                 this_sim_val = sim_data[:, sol_idx][sim_t_idx]
 
-
                 exp_val = self.exp_data.loc[self.exp_data[self.exp_t_key] == t][
                     key_pair[0]
                 ].values[0]
@@ -179,14 +177,16 @@ class DistanceFoldChangeError:
 
                 if exp_val == 0.0:
                     print("here")
-                    fold_change_error = ((fold_change_sim_val + 1) - (exp_val + 1)) / (exp_val + 1)
-                
+                    fold_change_error = ((fold_change_sim_val + 1) - (exp_val + 1)) / (
+                        exp_val + 1
+                    )
+
                 elif fold_change_sim_val == 0.0:
                     distances[distance_idx] += 10000
 
                 else:
                     fold_change_error = (fold_change_sim_val - exp_val) / exp_val
-                
+
                     distances[distance_idx] += abs(fold_change_error)
 
                 print(
@@ -237,7 +237,6 @@ class DistanceAbundanceError:
 
         return True, distance
 
-
     def get_total_biomass(self, community, sim_data, sim_t_idx):
         species_initial_abundance = 0
 
@@ -248,7 +247,6 @@ class DistanceAbundanceError:
             species_initial_abundance += sim_val
 
         return species_initial_abundance
-
 
     def calculate_distance(self, community):
         n_distances = len(self.exp_sol_keys)

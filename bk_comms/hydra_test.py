@@ -11,7 +11,9 @@ from loguru import logger
 from bk_comms.parameter_estimation import GeneticAlgorithm
 
 import warnings
-warnings.filterwarnings('ignore')
+
+warnings.filterwarnings("ignore")
+
 
 @hydra.main(config_path="../configs", config_name="base")
 def run_algorithm(cfg: DictConfig):
@@ -21,13 +23,10 @@ def run_algorithm(cfg: DictConfig):
     Path(cfg.cfg.output_dir).mkdir(parents=True, exist_ok=True)
     OmegaConf.save(cfg, f"{cfg.cfg.output_dir}/cfg.yaml")
 
-
-
     cfg = cfg["cfg"]
 
     logger.remove()
     logger.add(f"{cfg.output_dir}info_log.log", level="DEBUG")
-
 
     # alg = instantiate(cfg.algorithm)
 
@@ -55,18 +54,18 @@ def run_algorithm(cfg: DictConfig):
 
     logger.info("init pop sampler")
     init_population_sampler = instantiate(cfg.sampler.init_population_sampler)
-    output_dir = (cfg.output_dir)
+    output_dir = cfg.output_dir
 
     logger.info("filter")
 
     print(cfg.filter)
     filter = instantiate(cfg.filter)
     alg = instantiate(cfg.algorithm)
-    
+
     # logger.info("Instantiating algorithm")
 
     # alg = GeneticAlgorithm(
-    #     n_particles_batch=n_particles_batch, 
+    #     n_particles_batch=n_particles_batch,
     #     population_size=population_size,
     #     mutation_probability=mutation_probability,
     #     epsilon_alpha=epsilon_alpha,

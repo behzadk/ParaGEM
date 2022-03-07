@@ -11,9 +11,17 @@ import os
 import shutil
 
 
-
 class CometsTimeSeriesSimulation:
-    def __init__(self, t_end, dt, gurobi_home_dir, comets_home_dir, batch_dilution=False, dilution_factor=0.0, dilution_time=0.0):
+    def __init__(
+        self,
+        t_end,
+        dt,
+        gurobi_home_dir,
+        comets_home_dir,
+        batch_dilution=False,
+        dilution_factor=0.0,
+        dilution_time=0.0,
+    ):
         self.dt = dt
         self.max_cycles = int(np.ceil(t_end / dt))
 
@@ -57,7 +65,7 @@ class CometsTimeSeriesSimulation:
 
                 # Update model lower bound
                 model.change_bounds(cmpd_str, lower_bound_constraints[cmpd_idx], 1000)
-    
+
     def set_k_values(self, layout, community):
         for idx, model in enumerate(layout.models):
             k_values = community.k_vals[idx]
@@ -155,9 +163,9 @@ class CometsTimeSeriesSimulation:
 
         # Optional parameters
         if self.batch_dilution:
-            sim_params.set_param('batchDilution', True)
-            sim_params.set_param('dilFactor', self.dilution_factor)
-            sim_params.set_param('dilTime', self.dilution_time)
+            sim_params.set_param("batchDilution", True)
+            sim_params.set_param("dilFactor", self.dilution_factor)
+            sim_params.set_param("dilTime", self.dilution_time)
 
         tmp_dir = f"./tmp_{os.getpid()}/"
         if not os.path.exists(tmp_dir):
@@ -166,9 +174,7 @@ class CometsTimeSeriesSimulation:
         experiment = cometspy.comets(layout, sim_params, relative_dir=tmp_dir)
         self.experiment = experiment
 
-        experiment.set_classpath(
-            "bin", f"{self.comets_home_dir}/bin/comets.jar"
-        )
+        experiment.set_classpath("bin", f"{self.comets_home_dir}/bin/comets.jar")
 
         # experiment.set_classpath(
         #     "gurobi", f"{self.gurobi_home_dir}/lib/gurobi.jar"
@@ -271,6 +277,7 @@ class GrowthRateConditionedMedia:
         for p in particles:
             p.sol = self.simulate(p)
 
+
 class GrowthRate:
     def __init__(self, t_end):
         self.t_end = t_end
@@ -278,7 +285,7 @@ class GrowthRate:
     def simulate(self, particle):
         n_populations = len(particle.populations)
         particle_growth_rates = np.zeros(shape=[1, n_populations])
-        
+
         growth_rates, flux_matrix = particle.sim_step(particle.init_y)
         particle_growth_rates[0] = growth_rates
 
@@ -288,4 +295,3 @@ class GrowthRate:
         for p in particles:
             p.sol = self.simulate(p)
             p.t = [self.t_end]
-
