@@ -1,10 +1,8 @@
 import numpy as np
-import scipy as sp
 from reframed import Environment
 from typing import List
 import pandas as pd
 
-import sympy
 import time
 
 from scipy.integrate import ode
@@ -15,12 +13,10 @@ from scipy.integrate import odeint
 
 from loguru import logger
 
-import matplotlib.pyplot as plt
 import copy
 import gc
 import warnings
 
-# import multiprocessing as mp
 import multiprocess as mp
 
 
@@ -42,10 +38,14 @@ class Population:
         self.dynamic_compounds = dynamic_compounds
         self.reaction_keys = reaction_keys
 
-        logger.info(f"Model  {name}, making dynamic compound mask, mem usage (mb): {utils.get_mem_usage()}")
+        logger.info(
+            f"Model  {name}, making dynamic compound mask, mem usage (mb): {utils.get_mem_usage()}"
+        )
         self.dynamic_compound_mask = self.set_dynamic_compound_mask(dynamic_compounds)
 
-        logger.info(f"Model  {name}, setting media, mem usage (mb): {utils.get_mem_usage()}")        
+        logger.info(
+            f"Model  {name}, setting media, mem usage (mb): {utils.get_mem_usage()}"
+        )
         self.set_media()
 
         self.use_parsimonius_fba = use_parsimonius_fba
@@ -102,14 +102,6 @@ class Population:
 
         return dynamic_compound_mask
 
-    def set_max_growth_rate(self, max_growth_rate=2.0):
-        self.model.reactions.get_by_id("Growth").upper_bound = max_growth_rate
-
-    # @staticmethod
-    # @numba.jit(parallel=False)
-    # def calculate_monod_uptake(max_uptake, cmpd_conc, k):
-    #     return max_uptake * (cmpd_conc / (k + cmpd_conc))
-
     def update_reaction_constraints(self, lower_constraints):
         for idx, _ in enumerate(lower_constraints):
             if self.dynamic_compound_mask[idx]:
@@ -136,7 +128,6 @@ class Population:
 
     def get_growth_rate(self):
         return self.opt_sol.objective_value
-        # return self.opt_sol.get_primal_by_id('Growth')
 
 
 class Community:
@@ -192,7 +183,9 @@ class Community:
         logger.info(f"Setting k val mat, mem usage (mb): {utils.get_mem_usage()}")
         self.set_k_value_matrix(k_vals_mat)
 
-        logger.info(f"Setting max exchange mat, mem usage (mb): {utils.get_mem_usage()}")
+        logger.info(
+            f"Setting max exchange mat, mem usage (mb): {utils.get_mem_usage()}"
+        )
         self.set_max_exchange_mat(
             np.ones(shape=[len(self.populations), len(self.dynamic_compounds)]) * -1
         )
@@ -200,20 +193,22 @@ class Community:
         logger.info(f"Setting pop indexesmem usage (mb): {utils.get_mem_usage()}")
         self.population_indexes = self.set_population_indexes()
 
-        logger.info(f"Setting compound indexes, mem usage (mb): {utils.get_mem_usage()}")
+        logger.info(
+            f"Setting compound indexes, mem usage (mb): {utils.get_mem_usage()}"
+        )
         self.compound_indexes = self.set_compound_indexes()
 
-        logger.info(f"Setting solution key order,  mem usage (mb): {utils.get_mem_usage()}")
+        logger.info(
+            f"Setting solution key order,  mem usage (mb): {utils.get_mem_usage()}"
+        )
         self.solution_keys = self.set_solution_key_order()
 
         self.set_init_y()
-        logger.info(f"Community initialisation finished,  mem usage (mb): {utils.get_mem_usage()}")
-        
+        logger.info(
+            f"Community initialisation finished,  mem usage (mb): {utils.get_mem_usage()}"
+        )
+
         gc.collect()
-
-
-    def generate_initial_population_densities(self):
-        return np.array([0.01 * 0.56 for x in self.populations])
 
     def generate_parameter_vector(self):
         # Initial conditions
@@ -242,6 +237,11 @@ class Community:
                 ]
 
     def load_parameter_vector(self, parameter_vec):
+        """
+        Loads a parameter vector consisting of initial concentrations, k values and
+        max exchange parameters
+        """
+
         n_variables = len(self.init_y)
         n_k_vals = self.k_vals.shape[0] * self.k_vals.shape[1]
         n_max_exchange_vals = (
@@ -257,6 +257,10 @@ class Community:
         ].reshape(self.max_exchange_mat.shape)
 
     def load_initial_compound_values(self, dynamic_compounds):
+        """
+        Loads vector of initial compound concentrations
+        """
+
         init_compound_values = np.zeros(len(dynamic_compounds))
 
         for compound_idx, dynm_cmpd in enumerate(dynamic_compounds):
@@ -426,16 +430,6 @@ class Community:
             (self.init_population_values, self.init_compound_values), axis=None
         )
 
-    def print_sol(self, sol):
-        count = 1
-        for idx in self.population_indexes:
-            print(f"N_{idx}: {sol[:, idx][-1]}")
-
-        for idx, sol_idx in enumerate(self.compound_indexes):
-            print(f"{self.dynamic_compounds[idx]}: {sol[:, sol_idx][-1]}")
-
-    # @staticmethod
-    # @numba.jit(parallel=False)
     def calculate_exchange_reaction_lb_constraints(
         self, compound_concs, k_mat, max_exchange_mat
     ):
@@ -479,74 +473,3 @@ class Community:
                     growth_rates[idx] = 0.0
 
         return growth_rates, flux_matrix
-
-    def diff_eqs(self, y, t):
-
-        y = y.clip(0)
-        # y[y < 1e-25] = 0
-        populations = y[self.population_indexes]
-        compounds = y[self.compound_indexes]
-
-        growth_rates, flux_matrix = self.sim_step(y)
-        self.growth_rates = growth_rates
-        self.flux_matrix = flux_matrix
-
-        print(t, self.growth_rates)
-        output = np.zeros(len(y))
-
-        output[self.population_indexes] = growth_rates * populations
-        output[self.compound_indexes] = np.dot(populations, flux_matrix)
-
-        return output
-
-    def diff_eqs_vode(self, t, y):
-        y = y.clip(0.0)
-        # y[y < 1e-25] = 0
-        populations = y[self.population_indexes]
-        compounds = y[self.compound_indexes]
-
-        growth_rates, flux_matrix = self.sim_step(y)
-
-        output = np.zeros(len(y))
-
-        output[self.population_indexes] = growth_rates * populations
-        output[self.compound_indexes] = np.dot(populations, flux_matrix)
-
-        return output
-
-    def calculate_jacobian(self, y, t):
-        print("calc jac", t)
-        symbolic_populations = []
-        symbolic_compounds = []
-
-        for x in self.solution_keys:
-            if x in self.model_names:
-                symbolic_populations.append(sympy.symbols(x, real=True))
-
-        for x in self.solution_keys:
-            if x in self.dynamic_compounds:
-                symbolic_compounds.append(sympy.symbols(x, real=True))
-
-        diff_eqs = []
-        for idx, _ in enumerate(symbolic_populations):
-            diff_eqs.append(symbolic_populations[idx] * self.growth_rates[idx])
-
-        symbolic_compounds = sympy.Matrix(symbolic_compounds)
-
-        flux_mat_sp = sympy.Matrix(self.flux_matrix)
-
-        mat = np.dot(symbolic_populations, flux_mat_sp)
-
-        for x in mat:
-            diff_eqs.append(x)
-
-        symbolic_species = []
-        symbolic_species.extend(symbolic_populations)
-        symbolic_species.extend(symbolic_compounds)
-
-        diff_eqs = sympy.Matrix(diff_eqs)
-        jac = diff_eqs.jacobian(symbolic_species)
-
-        jac = sympy.lambdify(symbolic_species, jac)
-
-        return jac(*y)

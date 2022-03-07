@@ -3,8 +3,6 @@ import copy
 import cometspy
 import numpy as np
 import time
-from scipy.integrate import ode
-from scipy.integrate import odeint
 
 from loguru import logger
 from bk_comms import utils
@@ -13,120 +11,17 @@ import os
 import shutil
 
 
-class TimeSeriesSimulation:
-    def __init__(self, t_0, t_end, steps, method="vode"):
-        self.t_0 = t_0
-        self.t_end = t_end
-        self.steps = steps
-        self.method = method
-
-    def simulate(self, particle):
-        y0 = copy.deepcopy(particle.init_y)
-        t_0 = self.t_0
-        t_end = self.t_end
-        steps = self.steps
-        method = self.method
-
-        if method == "odeint":
-            t = np.linspace(t_0, t_end, steps)
-            sol = odeint(
-                particle.diff_eqs,
-                y0,
-                t,
-                args=(),
-                Dfun=particle.calculate_jacobian,
-                col_deriv=True,
-                mxstep=10000,
-            )
-
-        elif method == "vode":
-            sol = []
-            t = []
-            steps = 100
-            t_points = list(np.linspace(t_0, t_end, steps))
-
-            # Approximately set atol, rtol
-            atol_list = []
-            rtol_list = []
-            for y in y0:
-                if y > 50.0:
-                    atol_list.append(1e-3)
-                    rtol_list.append(1e-3)
-                else:
-                    atol_list.append(1e-6)
-                    rtol_list.append(1e-3)
-
-            start = time.time()
-            solver = ode(particle.diff_eqs_vode, jac=None).set_integrator(
-                "vode", method="bdf", atol=1e-4, rtol=1e-3, max_step=0.01
-            )
-            # print("solver initiated")
-
-            solver.set_initial_value(y0, t=t_0)
-
-            while solver.successful() and solver.t < t_end:
-                step_out = solver.integrate(t_end, step=True)
-
-                if solver.t >= t_points[0]:
-                    mx = np.ma.masked_array(step_out, mask=step_out == 0)
-                    sol.append(step_out)
-                    t.append(solver.t)
-                    t_points.pop(0)
-
-            sol = np.array(sol)
-            t = np.array(t)
-            end = time.time()
-            logger.info(f"Simulation time: {end - start}")
-
-        return sol, t
-
-    def simulate_particles(
-        self, particles, n_processes=1, sim_timeout=360.0, parallel=True
-    ):
-        if parallel:
-            print("running parallel")
-
-            def wrapper(args):
-                idx, args = args
-                sol, t = self.simulate(args)
-                return (idx, sol, t)
-
-            pool = mp.get_context("spawn").Pool(n_processes, maxtasksperchild=1)
-            futures_mp_sol = pool.imap_unordered(wrapper, enumerate(particles))
-
-            for particle in particles:
-                try:
-                    idx, sol, t = futures_mp_sol.next(timeout=sim_timeout)
-                    particles[idx].sol = sol
-                    particles[idx].t = t
-
-                except mp.context.TimeoutError:
-                    print("TIMEOUT ERROR")
-                    break
-
-            print("Terminating pool")
-            pool.terminate()
-
-            for idx, p in enumerate(particles):
-                if not hasattr(p, "sol"):
-                    print(f"Particle {idx} has no sol")
-                    p.sol = None
-                    p.t = None
-        else:
-            p_idx = 0
-            for p in particles:
-                start = time.time()
-                print(f"Simulating particle idx: {p_idx}")
-                sol, t = self.simulate(args)
-                p.sol = sol
-                p.t = t
-                p_idx += 1
-                end = time.time()
-                print("Sim time: ", end - start)
-
-
 class CometsTimeSeriesSimulation:
-    def __init__(self, t_end, dt, gurobi_home_dir, comets_home_dir, batch_dilution=False, dilution_factor=0.0, dilution_time=0.0):
+    def __init__(
+        self,
+        t_end,
+        dt,
+        gurobi_home_dir,
+        comets_home_dir,
+        batch_dilution=False,
+        dilution_factor=0.0,
+        dilution_time=0.0,
+    ):
         self.dt = dt
         self.max_cycles = int(np.ceil(t_end / dt))
 
@@ -170,7 +65,7 @@ class CometsTimeSeriesSimulation:
 
                 # Update model lower bound
                 model.change_bounds(cmpd_str, lower_bound_constraints[cmpd_idx], 1000)
-    
+
     def set_k_values(self, layout, community):
         for idx, model in enumerate(layout.models):
             k_values = community.k_vals[idx]
@@ -268,9 +163,9 @@ class CometsTimeSeriesSimulation:
 
         # Optional parameters
         if self.batch_dilution:
-            sim_params.set_param('batchDilution', True)
-            sim_params.set_param('dilFactor', self.dilution_factor)
-            sim_params.set_param('dilTime', self.dilution_time)
+            sim_params.set_param("batchDilution", True)
+            sim_params.set_param("dilFactor", self.dilution_factor)
+            sim_params.set_param("dilTime", self.dilution_time)
 
         tmp_dir = f"./tmp_{os.getpid()}/"
         if not os.path.exists(tmp_dir):
@@ -279,9 +174,7 @@ class CometsTimeSeriesSimulation:
         experiment = cometspy.comets(layout, sim_params, relative_dir=tmp_dir)
         self.experiment = experiment
 
-        experiment.set_classpath(
-            "bin", f"{self.comets_home_dir}/bin/comets.jar"
-        )
+        experiment.set_classpath("bin", f"{self.comets_home_dir}/bin/comets.jar")
 
         # experiment.set_classpath(
         #     "gurobi", f"{self.gurobi_home_dir}/lib/gurobi.jar"
@@ -384,6 +277,7 @@ class GrowthRateConditionedMedia:
         for p in particles:
             p.sol = self.simulate(p)
 
+
 class GrowthRate:
     def __init__(self, t_end):
         self.t_end = t_end
@@ -391,7 +285,7 @@ class GrowthRate:
     def simulate(self, particle):
         n_populations = len(particle.populations)
         particle_growth_rates = np.zeros(shape=[1, n_populations])
-        
+
         growth_rates, flux_matrix = particle.sim_step(particle.init_y)
         particle_growth_rates[0] = growth_rates
 
@@ -401,4 +295,3 @@ class GrowthRate:
         for p in particles:
             p.sol = self.simulate(p)
             p.t = [self.t_end]
-

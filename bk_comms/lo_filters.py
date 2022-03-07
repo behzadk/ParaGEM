@@ -4,6 +4,7 @@ import copy
 from loguru import logger
 import gc
 
+
 class Filter:
     def filter_particles(self, particles):
         return self.filter(particles)
@@ -99,7 +100,6 @@ class ViableGrowthCombineParticles(Filter):
             filtered_particles = utils.load_all_particles(x, epsilon[idx])
 
             self.input_particles.append(filtered_particles)
-
 
         # Clean up unwanted data
         for idx, _ in enumerate(self.input_particles):

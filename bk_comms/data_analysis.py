@@ -1,7 +1,6 @@
 import numpy as np
 import pickle
 import matplotlib.pyplot as plt
-import seaborn as sns
 from glob import glob
 from pathlib import Path
 import pandas as pd
@@ -15,7 +14,14 @@ import plotly.graph_objects as go
 from sklearn import manifold
 
 
-colours = ["#003f5c", "#58508d", "#bc5090", "#ff6361", "#ffa600", "#ffa800",]
+colours = [
+    "#003f5c",
+    "#58508d",
+    "#bc5090",
+    "#ff6361",
+    "#ffa600",
+    "#ffa800",
+]
 
 
 class DataAnalysis:
@@ -40,7 +46,7 @@ class DataAnalysis:
         # have the same config (dangerous)
         conf = OmegaConf.load(self.run_directories[0] + "/cfg.yaml")
 
-        return conf['cfg']
+        return conf["cfg"]
 
     def make_output_dir(self):
         if not os.path.exists(self.output_dir):
@@ -90,19 +96,23 @@ class DataAnalysis:
 
     def generate_particle_parameter_df(self, particles):
         init_particle = particles[0]
-        
-        init_species_col = [f'init_species_{x}' for x in init_particle.model_names]
-        init_conc_cols = [f'init_met_{x}' for x in init_particle.dynamic_compounds]
+
+        init_species_col = [f"init_species_{x}" for x in init_particle.model_names]
+        init_conc_cols = [f"init_met_{x}" for x in init_particle.dynamic_compounds]
 
         k_val_cols = []
         lb_constraint_cols = []
-        
+
         for m in init_particle.model_names:
             # Make column headings
-            k_val_cols += [f'K_{x}_{m}' for x in init_particle.dynamic_compounds]
-            lb_constraint_cols += [f'lb_constr_{x}_{m}' for x in init_particle.dynamic_compounds] 
+            k_val_cols += [f"K_{x}_{m}" for x in init_particle.dynamic_compounds]
+            lb_constraint_cols += [
+                f"lb_constr_{x}_{m}" for x in init_particle.dynamic_compounds
+            ]
         column_headings = []
-        column_headings += init_conc_cols + init_species_col + k_val_cols + lb_constraint_cols
+        column_headings += (
+            init_conc_cols + init_species_col + k_val_cols + lb_constraint_cols
+        )
 
         parameters = np.zeros([len(particles), len(column_headings)])
         for idx, p in enumerate(particles):
@@ -112,34 +122,40 @@ class DataAnalysis:
 
         return df
 
-    def plot_tsne(self, include_init_metabolites=True, include_lb_constraints=True, include_k_values=True, include_init_species=True):
+    def plot_tsne(
+        self,
+        include_init_metabolites=True,
+        include_lb_constraints=True,
+        include_k_values=True,
+        include_init_species=True,
+    ):
         params_df = self.generate_particle_parameter_df(self.particles)
 
         if not include_init_species:
-            params_df = params_df.loc[:, ~params_df.columns.str.contains('init_species_')]
+            params_df = params_df.loc[
+                :, ~params_df.columns.str.contains("init_species_")
+            ]
 
         if not include_init_metabolites:
-            params_df = params_df.loc[:, ~params_df.columns.str.contains('init_met_')]
+            params_df = params_df.loc[:, ~params_df.columns.str.contains("init_met_")]
 
         if not include_lb_constraints:
-            params_df = params_df.loc[:, ~params_df.columns.str.contains('lb_constr_')]
+            params_df = params_df.loc[:, ~params_df.columns.str.contains("lb_constr_")]
 
         if not include_k_values:
-            params_df = params_df.loc[:, ~params_df.columns.str.contains('K_')]
+            params_df = params_df.loc[:, ~params_df.columns.str.contains("K_")]
 
         tsne = manifold.TSNE(n_components=2, n_jobs=5).fit_transform(params_df)
-        
-        
+
         fig = px.scatter(x=tsne[:, 0], y=tsne[:, 1])
         fig.update_layout(template="simple_white", width=800, height=800)
         fig.write_image(f"{self.output_dir}/parameter_tsne.png")
 
-
-
-
     def plot_population_timeseries(self, plot_n_particles=10):
         n_sol_keys = len(self.config["exp_sol_keys"])
-        fig = make_subplots(rows=n_sol_keys, cols=1, shared_xaxes=True, shared_yaxes='all')
+        fig = make_subplots(
+            rows=n_sol_keys, cols=1, shared_xaxes=True, shared_yaxes="all"
+        )
 
         for idx, key_pair in enumerate(self.config["exp_sol_keys"]):
             # Plot particle simulations
@@ -175,12 +191,19 @@ class DataAnalysis:
 
     def plot_population_abundance_timeseries(self, plot_n_particles=10):
         n_sol_keys = len(self.config["exp_sol_keys"])
-        fig = make_subplots(rows=n_sol_keys, cols=1, shared_xaxes=True, shared_yaxes='all')
+        fig = make_subplots(
+            rows=n_sol_keys, cols=1, shared_xaxes=True, shared_yaxes="all"
+        )
 
         for idx, key_pair in enumerate(self.config["exp_sol_keys"]):
             # Plot particle simulations
             for p in self.particles[:plot_n_particles]:
-                total_biomasses = np.array([self.get_total_biomass(p, p.sol, sim_t_idx) for sim_t_idx, t in enumerate(p.t)])
+                total_biomasses = np.array(
+                    [
+                        self.get_total_biomass(p, p.sol, sim_t_idx)
+                        for sim_t_idx, t in enumerate(p.t)
+                    ]
+                )
                 sim_sol = p.sol[:, self.get_solution_index(p, key_pair[1])]
 
                 abundance_sol = sim_sol / total_biomasses
@@ -196,7 +219,7 @@ class DataAnalysis:
                     row=idx + 1,
                     col=1,
                 )
-        
+
             # Plot experimental data
             exp_data = self.target_data[key_pair[0]].values
 
@@ -212,15 +235,12 @@ class DataAnalysis:
                 col=1,
             )
 
-
         names = set()
         fig.for_each_trace(
             lambda trace: trace.update(showlegend=False)
             if (trace.name in names)
             else names.add(trace.name)
         )
-
-
 
         fig.update_xaxes(title="Time")
         # fig.update_yaxes(title="Abundance", type='log')
@@ -317,29 +337,33 @@ class DataAnalysis:
         for p_idx, p in enumerate(self.particles):
             # Make df containing experimental and simulation abundances
 
-            data_dict = {'dataset_label': [], 'species_label': [], 'abundance': []}
+            data_dict = {"dataset_label": [], "species_label": [], "abundance": []}
             for idx, key_pair in enumerate(self.config["exp_sol_keys"]):
                 exp_data = self.target_data[key_pair[0]].values
 
-                data_dict['dataset_label'].append('experiment')
-                data_dict['species_label'].append(key_pair[1])
-                data_dict['abundance'].append(exp_data[0])
+                data_dict["dataset_label"].append("experiment")
+                data_dict["species_label"].append(key_pair[1])
+                data_dict["abundance"].append(exp_data[0])
 
-
-                total_biomasses = np.array([self.get_total_biomass(p, p.sol, sim_t_idx) for sim_t_idx, t in enumerate(p.t)])
+                total_biomasses = np.array(
+                    [
+                        self.get_total_biomass(p, p.sol, sim_t_idx)
+                        for sim_t_idx, t in enumerate(p.t)
+                    ]
+                )
                 sim_sol = p.sol[:, self.get_solution_index(p, key_pair[1])]
 
                 abundance_sol = sim_sol / total_biomasses
 
-                data_dict['dataset_label'].append('simulation')
-                data_dict['species_label'].append(key_pair[1])
-                data_dict['abundance'].append(abundance_sol[-1])
+                data_dict["dataset_label"].append("simulation")
+                data_dict["species_label"].append(key_pair[1])
+                data_dict["abundance"].append(abundance_sol[-1])
 
             df = pd.DataFrame.from_dict(data_dict)
-            title_str = ''
+            title_str = ""
             for idx, d in enumerate(p.distance):
-                title_str += p.model_names[idx][:3] + ' ' + str(round(d, 3))
-                title_str += '  '
+                title_str += p.model_names[idx][:3] + " " + str(round(d, 3))
+                title_str += "  "
             # Make figure
             fig = px.bar(df, x="dataset_label", y="abundance", color="species_label")
             fig.update_layout(template="simple_white", title=title_str)
@@ -347,20 +371,26 @@ class DataAnalysis:
             # fig.update_yaxes(title="Abundance", type='log')
             fig.write_image(f"{self.output_dir}/abundance_bar_particle_{p_idx}.png")
 
+
 def vis_multi():
     data_directories = [
         "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/output/mel_mixes_growth/mel_multi_mix2_m2_growers_test/"
     ]
 
     mix_target_data_path = "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/experimental_data/mel_target_data/target_data_pH7_Mix2_Med2.csv"
-    
+
     target_data_path = mix_target_data_path
 
     for x in data_directories:
         d = DataAnalysis(experiment_dir=x, data_path=target_data_path)
         # d.particles = d.filter_particles_by_distance([100.0, 0.2, 0.2, 0.5, 0.25, 100.0])
 
-        d.plot_tsne(include_init_metabolites=False, include_lb_constraints=True, include_k_values=False, include_init_species=False)
+        d.plot_tsne(
+            include_init_metabolites=False,
+            include_lb_constraints=True,
+            include_k_values=False,
+            include_init_species=False,
+        )
         d.plot_abundance_bar()
         d.plot_distance_distributions()
         d.plot_population_timeseries(plot_n_particles=100)
@@ -383,15 +413,15 @@ def vis_indiv():
             # print(f'epsilon: {epsilon}', f'particles: {len(d.filter_particles_by_distance([epsilon]))}')
             epsilon += 0.01
 
-        
         d.particles = d.filter_particles_by_distance([epsilon])
 
-        print(x, f'epsilon: {epsilon}', f'particles: {len(d.particles)}')
+        print(x, f"epsilon: {epsilon}", f"particles: {len(d.particles)}")
 
         d.plot_distance_distributions()
         d.plot_population_timeseries(plot_n_particles=100)
         d.plot_fold_change_timeseries(plot_n_particles=100)
         d.plot_population_abundance_timeseries(plot_n_particles=100)
+
 
 if __name__ == "__main__":
     vis_multi()
