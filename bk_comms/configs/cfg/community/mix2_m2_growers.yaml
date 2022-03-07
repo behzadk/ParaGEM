@@ -1,12 +1,12 @@
 _convert_: partial
 _target_: bk_comms.community.Community
 initial_populations:
-- 0.000327941
-- 0.000299055
-- 0.000000000
-- 0.000434989
-- 0.000036702
-- 0.003901312
+- 0.0001
+- 0.0001
+- 0.0001
+- 0.0001
+- 0.0001
+- 0.0001
 
 media_name: M2
 media_path: ${cfg.wd}/media/melanie_data_media.tsv
