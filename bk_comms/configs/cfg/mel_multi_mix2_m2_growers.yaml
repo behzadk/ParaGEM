@@ -1,9 +1,9 @@
 wd: /Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/
 run_idx: 999
-output_dir: ${cfg.wd}/output/mel_mixes_growth/mel_multi_mix2_m2_growers/run_${cfg.run_idx}/
+output_dir: ${cfg.wd}/output/mel_mixes_growth/mel_multi_mix2_m2_growers_test/run_${cfg.run_idx}/
 
 # Information about the data being used
-exp_data_path: ${cfg.wd}/experimental_data/mel_target_data/target_data_pH71_Mix2_Med2.csv
+exp_data_path: ${cfg.wd}/experimental_data/mel_target_data/target_data_pH7_Mix2_Med2.csv
 exp_sol_keys:
   - - B_longum_subsp_longum
     - B_longum_subsp_longum
