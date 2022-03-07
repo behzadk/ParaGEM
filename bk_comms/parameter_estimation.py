@@ -5,8 +5,6 @@ import pickle
 import numpy as np
 
 import multiprocess as mp
-from pathos.multiprocessing import ProcessPool
-from matplotlib.backends.backend_pdf import PdfPages
 import time
 from loguru import logger
 from pathlib import Path
@@ -15,69 +13,9 @@ import psutil
 import os
 
 from sympy.core.cache import *
-import functools
-
-from contextlib import contextmanager
-import signal
 import time
 import sys
 
-def clear_lrus():
-    gc.collect()
-    wrappers = [
-        a for a in gc.get_objects() if isinstance(a, functools._lru_cache_wrapper)
-    ]
-
-    for wrapper in wrappers:
-        wrapper.cache_clear()
-
-
-def simulate_particles(particles, n_processes=1, sim_timeout=360.0, parallel=True):
-    if parallel:
-        print("running parallel")
-
-        def wrapper(args):
-            idx, args = args
-            sol, t = sim_community(args)
-            return (idx, sol, t)
-
-        pool = mp.get_context("spawn").Pool(n_processes, maxtasksperchild=1)
-        futures_mp_sol = pool.imap_unordered(wrapper, enumerate(particles))
-
-        for particle in particles:
-            try:
-                idx, sol, t = futures_mp_sol.next(timeout=sim_timeout)
-                particles[idx].sol = sol
-                particles[idx].t = t
-
-            except mp.context.TimeoutError:
-                print("TIMEOUT ERROR")
-                break
-
-        print("Terminating pool")
-        pool.terminate()
-
-        for idx, p in enumerate(particles):
-            if not hasattr(p, "sol"):
-                print(f"Particle {idx} has no sol")
-                p.sol = None
-                p.t = None
-    else:
-        p_idx = 0
-        for p in particles:
-            start = time.time()
-            print(f"Simulating particle idx: {p_idx}")
-            output = sim_community(p)
-            p.sol = output[0]
-            p.t = output[1]
-            p_idx += 1
-            end = time.time()
-            print("Sim time: ", end - start)
-
-
-def sim_community(community):
-    sol, t = community.simulate_community("vode")
-    return [sol, t]
 
 
 class ParameterEstimation:
@@ -178,8 +116,6 @@ class ParameterEstimation:
         with open(checkpoint_path, "rb") as f:
             return pickle.load(f)
 
-    def simulate_particle(self, particle):
-        return self.simulator.simulate(particle)
 
 
 class GeneticAlgorithm(ParameterEstimation):
@@ -289,7 +225,6 @@ class GeneticAlgorithm(ParameterEstimation):
             )[0]
             mut_params_vec = mut_particle.generate_parameter_vector()
 
-            vec_before = particle_param_vec.copy()
 
             for idx in range(len(particle_param_vec)):
                 particle_param_vec[idx] = np.random.choice(

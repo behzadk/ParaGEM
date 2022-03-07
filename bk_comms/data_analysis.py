@@ -1,7 +1,6 @@
 import numpy as np
 import pickle
 import matplotlib.pyplot as plt
-import seaborn as sns
 from glob import glob
 from pathlib import Path
 import pandas as pd
