@@ -1,5 +1,6 @@
 _convert_: partial
 _target_: bk_comms.community.Community
+enable_toxin_interactions: false
 initial_populations:
 - 0.05
 media_name: null
@@ -8,5 +9,6 @@ model_names:
 - S_sonnei
 model_paths:
 - ${cfg.wd}/models/melanie_data_models/S_sonnei.xml
+objective_reaction_keys:
+- Growth
 smetana_analysis_path: ${cfg.wd}/smetana_analysis/melanie_data_detailed.tsv
-use_parsimonius_fba: false
