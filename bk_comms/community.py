@@ -9,6 +9,8 @@ from scipy.integrate import ode
 
 from bk_comms import utils
 import cobra
+from cobra import Model, Reaction, Metabolite
+
 from scipy.integrate import odeint
 
 from loguru import logger
@@ -24,15 +26,14 @@ class Population:
     def __init__(
         self,
         name,
-        model_path,
+        model,
         dynamic_compounds,
         reaction_keys,
         media_df,
-        use_parsimonius_fba=False,
     ):
         self.name = name
         logger.info(f"Loading model {name}")
-        self.model = self.load_model(model_path)
+        self.model = model
         self.media_df = media_df
 
         self.dynamic_compounds = dynamic_compounds
@@ -47,8 +48,6 @@ class Population:
             f"Model  {name}, setting media, mem usage (mb): {utils.get_mem_usage()}"
         )
         self.set_media()
-
-        self.use_parsimonius_fba = use_parsimonius_fba
 
     def load_model(self, model_path):
         """
@@ -110,11 +109,7 @@ class Population:
                 ).lower_bound = lower_constraints[idx]
 
     def optimize(self):
-        if self.use_parsimonius_fba:
-            self.opt_sol = cobra.flux_analysis.pfba(self.model)
-
-        else:
-            self.opt_sol = self.model.optimize()
+        self.opt_sol = self.model.optimize()
 
     def get_dynamic_compound_fluxes(self):
         compound_fluxes = np.zeros(len(self.dynamic_compounds))
@@ -133,19 +128,34 @@ class Population:
 class Community:
     def __init__(
         self,
-        model_names,
+        model_names: List[str],
         model_paths: List[str],
         smetana_analysis_path: str,
         media_path: str,
         media_name: str,
-        use_parsimonius_fba: bool,
         initial_populations: List[float],
+        objective_reaction_keys: List[str],
+        enable_toxin_interactions: bool,
     ):
         self.model_names = model_names
         self.model_paths = model_paths
+
+        # Load models
+        models = [
+            utils.load_model(model_path, model_name)
+            for model_path, model_name in zip(self.model_paths, self.model_names)
+        ]
+
+        if enable_toxin_interactions:
+            self.toxin_names = self.add_toxin_production_reactions(
+                models, model_names, objective_reaction_keys
+            )
+
+        else:
+            self.toxin_names = []
+
         self.smetana_analysis_path = smetana_analysis_path
         self.media_path = media_path
-        self.use_parsimonius_fba = use_parsimonius_fba
 
         self.media_df = pd.read_csv(self.media_path, delimiter="\t")
         self.media_df = self.media_df.loc[
@@ -158,13 +168,13 @@ class Community:
 
         self.reaction_keys = [x.replace("M_", "EX_") for x in self.dynamic_compounds]
 
+        # Initialise populations
         self.populations = self.load_populations(
             self.model_names,
-            self.model_paths,
+            models,
             self.dynamic_compounds,
             self.reaction_keys,
             self.media_df,
-            self.use_parsimonius_fba,
         )
 
         logger.info(f"Loading compound values")
@@ -190,6 +200,10 @@ class Community:
             np.ones(shape=[len(self.populations), len(self.dynamic_compounds)]) * -1
         )
 
+        self.set_toxin_mat(
+            np.zeros(shape=[len(self.populations), len(self.populations)])
+        )
+
         logger.info(f"Setting pop indexesmem usage (mb): {utils.get_mem_usage()}")
         self.population_indexes = self.set_population_indexes()
 
@@ -210,16 +224,86 @@ class Community:
 
         gc.collect()
 
+    def add_toxin_production_reactions(
+        self, models, model_names, objective_keys, toxin_production_rate=1.0
+    ):
+        """
+        Adds a new metabolite to each model, precursor and toxin production reactions,
+        and an exchange reaction for the toxin
+        """
+
+        toxin_names = []
+        toxin_metabolites = []
+
+        for idx, _ in enumerate(models):
+            model = models[idx]
+            model_name = model_names[idx]
+            objective_key = objective_keys[idx]
+
+            toxin_name = f"toxin_{model_name}"
+
+            # Initialise toxin production and precursor transport reactions
+            reaction_precursor_toxin = Reaction("R_PRETOXIN")
+            reaction_toxin_transport = Reaction("R_TOXINt")
+
+            # Initialise metabolites
+            toxin_c = Metabolite(f"{toxin_name}_c", compartment="c")
+            pretoxin_c = Metabolite("pretoxin_c", compartment="c")
+            toxin_e = Metabolite(f"{toxin_name}_e", compartment="e")
+
+            # Add metabolites to model
+            model.add_metabolites([pretoxin_c, toxin_c, toxin_e])
+
+            # # Set toxin production stoichiometry
+            reaction_precursor_toxin.add_metabolites(
+                {pretoxin_c: toxin_production_rate}
+            )
+
+            reaction_toxin_transport.add_metabolites(
+                {toxin_c: -1 * toxin_production_rate, toxin_e: toxin_production_rate}
+            )
+
+            # Prevent upake of toxin, allow only export
+            reaction_toxin_transport.lower_bound = 0.0
+            reaction_toxin_transport.upper_bound = 1000
+
+            model.reactions.get_by_id(objective_key).add_metabolites(
+                {pretoxin_c: -1 * toxin_production_rate, toxin_c: toxin_production_rate}
+            )
+
+            model.add_reactions([reaction_precursor_toxin, reaction_toxin_transport])
+            model.add_boundary(
+                model.metabolites.get_by_id(f"{toxin_name}_e"), type="exchange"
+            )
+
+            toxin_names.append(toxin_name)
+            toxin_metabolites.append(toxin_e)
+
+        # Add exchange reactions for all toxins for each model
+        # ensuring each model is aware of other metabolite existance
+        for model_idx, model in enumerate(models):
+            for toxin_idx, toxin_name in enumerate(toxin_names):
+                print(toxin_name, model_names[idx])
+                try:
+                    model.metabolites.get_by_id(f"{toxin_name}_e")
+
+                except KeyError:
+                    model.add_boundary(toxin_metabolites[toxin_idx], type="exchange")
+
+        return toxin_names
+
     def generate_parameter_vector(self):
         # Initial conditions
-        # exchange_constraints
         # k values
+        # exchange_constraints
 
         initial_concs_vec = self.init_y.reshape(1, -1)
         k_val_vec = self.k_vals.reshape(1, -1)
         max_exchange_vec = self.max_exchange_mat.reshape(1, -1)
+        toxin_mat = self.toxin_mat.reshape(1, -1)
+
         param_vec = np.concatenate(
-            [initial_concs_vec, k_val_vec, max_exchange_vec], axis=1
+            [initial_concs_vec, k_val_vec, max_exchange_vec, toxin_mat], axis=1
         ).reshape(-1, 1)
 
         return param_vec
@@ -230,6 +314,8 @@ class Community:
             if particle_model_name in self.model_names:
                 particle_model_idx = particle.model_names.index(particle_model_name)
                 this_model_idx = self.model_names.index(particle_model_name)
+
+                print(particle_model_name, self.model_names[this_model_idx])
 
                 self.k_vals[this_model_idx] = particle.k_vals[particle_model_idx]
                 self.max_exchange_mat[this_model_idx] = particle.max_exchange_mat[
@@ -247,14 +333,31 @@ class Community:
         n_max_exchange_vals = (
             self.max_exchange_mat.shape[0] * self.max_exchange_mat.shape[1]
         )
+        n_toxin_vals = self.toxin_mat.shape[0] * self.toxin_mat.shape[1]
 
         self.init_y = parameter_vec[0:n_variables]
-        self.k_vals = parameter_vec[n_variables : n_variables + n_k_vals].reshape(
-            self.k_vals.shape
+        self.set_k_value_matrix(
+            parameter_vec[n_variables : n_variables + n_k_vals].reshape(
+                self.k_vals.shape
+            )
         )
-        self.max_exchange_mat = parameter_vec[
-            n_variables + n_k_vals : n_variables + n_k_vals + n_max_exchange_vals
-        ].reshape(self.max_exchange_mat.shape)
+
+        self.set_max_exchange_mat(
+            parameter_vec[
+                n_variables + n_k_vals : n_variables + n_k_vals + n_max_exchange_vals
+            ].reshape(self.max_exchange_mat.shape)
+        )
+
+        self.set_toxin_mat(
+            parameter_vec[
+                n_variables
+                + n_k_vals
+                + n_max_exchange_vals : n_variables
+                + n_k_vals
+                + n_max_exchange_vals
+                + n_toxin_vals
+            ].reshape(self.toxin_mat.shape)
+        )
 
     def load_initial_compound_values(self, dynamic_compounds):
         """
@@ -323,6 +426,13 @@ class Community:
         ), f"Error: shape of max_exchange_mat, {max_exchange_mat.shape} does not match expected  {(len(self.populations), len(self.dynamic_compounds))}"
         self.max_exchange_mat = max_exchange_mat
 
+    def set_toxin_mat(self, toxin_mat):
+        assert toxin_mat.shape == (
+            len(self.populations),
+            len(self.populations),
+        ), f"Error: shape of toxin_mat, {toxin_mat.shape} does not match expected  {(len(self.populations), len(self.populations))}"
+        self.toxin_mat = toxin_mat
+
     def set_solution_key_order(self):
         solution_keys = []
 
@@ -330,6 +440,10 @@ class Community:
             solution_keys.append(p.name)
 
         for m in self.dynamic_compounds:
+            solution_keys.append(m)
+
+        for m in self.toxin_names:
+            m = f"M_{m}_e"
             solution_keys.append(m)
 
         return solution_keys
@@ -341,7 +455,6 @@ class Community:
         dynamic_compounds,
         reaction_keys,
         media_df,
-        use_parsimonius_fba,
     ):
         """
         Load population objects from model paths
@@ -355,7 +468,6 @@ class Community:
                     dynamic_compounds,
                     reaction_keys,
                     media_df,
-                    use_parsimonius_fba,
                 )
             )
 
@@ -404,13 +516,15 @@ class Community:
             met for met in dynamic_compounds if met not in unconstrained_compounds
         ]
 
-        # Remove duplicates
-        dynamic_compounds = list(dict.fromkeys(dynamic_compounds))
+        # Remove duplicates and append toxins
+        # toxin_compounds = [f"M_{t}_e" for t in self.toxin_names]
+        dynamic_compounds = list(dict.fromkeys(dynamic_compounds))  # + toxin_compounds
 
         print(f"Total env compounds: {len(all_compounds)}")
         print(f"Crossfeeding compounds: {len(cross_feeding_compounds)}")
         print(f"Competition compounds: {len(competition_compounds)}")
         print(f"Media compounds: {len(media_compounds)}")
+        print(f"Toxin compounds: {len(self.toxin_names)}")
         print(f"Dynamic compounds: {len(dynamic_compounds)}")
 
         return dynamic_compounds

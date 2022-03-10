@@ -35,31 +35,6 @@ def run_algorithm(cfg: DictConfig):
     mutation_probability = cfg.algorithm.mutation_probability
     epsilon_alpha = cfg.algorithm.epsilon_alpha
 
-    logger.info("Instantiating algorithm")
-    simulator = instantiate(cfg.simulator)
-
-    logger.info("Community")
-
-    # base_community =  instantiate(cfg.community)
-    experiment_name = cfg.experiment_name
-    logger.info("Distance")
-
-    distance_object = instantiate(cfg.distance)
-    logger.info("uptake sampler")
-
-    max_uptake_sampler = instantiate(cfg.sampler.max_uptake_sampler)
-    logger.info("kval sampler")
-
-    k_val_sampler = instantiate(cfg.sampler.k_val_sampler)
-
-    logger.info("init pop sampler")
-    init_population_sampler = instantiate(cfg.sampler.init_population_sampler)
-    output_dir = cfg.output_dir
-
-    logger.info("filter")
-
-    print(cfg.filter)
-    filter = instantiate(cfg.filter)
     alg = instantiate(cfg.algorithm)
 
     # logger.info("Instantiating algorithm")

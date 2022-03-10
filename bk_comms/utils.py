@@ -10,6 +10,18 @@ from pathlib import Path
 import psutil
 import os
 import pickle
+import cobra
+
+
+def load_model(model_path, model_name):
+    """
+    Loads models from model paths
+    """
+
+    model = cobra.io.read_sbml_model(model_path, name=model_name)
+    model.solver = "cplex"
+
+    return model
 
 
 def find_nearest(array, value):
