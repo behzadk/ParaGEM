@@ -85,10 +85,7 @@ class CometsTimeSeriesSimulation:
         # will be overriden if defined in media file
         for idx, toxin_name in enumerate(community.toxin_names):
             toxin_name = toxin_name + "_e"
-            layout.set_specific_metabolite(
-                toxin_name, 0.0
-            )
-
+            layout.set_specific_metabolite(toxin_name, 0.0)
 
         # Set dynamic compound initial concentrations
         for idx, cmpd in enumerate(community.dynamic_compounds):
@@ -119,8 +116,8 @@ class CometsTimeSeriesSimulation:
         for idx_i, donor_pop in enumerate(community.populations):
             for idx_j, recipient_pop in enumerate(community.populations):
                 if community.toxin_mat[idx_i][idx_j] != 0:
-                    
-                    # Find the index of the toxin in the recipient 
+
+                    # Find the index of the toxin in the recipient
                     # population metabolite list
                     toxin_e_index = (
                         list(recipient_pop.model.get_exchange_metabolites()).index(
@@ -167,12 +164,11 @@ class CometsTimeSeriesSimulation:
                     for t_val in t:
                         t_idx = utils.find_nearest(s_df["t"].values, t_val)
                         sol[:, idx][t_idx] = s_df[s].values[t_idx]
-                
+
                 except KeyError:
                     for t_val in t:
                         t_idx = utils.find_nearest(s_df["t"].values, t_val)
                         sol[:, idx][t_idx] = np.nan
-
 
         return sol, t
 

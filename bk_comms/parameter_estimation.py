@@ -19,7 +19,12 @@ import sys
 
 class ParameterEstimation:
     def init_particles(
-        self, init_population_sampler, max_uptake_sampler, k_val_sampler, toxin_interaction_sampler, n_particles
+        self,
+        init_population_sampler,
+        max_uptake_sampler,
+        k_val_sampler,
+        toxin_interaction_sampler,
+        n_particles,
     ):
         particles = np.zeros(shape=n_particles, dtype=object)
 
@@ -39,15 +44,14 @@ class ParameterEstimation:
                     size=[1, len(comm.populations)]
                 )
                 comm.set_initial_populations(populations_vec[0])
-            
+
             # Check if toxin interactions exist
             if toxin_interaction_sampler is not None:
                 toxin_mat = toxin_interaction_sampler.sample(
                     size=[len(comm.populations), len(comm.populations)]
                 )
-                
+
                 comm.set_toxin_mat(toxin_mat)
-                
 
             # Sample new max uptake matrix
             max_exchange_mat = max_uptake_sampler.sample(size=array_size)
@@ -203,7 +207,7 @@ class GeneticAlgorithm(ParameterEstimation):
             self.max_uptake_sampler,
             self.k_val_sampler,
             self.toxin_interaction_sampler,
-            n_particles
+            n_particles,
         )
 
         for p_batch_idx in range(n_particles):
@@ -254,7 +258,7 @@ class GeneticAlgorithm(ParameterEstimation):
 
             particles = []
             filter_iteration = 0
-            while len(particles) <= self.n_particles_batch:                
+            while len(particles) <= self.n_particles_batch:
                 candidate_particles = self.init_particles(
                     self.init_population_sampler,
                     self.max_uptake_sampler,

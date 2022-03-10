@@ -49,7 +49,6 @@ class Population:
         )
         self.set_media()
 
-
     def load_model(self, model_path):
         """
         Loads models from model paths
@@ -136,20 +135,25 @@ class Community:
         media_name: str,
         initial_populations: List[float],
         objective_reaction_keys: List[str],
-        enable_toxin_interactions: bool
+        enable_toxin_interactions: bool,
     ):
         self.model_names = model_names
         self.model_paths = model_paths
 
         # Load models
-        models = [utils.load_model(model_path, model_name) for model_path, model_name in zip(self.model_paths, self.model_names)]
+        models = [
+            utils.load_model(model_path, model_name)
+            for model_path, model_name in zip(self.model_paths, self.model_names)
+        ]
 
         if enable_toxin_interactions:
-            self.toxin_names = self.add_toxin_production_reactions(models, model_names, objective_reaction_keys)
+            self.toxin_names = self.add_toxin_production_reactions(
+                models, model_names, objective_reaction_keys
+            )
 
         else:
             self.toxin_names = []
-        
+
         self.smetana_analysis_path = smetana_analysis_path
         self.media_path = media_path
 
@@ -163,7 +167,6 @@ class Community:
         )
 
         self.reaction_keys = [x.replace("M_", "EX_") for x in self.dynamic_compounds]
-
 
         # Initialise populations
         self.populations = self.load_populations(
@@ -221,9 +224,11 @@ class Community:
 
         gc.collect()
 
-    def add_toxin_production_reactions(self, models, model_names, objective_keys, toxin_production_rate=1.0):
+    def add_toxin_production_reactions(
+        self, models, model_names, objective_keys, toxin_production_rate=1.0
+    ):
         """
-        Adds a new metabolite to each model, precursor and toxin production reactions, 
+        Adds a new metabolite to each model, precursor and toxin production reactions,
         and an exchange reaction for the toxin
         """
 
@@ -238,39 +243,39 @@ class Community:
             toxin_name = f"toxin_{model_name}"
 
             # Initialise toxin production and precursor transport reactions
-            reaction_precursor_toxin = Reaction('R_PRETOXIN')
-            reaction_toxin_transport = Reaction('R_TOXINt')
+            reaction_precursor_toxin = Reaction("R_PRETOXIN")
+            reaction_toxin_transport = Reaction("R_TOXINt")
 
             # Initialise metabolites
-            toxin_c = Metabolite(f'{toxin_name}_c', compartment='c')
-            pretoxin_c = Metabolite('pretoxin_c', compartment='c')
-            toxin_e = Metabolite(f"{toxin_name}_e", compartment='e')
+            toxin_c = Metabolite(f"{toxin_name}_c", compartment="c")
+            pretoxin_c = Metabolite("pretoxin_c", compartment="c")
+            toxin_e = Metabolite(f"{toxin_name}_e", compartment="e")
 
             # Add metabolites to model
             model.add_metabolites([pretoxin_c, toxin_c, toxin_e])
 
             # # Set toxin production stoichiometry
-            reaction_precursor_toxin.add_metabolites({
-                pretoxin_c: toxin_production_rate
-            })
+            reaction_precursor_toxin.add_metabolites(
+                {pretoxin_c: toxin_production_rate}
+            )
 
-            reaction_toxin_transport.add_metabolites({
-                toxin_c: -1 * toxin_production_rate,
-                toxin_e: toxin_production_rate
-            })
+            reaction_toxin_transport.add_metabolites(
+                {toxin_c: -1 * toxin_production_rate, toxin_e: toxin_production_rate}
+            )
 
             # Prevent upake of toxin, allow only export
             reaction_toxin_transport.lower_bound = 0.0
             reaction_toxin_transport.upper_bound = 1000
 
-            model.reactions.get_by_id(objective_key).add_metabolites({
-                pretoxin_c: -1 * toxin_production_rate,
-                toxin_c: toxin_production_rate
-            })
+            model.reactions.get_by_id(objective_key).add_metabolites(
+                {pretoxin_c: -1 * toxin_production_rate, toxin_c: toxin_production_rate}
+            )
 
             model.add_reactions([reaction_precursor_toxin, reaction_toxin_transport])
-            model.add_boundary(model.metabolites.get_by_id(f"{toxin_name}_e"), type="exchange")
-            
+            model.add_boundary(
+                model.metabolites.get_by_id(f"{toxin_name}_e"), type="exchange"
+            )
+
             toxin_names.append(toxin_name)
             toxin_metabolites.append(toxin_e)
 
@@ -281,13 +286,12 @@ class Community:
                 print(toxin_name, model_names[idx])
                 try:
                     model.metabolites.get_by_id(f"{toxin_name}_e")
-                
+
                 except KeyError:
                     model.add_boundary(toxin_metabolites[toxin_idx], type="exchange")
 
-
         return toxin_names
-    
+
     def generate_parameter_vector(self):
         # Initial conditions
         # k values
@@ -441,7 +445,6 @@ class Community:
         for m in self.toxin_names:
             m = f"M_{m}_e"
             solution_keys.append(m)
-
 
         return solution_keys
 
