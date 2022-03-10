@@ -81,6 +81,15 @@ class CometsTimeSeriesSimulation:
                 model.change_km(cmpd_str, k_values[cmpd_idx])
 
     def set_layout_metabolite_concentrations(self, layout, community):
+        # Set toxin compound initial concentrations to zero
+        # will be overriden if defined in media file
+        for idx, toxin_name in enumerate(community.toxin_names):
+            toxin_name = toxin_name + "_e"
+            layout.set_specific_metabolite(
+                toxin_name, 0.0
+            )
+
+
         # Set dynamic compound initial concentrations
         for idx, cmpd in enumerate(community.dynamic_compounds):
             metabolite_str = cmpd.replace("M_", "")
@@ -105,6 +114,28 @@ class CometsTimeSeriesSimulation:
         for idx, pop in enumerate(community.populations):
             model_init_pop = community.init_population_values[idx]
             pop.model.initial_pop = [0, 0, model_init_pop]
+
+    def set_toxin_interactions(self, layout, community):
+        for idx_i, donor_pop in enumerate(community.populations):
+            for idx_j, recipient_pop in enumerate(community.populations):
+                if community.toxin_mat[idx_i][idx_j] != 0:
+                    
+                    # Find the index of the toxin in the recipient 
+                    # population metabolite list
+                    toxin_e_index = (
+                        list(recipient_pop.model.get_exchange_metabolites()).index(
+                            f"toxin_{donor_pop.name}_e"
+                        )
+                        + 1
+                    )
+
+                    recipient_pop.model.add_signal(
+                        rxn_num="death",
+                        exch_ind=toxin_e_index,
+                        bound="met_unchanged",
+                        function="linear",
+                        parms=[community.toxin_mat[idx_i][idx_j], 0.0],
+                    )
 
     def load_layout_models(self, layout, community):
         for pop in community.populations:
@@ -131,10 +162,17 @@ class CometsTimeSeriesSimulation:
 
             else:
                 s = s.replace("M_", "")
-                s_df = met_df[[s, "t"]]
-                for t_val in t:
-                    t_idx = utils.find_nearest(s_df["t"].values, t_val)
-                    sol[:, idx][t_idx] = s_df[s].values[t_idx]
+                try:
+                    s_df = met_df[[s, "t"]]
+                    for t_val in t:
+                        t_idx = utils.find_nearest(s_df["t"].values, t_val)
+                        sol[:, idx][t_idx] = s_df[s].values[t_idx]
+                
+                except KeyError:
+                    for t_val in t:
+                        t_idx = utils.find_nearest(s_df["t"].values, t_val)
+                        sol[:, idx][t_idx] = np.nan
+
 
         return sol, t
 
@@ -148,6 +186,7 @@ class CometsTimeSeriesSimulation:
 
         self.set_lb_constraint(layout, community)
         self.set_k_values(layout, community)
+        self.set_toxin_interactions(layout, community)
 
         layout.media.reset_index(inplace=True)
 
@@ -160,6 +199,7 @@ class CometsTimeSeriesSimulation:
         sim_params.set_param("maxSpaceBiomass", 10)
         sim_params.set_param("minSpaceBiomass", 1e-11)
         sim_params.set_param("writeMediaLog", True)
+        sim_params.set_param("MediaLogRate", 1)
 
         # Optional parameters
         if self.batch_dilution:
@@ -184,7 +224,7 @@ class CometsTimeSeriesSimulation:
             "jdistlib", f"{self.comets_home_dir}/lib/jdistlib/jdistlib-0.4.5-bin.jar"
         )
 
-        experiment.run()
+        experiment.run(delete_files=False)
 
         sol, t = self.process_experiment(community, experiment)
 
@@ -230,7 +270,7 @@ class CometsTimeSeriesSimulation:
             for p in particles:
                 start = time.time()
                 print(f"Simulating particle idx: {p_idx}")
-                sol, t = self.simulate(p)
+                sol, t, experiment = self.simulate(p)
                 p.sol = sol
                 p.t = t
                 p_idx += 1
