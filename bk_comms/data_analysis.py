@@ -13,6 +13,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from sklearn import manifold
 
+import pygmo
 
 colours = [
     "#003f5c",
@@ -102,16 +103,26 @@ class DataAnalysis:
 
         k_val_cols = []
         lb_constraint_cols = []
-
+        toxin_cols = []
+        
         for m in init_particle.model_names:
             # Make column headings
             k_val_cols += [f"K_{x}_{m}" for x in init_particle.dynamic_compounds]
             lb_constraint_cols += [
                 f"lb_constr_{x}_{m}" for x in init_particle.dynamic_compounds
             ]
+
+        
+        # Make toxin interaction headings
+        for donor_model in init_particle.model_names:
+            for recipient_model in init_particle.model_names:
+                toxin_cols += [
+                    f"toxin_{donor_model}_{recipient_model}"
+                ]
+
         column_headings = []
         column_headings += (
-            init_conc_cols + init_species_col + k_val_cols + lb_constraint_cols
+            init_conc_cols + init_species_col + k_val_cols + lb_constraint_cols + toxin_cols
         )
 
         parameters = np.zeros([len(particles), len(column_headings)])
@@ -121,6 +132,16 @@ class DataAnalysis:
         df = pd.DataFrame(data=parameters, columns=column_headings)
 
         return df
+
+    def get_particle_distances(self, particles):
+        n_distances = len(particles[0].distance)
+        n_particles = len(particles)
+        distances = np.zeros(shape=[n_particles, n_distances])
+
+        for idx, p in enumerate(particles):
+            distances[idx] = p.distance
+
+        return distances
 
     def plot_tsne(
         self,
@@ -150,6 +171,27 @@ class DataAnalysis:
         fig = px.scatter(x=tsne[:, 0], y=tsne[:, 1])
         fig.update_layout(template="simple_white", width=800, height=800)
         fig.write_image(f"{self.output_dir}/parameter_tsne.png")
+
+    def plot_paerto_front(self):
+        distances = self.get_particle_distances(self.particles)
+        ndf, dl, dc, ndr = pygmo.fast_non_dominated_sorting(distances)
+        
+        front_1_distances = distances[ndf[0]]
+
+        for idx_i, name_i in enumerate(self.particles[0].model_names):
+         for idx_j, name_j in enumerate(self.particles[0].model_names):
+            if idx_i == idx_j:
+                continue
+            
+            fig = px.scatter(x=front_1_distances[:, idx_i], y=front_1_distances[:, idx_j])
+            fig.update_xaxes(
+            title_text = name_i)
+
+            fig.update_yaxes(
+                    title_text = name_j)
+
+            fig.write_image(f"{self.output_dir}/pareto_front_{idx_i}_{idx_j}.png")
+
 
     def plot_population_timeseries(self, plot_n_particles=10):
         n_sol_keys = len(self.config["exp_sol_keys"])
@@ -372,6 +414,7 @@ class DataAnalysis:
             fig.write_image(f"{self.output_dir}/abundance_bar_particle_{p_idx}.png")
 
 
+
 def vis_multi():
     data_directories = [
         "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/output/mel_mixes_growth/mel_multi_mix2_m2_growers_test/"
@@ -384,6 +427,16 @@ def vis_multi():
     for x in data_directories:
         d = DataAnalysis(experiment_dir=x, data_path=target_data_path)
         # d.particles = d.filter_particles_by_distance([100.0, 0.2, 0.2, 0.5, 0.25, 100.0])
+        d.plot_paerto_front()
+
+        distances = d.get_particle_distances(d.particles)
+        ndf, dl, dc, ndr = pygmo.fast_non_dominated_sorting(distances)
+
+        d.particles = [ d.particles[idx]  for idx in ndf[0]]
+
+        for p in d.particles:
+            print(p.toxin_mat.sum())
+
 
         d.plot_tsne(
             include_init_metabolites=False,
@@ -391,6 +444,7 @@ def vis_multi():
             include_k_values=False,
             include_init_species=False,
         )
+
         d.plot_abundance_bar()
         d.plot_distance_distributions()
         d.plot_population_timeseries(plot_n_particles=100)
