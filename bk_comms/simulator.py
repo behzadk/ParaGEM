@@ -322,6 +322,8 @@ class GrowthRate:
         n_populations = len(particle.populations)
         particle_growth_rates = np.zeros(shape=[1, n_populations])
 
+        particle.set_init_y()
+        
         growth_rates, flux_matrix = particle.sim_step(particle.init_y)
         particle_growth_rates[0] = growth_rates
 
