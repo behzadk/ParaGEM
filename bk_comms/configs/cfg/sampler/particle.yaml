@@ -1,0 +1,53 @@
+max_uptake_sampler:
+  _target_: bk_comms.sampling.SampleCombinationParticles
+  input_experiment_dirs: 
+    - ${cfg.wd}/output/mel_indiv_growth/exp_B_longum_subsp_longum_ga_fit_batch_tests/
+    - ${cfg.wd}/output/mel_indiv_growth/exp_C_perfringens_S107_ga_fit_batch_tests/
+
+  epsilon:
+    - - 0.25
+    - - 1.17
+
+  population_names:
+    - B_longum_subsp_longum
+    - C_perfringens_S107
+  growth_keys:
+    - Growth
+    - Growth
+
+  min_growth:
+    - -1
+    - -1
+
+  max_growth:
+    - 100.0
+    - 100.0
+
+
+
+k_val_sampler:
+  _target_: bk_comms.sampling.SampleUniform
+  min_val: 1e-10
+  max_val: 3.0
+  distribution_type: "log_uniform"
+
+toxin_interaction_sampler:
+  _target_: bk_comms.sampling.MultiDistribution
+  dist_1:
+    _target_: bk_comms.sampling.SampleUniform
+    min_val: 0
+    max_val: 0
+    distribution_type: "uniform"
+  dist_2:
+    _target_: bk_comms.sampling.SampleUniform
+    min_val: 10
+    max_val: 10000
+    distribution_type: "log_uniform"
+  prob_dist_1: 0.95
+
+init_population_sampler:
+  _target_: bk_comms.sampling.SampleUniform
+  min_val: 0.0001
+  max_val: 0.0004
+  distribution_type: "log_uniform"
+

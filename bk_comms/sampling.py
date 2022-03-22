@@ -1,4 +1,7 @@
 import numpy as np
+from bk_comms import utils
+from loguru import logger
+import gc
 
 
 class SampleDistribution:
@@ -96,3 +99,106 @@ class SampleUniform(SampleDistribution):
             raise ValueError("incorrect distribution definition")
 
         return mat
+
+
+class SampleCombinationParticles:
+    def __init__(
+        self,
+        input_experiment_dirs,
+        epsilon,
+        population_names,
+        growth_keys,
+        min_growth,
+        max_growth,
+    ):
+        self.input_experiment_dirs = input_experiment_dirs
+        self.population_names = population_names
+        self.growth_keys = growth_keys
+        self.min_growth = min_growth
+        self.max_growth = max_growth
+
+        repeat_prefix = "run_"
+        run_dirs = [
+            utils.get_experiment_repeat_directories(
+                exp_dir=x, repeat_prefix=repeat_prefix
+            )
+            for x in self.input_experiment_dirs
+        ]
+
+        particles_dict = self.load_particles(run_dirs, self.population_names, epsilon)
+        self.params_dict = self.generate_parameter_dict(particles_dict)
+
+        self.particle_counts = {}
+        for p in self.population_names:
+            self.particle_counts[p] = len(self.params_dict[p]["k_vals"])
+
+    def load_particles(self, run_dirs, population_names, epsilon):
+
+        particles = {}
+
+        for idx, x in enumerate(run_dirs):
+            logger.info(f"Loading {x},  mem usage (mb): {utils.get_mem_usage()}")
+            gc.collect()
+
+            filtered_particles = utils.load_all_particles(x, epsilon[idx])
+
+            # Clean up unwanted data
+            for p in filtered_particles:
+                del p.sol
+                del p.t
+                del p.media_df
+                p.set_init_y()
+
+            particles[population_names[idx]] = filtered_particles
+
+        return particles
+
+    def generate_parameter_dict(self, particles_dict):
+        # Unpack particles into parameters dictionary. Each key refers
+        # to a population name
+        params = {}
+
+        for key in particles_dict:
+            params[key] = {}
+            params[key]["k_vals"] = []
+            params[key]["max_exchange_mat"] = []
+            params[key]["initial_population"] = []
+
+            for p in particles_dict[key]:
+                params[key]["k_vals"].append(p.k_vals)
+                params[key]["max_exchange_mat"].append(p.max_exchange_mat)
+                params[key]["initial_population"].append(p.init_population_values)
+
+        return params
+
+    def generate_random_index_combination(self):
+        index_combination = {}
+        for p in self.population_names:
+            index_combination[p] = np.random.randint(0, self.particle_counts[p])
+
+        return index_combination
+
+    def sample(
+        self,
+        model_names,
+        data_field,
+        index_combination=None,
+    ):
+        legal_data_fields = ["k_vals", "max_exchange_mat", "initial_population"]
+        assert (
+            data_field in legal_data_fields
+        ), f"{data_field} not in legal datafields: {legal_data_fields}"
+        output_sample = {}
+
+        if index_combination is None:
+            index_combination = self.generate_random_index_combination()
+
+        sampled_data = []
+
+        for name in model_names:
+            idx = index_combination[name]
+            output_data = self.params_dict[name][data_field][idx]
+
+            sampled_data.append(output_data)
+
+        return np.array(sampled_data), index_combination

@@ -5,18 +5,10 @@ output_dir: ${cfg.wd}/output/mel_mixes_growth/mel_multi_mix2_m2_growers_test/run
 # Information about the data being used
 exp_data_path: ${cfg.wd}/experimental_data/mel_target_data/target_data_pH7_Mix2_Med2.csv
 exp_sol_keys:
-  - - B_longum_subsp_longum
-    - B_longum_subsp_longum
   - - C_perfringens_S107
     - C_perfringens_S107
   - - E_coli_IAI1
     - E_coli_IAI1
-  - - L_paracasei
-    - L_paracasei
-  - - L_plantarum
-    - L_plantarum
-  - - S_salivarius
-    - S_salivarius
 
 exp_t_key: time
 experiment_name: none
@@ -24,27 +16,19 @@ experiment_name: none
 epsilon:
   - 100.0
   - 100.0
-  - 100.0
-  - 100.0
-  - 100.0
-  - 100.0
 
 final_epsilon:
-  - 100.0
-  - 100.0
-  - 100.0
-  - 100.0
   - 100.0
   - 100.0
 
 defaults:
   - _self_
-  - community: mix2_m2_growers
-  - algorithm: genetic_algorithm
+  - community: mix2_m2_growers_ecol_perf
+  - algorithm: NSGAII
   - simulator: time_series_comets_batch_dilution
-  - sampler: sampler_mix2_m2_growers
+  - sampler: sampler_mix2_m2_growers_E_P
   - distance: abundance_error
   
-filter: null
+filter:
 parallel: True
 n_processes: 8
