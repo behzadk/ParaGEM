@@ -8,6 +8,7 @@ import time
 from scipy.integrate import ode
 
 from bk_comms import utils
+from bk_comms.sampling import SampleDistribution, SampleCombinationParticles
 import cobra
 from cobra import Model, Reaction, Metabolite
 
@@ -136,9 +137,18 @@ class Community:
         initial_populations: List[float],
         objective_reaction_keys: List[str],
         enable_toxin_interactions: bool,
+        initial_population_prior: SampleDistribution=None,
+        max_exchange_prior: SampleDistribution=None,
+        k_val_prior: SampleDistribution=None,
+        toxin_interaction_prior: SampleDistribution=None,
     ):
         self.model_names = model_names
         self.model_paths = model_paths
+
+        self.initial_population_prior = initial_population_prior
+        self.max_exchange_prior = max_exchange_prior
+        self.k_val_prior = k_val_prior
+        self.toxin_interaction_prior = toxin_interaction_prior
 
         # Load models
         models = [
@@ -223,6 +233,61 @@ class Community:
         )
 
         gc.collect()
+
+    def sample_parameters_from_prior(self):
+        """
+        Samples and sets community parameters and initial populations from
+        prior distribution samplers
+        """
+        n_populations = len(self.populations)
+        n_dynamic_compounds = len(self.dynamic_compounds)
+
+        # If distributions exist, sample from them and set parameters.
+        # Special case used if prior is from existing particles,
+
+        particle_sampler_flags = [isinstance(x, SampleCombinationParticles) for x in [self.initial_population_prior]]
+
+        if any(particle_sampler_flags):
+            index_combination = None
+
+
+        if self.initial_population_prior is not None:
+            if isinstance(self.initial_population_prior, SampleCombinationParticles):
+                populations_vec = sampler.sample(model_names, data_field='initial_population', index_combination=index_combination)
+
+            else:
+                populations_vec = self.initial_population_prior.sample(
+                    size=[1, n_populations]
+                )
+
+            populations_vec.reshape(1, -1)
+            self.set_initial_populations(populations_vec)
+
+        if self.max_exchange_prior is not None:
+            if isinstance(self.initial_population_prior, SampleCombinationParticles):
+                max_exchange_mat = sampler.sample(model_names, data_field='max_exchange_mat', index_combination=index_combination)
+            
+            else:
+                max_exchange_mat = self.max_exchange_prior.sample(
+                    size=[n_populations, n_dynamic_compounds]
+                )
+            self.set_max_exchange_mat(max_exchange_mat)
+
+        if self.k_val_prior is not None:
+            if isinstance(self.k_val_prior, SampleCombinationParticles):
+                k_val_mat = sampler.sample(model_names, data_field='k_vals', index_combination=index_combination)
+            
+            else:
+                k_val_mat = self.k_val_prior.sample(
+                    size=[n_populations, n_dynamic_compounds]
+                )
+            self.set_k_value_matrix(k_val_mat)
+
+        if self.toxin_interaction_prior is not None:
+            toxin_mat = self.toxin_interaction_prior.sample(
+                size=[n_populations, n_populations]
+            )
+            self.set_toxin_mat(toxin_mat)
 
     def add_toxin_production_reactions(
         self, models, model_names, objective_keys, toxin_production_rate=1.0
