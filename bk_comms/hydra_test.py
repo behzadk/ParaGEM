@@ -24,16 +24,11 @@ def run_algorithm(cfg: DictConfig):
     OmegaConf.save(cfg, f"{cfg.cfg.output_dir}/cfg.yaml")
 
     cfg = cfg["cfg"]
-
+    
     logger.remove()
     logger.add(f"{cfg.output_dir}info_log.log", level="DEBUG")
 
-    # alg = instantiate(cfg.algorithm)
-
-    n_particles_batch = cfg.algorithm.n_particles_batch
-    population_size = cfg.algorithm.population_size
-    mutation_probability = cfg.algorithm.mutation_probability
-    epsilon_alpha = cfg.algorithm.epsilon_alpha
+    print(cfg['filter'])
 
     alg = instantiate(cfg.algorithm)
 
