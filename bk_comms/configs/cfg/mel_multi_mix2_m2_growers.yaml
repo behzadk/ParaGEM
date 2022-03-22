@@ -42,9 +42,9 @@ defaults:
   - community: mix2_m2_growers
   - algorithm: genetic_algorithm
   - simulator: time_series_comets_batch_dilution
-  - sampler: default_log_uniform_toxin_population
+  - sampler: sampler_mix2_m2_growers
   - distance: abundance_error
-  - filter: combine_mix2_growers
-
+  
+filter: null
 parallel: True
 n_processes: 8
