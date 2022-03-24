@@ -245,27 +245,21 @@ class Community:
         # If distributions exist, sample from them and set parameters.
         # Special case used if prior is from existing particles,
 
-        particle_sampler_flags = [isinstance(x, SampleCombinationParticles) for x in [self.initial_population_prior]]
-
-        if any(particle_sampler_flags):
-            index_combination = None
-
-
         if self.initial_population_prior is not None:
             if isinstance(self.initial_population_prior, SampleCombinationParticles):
-                populations_vec = sampler.sample(model_names, data_field='initial_population', index_combination=index_combination)
+                populations_vec = self.initial_population_prior.sample(self.model_names, data_field='initial_population')
 
             else:
                 populations_vec = self.initial_population_prior.sample(
-                    size=[1, n_populations]
+                    size=[n_populations]
                 )
 
             populations_vec.reshape(1, -1)
             self.set_initial_populations(populations_vec)
 
         if self.max_exchange_prior is not None:
-            if isinstance(self.initial_population_prior, SampleCombinationParticles):
-                max_exchange_mat = sampler.sample(model_names, data_field='max_exchange_mat', index_combination=index_combination)
+            if isinstance(self.max_exchange_prior, SampleCombinationParticles):
+                max_exchange_mat = self.max_exchange_prior.sample(self.model_names, data_field='max_exchange_mat')
             
             else:
                 max_exchange_mat = self.max_exchange_prior.sample(
@@ -275,7 +269,7 @@ class Community:
 
         if self.k_val_prior is not None:
             if isinstance(self.k_val_prior, SampleCombinationParticles):
-                k_val_mat = sampler.sample(model_names, data_field='k_vals', index_combination=index_combination)
+                k_val_mat = self.k_val_prior.sample(self.model_names, data_field='k_vals')
             
             else:
                 k_val_mat = self.k_val_prior.sample(
