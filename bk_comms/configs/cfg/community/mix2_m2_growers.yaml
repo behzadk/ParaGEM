@@ -37,5 +37,9 @@ objective_reaction_keys:
 
 smetana_analysis_path: ${cfg.wd}/smetana_analysis/melanie_data_detailed.tsv
 
+initial_population_prior: ${cfg.sampler.init_population_sampler}
+max_exchange_prior: ${cfg.sampler.max_uptake_sampler}
+k_val_prior: ${cfg.sampler.k_val_sampler}
+toxin_interaction_prior: ${cfg.sampler.toxin_interaction_sampler}
 
 enable_toxin_interactions: True

@@ -1,12 +1,12 @@
 max_uptake_sampler:
   _target_: bk_comms.sampling.SampleCombinationParticles
   input_experiment_dirs: 
-    - ${cfg.wd}/output/mel_indiv_growth/exp_B_longum_subsp_longum_ga_fit_batch_tests/
-    - ${cfg.wd}/output/mel_indiv_growth/exp_C_perfringens_S107_ga_fit_batch_tests/
-    - ${cfg.wd}/output/mel_indiv_growth/exp_E_coli_IAI1_ga_fit_batch_tests/
-    - ${cfg.wd}/output/mel_indiv_growth/exp_L_paracasei_ga_fit_batch_tests/
-    - ${cfg.wd}/output/mel_indiv_growth/exp_L_plantarum_ga_fit_batch_tests/
-    - ${cfg.wd}/output/mel_indiv_growth/exp_S_salivarius_ga_fit_batch_tests/
+    - ${cfg.wd}/output/mel_indiv_growth_filtered/B_longum_subsp_longum/
+    - ${cfg.wd}/output/mel_indiv_growth_filtered/C_perfringens_S107/
+    - ${cfg.wd}/output/mel_indiv_growth_filtered/E_coli_IAI1/
+    - ${cfg.wd}/output/mel_indiv_growth_filtered/L_paracasei/
+    - ${cfg.wd}/output/mel_indiv_growth_filtered/L_plantarum/
+    - ${cfg.wd}/output/mel_indiv_growth_filtered/S_salivarius/
 
   epsilon:
     - - 0.25
@@ -51,12 +51,12 @@ max_uptake_sampler:
 k_val_sampler:
   _target_: bk_comms.sampling.SampleCombinationParticles
   input_experiment_dirs: 
-    - ${cfg.wd}/output/mel_indiv_growth/exp_B_longum_subsp_longum_ga_fit_batch_tests/
-    - ${cfg.wd}/output/mel_indiv_growth/exp_C_perfringens_S107_ga_fit_batch_tests/
-    - ${cfg.wd}/output/mel_indiv_growth/exp_E_coli_IAI1_ga_fit_batch_tests/
-    - ${cfg.wd}/output/mel_indiv_growth/exp_L_paracasei_ga_fit_batch_tests/
-    - ${cfg.wd}/output/mel_indiv_growth/exp_L_plantarum_ga_fit_batch_tests/
-    - ${cfg.wd}/output/mel_indiv_growth/exp_S_salivarius_ga_fit_batch_tests/
+    - ${cfg.wd}/output/mel_indiv_growth_filtered/B_longum_subsp_longum/
+    - ${cfg.wd}/output/mel_indiv_growth_filtered/C_perfringens_S107/
+    - ${cfg.wd}/output/mel_indiv_growth_filtered/E_coli_IAI1/
+    - ${cfg.wd}/output/mel_indiv_growth_filtered/L_paracasei/
+    - ${cfg.wd}/output/mel_indiv_growth_filtered/L_plantarum/
+    - ${cfg.wd}/output/mel_indiv_growth_filtered/S_salivarius/
 
   epsilon:
     - - 0.25
