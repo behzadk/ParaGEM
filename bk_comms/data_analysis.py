@@ -420,6 +420,10 @@ def vis_multi():
         "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/output/mel_mixes_growth/mel_multi_mix2_m2_growers_test/"
     ]
 
+    data_directories = ['/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/output/mel_mixes_growth/mel_multi_mix2_m2_growers/generation_0/',
+    '/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/output/mel_mixes_growth/mel_multi_mix2_m2_growers/generation_1/',
+    '/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/output/mel_mixes_growth/mel_multi_mix2_m2_growers/generation_2/']
+
     mix_target_data_path = "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/experimental_data/mel_target_data/target_data_pH7_Mix2_Med2.csv"
 
     target_data_path = mix_target_data_path
@@ -435,7 +439,8 @@ def vis_multi():
         d.particles = [ d.particles[idx]  for idx in ndf[0]]
 
         for p in d.particles:
-            print(p.toxin_mat.sum())
+            print("tox_sum", p.toxin_mat.sum())
+            print(p.distance)
 
 
         d.plot_tsne(
