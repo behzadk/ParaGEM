@@ -233,26 +233,18 @@ class NSGAII(ParameterEstimation):
         experiment_name,
         distance_object,
         base_community,
-        max_uptake_sampler,
-        k_val_sampler,
         output_dir,
         simulator,
         particle_filter=None,
         mutation_probability=0.0,
         generation_idx=0,
         hotstart_particles_regex=None,
-        toxin_interaction_sampler=None,
-        init_population_sampler=None,
         population_size=32,
         max_generations=10,
     ):
         self.experiment_name = experiment_name
         self.base_community = base_community
         self.n_particles_batch = population_size
-        self.max_uptake_sampler = max_uptake_sampler
-        self.k_val_sampler = k_val_sampler
-        self.init_population_sampler = init_population_sampler
-        self.toxin_interaction_sampler = toxin_interaction_sampler
 
         self.output_dir = output_dir
         self.population_size = population_size
