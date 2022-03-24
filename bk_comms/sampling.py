@@ -197,8 +197,8 @@ class SampleCombinationParticles:
 
         for name in model_names:
             idx = index_combination[name]
-            output_data = self.params_dict[name][data_field][idx]
+            output_data = self.params_dict[name][data_field][idx].reshape(-1)
 
             sampled_data.append(output_data)
 
-        return np.array(sampled_data), index_combination
+        return np.array(sampled_data)
