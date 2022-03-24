@@ -195,7 +195,7 @@ class CometsTimeSeriesSimulation:
         sim_params.set_param("maxSpaceBiomass", 10)
         sim_params.set_param("minSpaceBiomass", 1e-11)
         sim_params.set_param("writeMediaLog", True)
-        sim_params.set_param("MediaLogRate", 1)
+        sim_params.set_param("MediaLogRate", 5)
 
         # Optional parameters
         if self.batch_dilution:
