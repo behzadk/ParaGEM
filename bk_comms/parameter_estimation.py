@@ -20,8 +20,6 @@ import pygmo
 import glob
 
 
-
-
 class ParameterEstimation:
     def init_particles(
         self,
@@ -72,16 +70,26 @@ class ParameterEstimation:
             male_part = np.random.choice(population)
             female_part = np.random.choice(population)
 
-            # For each model in the community, randomly select parameters from male or female 
-            for model_idx, particle_model_name in enumerate(batch_particles[p_batch_idx].model_names):
+            # For each model in the community, randomly select parameters from male or female
+            for model_idx, particle_model_name in enumerate(
+                batch_particles[p_batch_idx].model_names
+            ):
                 # Randomly choose male or female particle and update parameters for that model
                 if np.random.randint == 0:
-                    batch_particles[p_batch_idx].k_vals[model_idx] = male_part.k_vals[model_idx].copy()
-                    batch_particles[p_batch_idx].max_exchange_mat[model_idx] = male_part.max_exchange_mat[model_idx].copy()
+                    batch_particles[p_batch_idx].k_vals[model_idx] = male_part.k_vals[
+                        model_idx
+                    ].copy()
+                    batch_particles[p_batch_idx].max_exchange_mat[
+                        model_idx
+                    ] = male_part.max_exchange_mat[model_idx].copy()
 
                 else:
-                    batch_particles[p_batch_idx].k_vals[model_idx] = female_part.k_vals[model_idx].copy()
-                    batch_particles[p_batch_idx].max_exchange_mat[model_idx] = female_part.max_exchange_mat[model_idx].copy()
+                    batch_particles[p_batch_idx].k_vals[model_idx] = female_part.k_vals[
+                        model_idx
+                    ].copy()
+                    batch_particles[p_batch_idx].max_exchange_mat[
+                        model_idx
+                    ] = female_part.max_exchange_mat[model_idx].copy()
 
             # Randomly sample toxin interactions from either male or female
             if np.random.randint == 0:
@@ -122,46 +130,40 @@ class ParameterEstimation:
             if np.random.uniform() > self.mutation_probability:
                 particle.load_parameter_vector(mut_params_vec)
 
-
-
     def gen_initial_population(self, n_processes, parallel):
         logger.info("Generating initial population")
 
         # Generate initial population
-        accepted_particles = []
+        particles = []
         batch_idx = 0
-        while len(accepted_particles) < self.population_size:
-            logger.info(f"Initial accepted particles: {len(accepted_particles)}")
+        while len(particles) < self.population_size:
+            logger.info(f"Initial accepted particles: {len(particles)}")
 
-            particles = []
-            while len(particles) <= self.n_particles_batch:
-                candidate_particles = self.init_particles(self.n_particles_batch)
-                if not isinstance(self.filter, type(None)):
-                    candidate_particles = self.filter.filter_particles(
-                        candidate_particles
-                    )
+            candidate_particles = self.init_particles(self.n_particles_batch)
+            if not isinstance(self.filter, type(None)):
+                candidate_particles = self.filter.filter_particles(
+                    candidate_particles
+                )
 
+            logger.info(f"Simulating candidates {len(candidate_particles)}")
+            self.simulator.simulate_particles(
+                candidate_particles, n_processes=n_processes, parallel=parallel
+            )
+            logger.info(f"Finished simulating")
+
+            logger.info(f"Deleting models")
+            self.delete_particle_fba_models(candidate_particles)
+
+            if len(candidate_particles) > 0:
                 particles.extend(candidate_particles)
 
-            particles = particles[: self.n_particles_batch]
-
-            if len(particles) == 0:
-                continue
-
-            self.simulator.simulate_particles(
-                particles,
-                n_processes=n_processes,
-                parallel=parallel,
-            )
-
-            logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
-
-            accepted_particles.extend(particles)
-            self.delete_particle_fba_models(particles)
+            logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024**2)
 
             batch_idx += 1
 
-        return accepted_particles
+        particles = particles[: self.population_size]
+
+        return particles
 
     def save_particles(self, particles, output_path):
         particles_out = []
@@ -204,6 +206,10 @@ class ParameterEstimation:
 
     def delete_particle_fba_models(self, particles):
         for part in particles:
+            del part.max_exchange_prior
+            del part.k_val_prior
+            del part.toxin_interaction_prior
+
             for p in part.populations:
                 del p.model
 
@@ -235,6 +241,7 @@ class NSGAII(ParameterEstimation):
         base_community,
         output_dir,
         simulator,
+        n_particles_batch=8,
         particle_filter=None,
         mutation_probability=0.0,
         generation_idx=0,
@@ -244,7 +251,7 @@ class NSGAII(ParameterEstimation):
     ):
         self.experiment_name = experiment_name
         self.base_community = base_community
-        self.n_particles_batch = population_size
+        self.n_particles_batch = n_particles_batch
 
         self.output_dir = output_dir
         self.population_size = population_size
@@ -263,7 +270,10 @@ class NSGAII(ParameterEstimation):
         if not isinstance(hotstart_particles_regex, type(None)):
             self.hotstart(hotstart_particles_regex)
 
+
     def run(self, n_processes=1, parallel=False):
+        logger.info(f"Running NSGAII")
+
         # Generate first generation
         if self.gen_idx == 0:
             self.population = self.gen_initial_population(n_processes, parallel)
@@ -273,33 +283,49 @@ class NSGAII(ParameterEstimation):
                 self.population,
                 output_path=f"{self.output_dir}particles_gen_{self.gen_idx}.pkl",
             )
+            self.gen_idx += 1
+
 
         while self.gen_idx < self.max_generations:
-            self.gen_idx += 1
             logger.info(f"Running generation {self.gen_idx}")
-
             logger.info(f"Selecting parents")
-            # Select parents population by non-dominated sorting and crowd distance
-            parent_particles = self.non_dominated_sort_parent_selection(
-                self.population, self.population_size
-            )
 
-            logger.info(f"Performing crossover to produce offspring")
-            # Perform crossover and mutation to generate offspring of size N
-            offspring_particles = self.crossover_species_wise(self.population_size, parent_particles)
+            new_offspring = []
+            new_parents = []
+            batch_idx = 0
+            while len(new_offspring) < self.population_size:
+                # Select parents population by non-dominated sorting and crowd distance
+                parent_particles = self.non_dominated_sort_parent_selection(
+                    self.population, self.n_particles_batch
+                )
 
-            logger.info(f"Mutating offspring")
-            self.mutate_resample_from_prior(offspring_particles)
-            offspring_particles = list(offspring_particles)
+                logger.info(f"Performing crossover to produce offspring")
+                # Perform crossover and mutation to generate offspring of size N
+                offspring_particles = self.crossover_species_wise(
+                    self.n_particles_batch, parent_particles
+                )
 
-            logger.info(f"Simulating offspring")
-            self.simulator.simulate_particles(
-                offspring_particles, n_processes=n_processes, parallel=parallel
-            )
-            self.delete_particle_fba_models(offspring_particles)
+                logger.info(f"Mutating offspring")
+                self.mutate_resample_from_prior(offspring_particles)
+                offspring_particles = list(offspring_particles)
+
+                logger.info(f"Simulating offspring")
+
+                logger.info(f"Simulating offspring batch: {batch_idx}")
+                self.simulator.simulate_particles(
+                    offspring_particles, n_processes=n_processes, parallel=parallel
+                )
+                self.delete_particle_fba_models(offspring_particles)
+
+                new_offspring.extend(offspring_particles)
+                new_parents.extend(parent_particles)
+
+                batch_idx += 1
+
+            new_offspring = new_offspring[:self.population_size]
 
             # Combine population of parents and offspring (2N)
-            self.population = offspring_particles + parent_particles
+            self.population = new_offspring + new_parents
 
             # Calculate distances
             self.calculate_and_set_particle_distances(self.population)
@@ -308,6 +334,8 @@ class NSGAII(ParameterEstimation):
                 self.population,
                 output_path=f"{self.output_dir}particles_gen_{self.gen_idx}.pkl",
             )
+            self.gen_idx += 1
+
 
         logger.info(f"Finished")
 
@@ -323,7 +351,19 @@ class NSGAII(ParameterEstimation):
         hotstart_particles = []
         for f in population_paths:
             particles = utils.load_pickle(f)
+            
+            for p in particles:
+                try:
+                    del p.max_exchange_prior
+                    del p.k_val_prior
+                    del p.toxin_interaction_prior
+                except:
+                    continue
+
             hotstart_particles.extend(particles)
+            gc.collect()
+            logger.info(f"Hotstart memory usage: {psutil.Process(os.getpid()).memory_info().rss / 1024**2}")
+
 
         # Set new generation
         self.population = hotstart_particles
@@ -523,7 +563,7 @@ class GeneticAlgorithm(ParameterEstimation):
                 batch_particles = batch_particles[: self.n_particles_batch]
 
                 logger.info(f"Simulating particles...")
-                # Simulate
+                # Simulate particles
                 self.simulator.simulate_particles(
                     batch_particles, n_processes=n_processes, parallel=parallel
                 )
