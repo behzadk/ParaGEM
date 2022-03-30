@@ -39,7 +39,7 @@ class ParameterEstimation:
 
         return particles
 
-    def crossover(self, n_particles, population):
+    def crossover_parameterwise(self, n_particles, population):
         batch_particles = self.init_particles(
             n_particles,
         )
@@ -141,9 +141,7 @@ class ParameterEstimation:
 
             candidate_particles = self.init_particles(self.n_particles_batch)
             if not isinstance(self.filter, type(None)):
-                candidate_particles = self.filter.filter_particles(
-                    candidate_particles
-                )
+                candidate_particles = self.filter.filter_particles(candidate_particles)
 
             logger.info(f"Simulating candidates {len(candidate_particles)}")
             self.simulator.simulate_particles(
@@ -157,7 +155,7 @@ class ParameterEstimation:
             if len(candidate_particles) > 0:
                 particles.extend(candidate_particles)
 
-            logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024**2)
+            logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
 
             batch_idx += 1
 
@@ -225,12 +223,35 @@ class ParameterEstimation:
 
         return distances
 
-    @classmethod
-    def load_checkpoint(cls, checkpoint_path):
-        logger.info(f"Loading checkpoint {checkpoint_path}")
+    def hotstart(self, hotstart_directory_regex):
+        # Load all populations
+        population_paths = glob.glob(hotstart_directory_regex)
 
-        with open(checkpoint_path, "rb") as f:
-            return pickle.load(f)
+        hotstart_particles = []
+        for f in population_paths:
+            particles = utils.load_pickle(f)
+
+            for p in particles:
+                try:
+                    del p.max_exchange_prior
+                    del p.k_val_prior
+                    del p.toxin_interaction_prior
+                except:
+                    continue
+
+            hotstart_particles.extend(particles)
+            gc.collect()
+            logger.info(
+                f"Hotstart memory usage: {psutil.Process(os.getpid()).memory_info().rss / 1024**2}"
+            )
+
+        # Set new generation
+        self.population = hotstart_particles
+
+    def calculate_and_set_particle_distances(self, particles):
+        # Calculate distances
+        for p in particles:
+            p.distance = self.distance_object.calculate_distance(p)
 
 
 class NSGAII(ParameterEstimation):
@@ -270,7 +291,6 @@ class NSGAII(ParameterEstimation):
         if not isinstance(hotstart_particles_regex, type(None)):
             self.hotstart(hotstart_particles_regex)
 
-
     def run(self, n_processes=1, parallel=False):
         logger.info(f"Running NSGAII")
 
@@ -284,7 +304,6 @@ class NSGAII(ParameterEstimation):
                 output_path=f"{self.output_dir}particles_gen_{self.gen_idx}.pkl",
             )
             self.gen_idx += 1
-
 
         while self.gen_idx < self.max_generations:
             logger.info(f"Running generation {self.gen_idx}")
@@ -322,7 +341,7 @@ class NSGAII(ParameterEstimation):
 
                 batch_idx += 1
 
-            new_offspring = new_offspring[:self.population_size]
+            new_offspring = new_offspring[: self.population_size]
 
             # Combine population of parents and offspring (2N)
             self.population = new_offspring + new_parents
@@ -336,37 +355,8 @@ class NSGAII(ParameterEstimation):
             )
             self.gen_idx += 1
 
-
         logger.info(f"Finished")
 
-    def calculate_and_set_particle_distances(self, particles):
-        # Calculate distances
-        for p in particles:
-            p.distance = self.distance_object.calculate_distance(p)
-
-    def hotstart(self, hotstart_directory_regex):
-        # Load all populations
-        population_paths = glob.glob(hotstart_directory_regex)
-
-        hotstart_particles = []
-        for f in population_paths:
-            particles = utils.load_pickle(f)
-            
-            for p in particles:
-                try:
-                    del p.max_exchange_prior
-                    del p.k_val_prior
-                    del p.toxin_interaction_prior
-                except:
-                    continue
-
-            hotstart_particles.extend(particles)
-            gc.collect()
-            logger.info(f"Hotstart memory usage: {psutil.Process(os.getpid()).memory_info().rss / 1024**2}")
-
-
-        # Set new generation
-        self.population = hotstart_particles
 
     def non_dominated_sort_parent_selection(self, population, n_particles):
         # Use binary tournament to generate population of parents:
@@ -426,27 +416,21 @@ class GeneticAlgorithm(ParameterEstimation):
         experiment_name,
         distance_object,
         base_community,
-        max_uptake_sampler,
-        k_val_sampler,
         output_dir,
         simulator,
         n_particles_batch,
-        toxin_interaction_sampler=None,
-        init_population_sampler=None,
+        hotstart_particles_regex=None,
         population_size=32,
         mutation_probability=0.1,
         epsilon_alpha=0.2,
-        filter=None,
+        generation_idx=0,
+        particle_filter=None,
     ):
         logger.info(f"Initialising GA")
 
         self.experiment_name = experiment_name
         self.base_community = base_community
         self.n_particles_batch = n_particles_batch
-        self.max_uptake_sampler = max_uptake_sampler
-        self.k_val_sampler = k_val_sampler
-        self.init_population_sampler = init_population_sampler
-        self.toxin_interaction_sampler = toxin_interaction_sampler
 
         self.output_dir = output_dir
         self.population_size = population_size
@@ -455,25 +439,17 @@ class GeneticAlgorithm(ParameterEstimation):
         self.epsilon_alpha = epsilon_alpha
         self.simulator = simulator
 
-        self.gen_idx = 0
+        self.gen_idx = int(generation_idx)
         self.final_generation = False
 
-        self.filter = filter
+        self.filter = particle_filter
 
         # Generate a list of models that will be assigned
         # to new particles. Avoids repeatedly copying models
-        self.models = []
-        logger.info(f"Copying base comm")
+        self.models = self.generate_models_list(n_models=self.population_size)
 
-        for _ in range(self.n_particles_batch):
-            proc_models = []
-            for pop in self.base_community.populations:
-                proc_models.append(copy.deepcopy(pop.model))
-            self.models.append(proc_models)
-
-        logger.info(f"Deleting basecomm models")
-        for pop in self.base_community.populations:
-            del pop.model
+        if not isinstance(hotstart_particles_regex, type(None)):
+            self.hotstart(hotstart_particles_regex)
 
     def selection(self, particles):
         accepted_particles = []
@@ -518,8 +494,7 @@ class GeneticAlgorithm(ParameterEstimation):
         if self.gen_idx == 0:
             # Generate initial population
             self.population = self.gen_initial_population(n_processes, parallel)
-
-            self.update_epsilon(self.population)
+            self.calculate_and_set_particle_distances(self.population)
 
             output_path = f"{self.output_dir}particles_{self.experiment_name}_gen_{self.gen_idx}.pkl"
             self.save_particles(self.population, output_path)
@@ -530,65 +505,58 @@ class GeneticAlgorithm(ParameterEstimation):
             batch_idx = 0
             accepted_particles = []
 
+            logger.info(f"Performing crossover...")
+            new_offspring = []
+            new_parents = []
+
+            # Update epsilon
+            self.update_epsilon(self.population)
+
             if self.distance_object.final_epsilon == self.distance_object.epsilon:
                 self.final_generation = True
 
-            while len(accepted_particles) <= self.population_size:
+            while len(new_offspring) <= self.population_size:
                 logger.info(
-                    f"Gen: {self.gen_idx}, batch: {batch_idx}, epsilon: {self.distance_object.epsilon}, accepted: {len(accepted_particles)}, mem usage (mb): {utils.get_mem_usage()}"
+                    f"Gen: {self.gen_idx}, batch: {batch_idx}, epsilon: {self.distance_object.epsilon}, accepted: {len(new_offspring)}, mem usage (mb): {utils.get_mem_usage()}"
                 )
 
-                logger.info(f"Performing crossover...")
-                batch_particles = []
+                # Generate new batch by crossover
+                offspring_particles = self.crossover_parameterwise(
+                    self.n_particles_batch, self.population
+                )
 
-                while len(batch_particles) <= self.n_particles_batch:
-                    # Generate new batch by crossover
-                    candidate_particles = self.crossover(
-                        self.n_particles_batch, self.population
+                # Mutate batch
+                self.mutate_parameterwise(offspring_particles)
+
+                for p in offspring_particles:
+                    p.set_init_y()
+
+                if self.filter is not None:
+                    offspring_particles = self.filter.filter_particles(
+                        offspring_particles
                     )
-
-                    # Mutate batch
-                    self.mutate_parameterwise(candidate_particles)
-
-                    for p in candidate_particles:
-                        p.set_init_y()
-
-                    if self.filter is not None:
-                        candidate_particles = self.filter.filter_particles(
-                            candidate_particles
-                        )
-
-                    batch_particles.extend(candidate_particles)
-
-                batch_particles = batch_particles[: self.n_particles_batch]
 
                 logger.info(f"Simulating particles...")
                 # Simulate particles
                 self.simulator.simulate_particles(
-                    batch_particles, n_processes=n_processes, parallel=parallel
+                    offspring_particles, n_processes=n_processes, parallel=parallel
                 )
+                self.calculate_and_set_particle_distances(offspring_particles)
 
-                clear_cache()
+                self.delete_particle_fba_models(offspring_particles)
 
-                logger.info(f"Selecting particles...")
-                # Select particles
-                batch_accepted = self.selection(batch_particles)
-
-                self.delete_particle_fba_models(batch_particles)
-                accepted_particles.extend(batch_accepted)
+                offspring_particles = self.selection(offspring_particles)
+                new_offspring.extend(offspring_particles)
 
                 batch_idx += 1
 
-            accepted_particles = accepted_particles[: self.population_size]
+            new_offspring = new_offspring[: self.population_size]
+            self.population = new_offspring + new_parents
 
             output_path = f"{self.output_dir}particles_{self.experiment_name}_gen_{self.gen_idx}.pkl"
-            self.save_particles(accepted_particles, output_path)
 
-            # Set new population
-            self.population = accepted_particles
-            # Update epsilon
-            self.update_epsilon(self.population)
+            self.save_particles(
+                self.population,
+                output_path=f"{self.output_dir}particles_gen_{self.gen_idx}.pkl",
+            )
             self.gen_idx += 1
-
-        output_path = f"{self.output_dir}particles_{self.experiment_name}_final_gen_{self.gen_idx}.pkl"
-        self.save_particles(accepted_particles, output_path)
