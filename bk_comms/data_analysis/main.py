@@ -1,0 +1,389 @@
+import plotly.express as px
+import plotly.graph_objects as go
+import webcolors
+from bk_comms import utils
+from glob import glob
+import pickle
+from plotly.subplots import make_subplots
+import numpy as np
+import plotly
+import plotly.express as px
+import plotly.graph_objects as go
+import datapane as dp
+import pandas as pd
+from bk_comms import distances
+
+colours = [
+    "#003f5c",
+    "#58508d",
+    "#bc5090",
+    "#ff6361",
+    "#ffa600",
+    "#ffa800",
+]
+
+colours = px.colors.qualitative.Dark24
+
+
+def figure_particle_metabolite_exchange(particle, binarize=True):
+    population_names = [pop.name for pop in particle.populations]
+
+    exchange_mat = particle.max_exchange_mat
+
+    for pop_idx, pop in enumerate(particle.populations):
+        exchange_mat[pop_idx] = exchange_mat[pop_idx] * pop.dynamic_compound_mask
+
+    # Binarize
+    exchange_mat = (exchange_mat > 0) + (exchange_mat < 0) * -1
+
+    # Get exchanges involved in crossfeeding
+    keep_cmpd_indexes = []
+    for cmpd_idx, _ in enumerate(particle.dynamic_compounds):
+        if any(exchange_mat[:, cmpd_idx] == 1) and any(exchange_mat[:, cmpd_idx] == -1):
+            keep_cmpd_indexes.append(cmpd_idx)
+
+    # Keep only metabolites involved in crossfeed
+    exchange_mat = exchange_mat[:, keep_cmpd_indexes]
+    dynamic_compounds = [particle.dynamic_compounds[idx] for idx in keep_cmpd_indexes]
+
+    # Setup colours
+    producer_colour = webcolors.hex_to_rgb(px.colors.qualitative.Dark24[0])
+    consumer_colour = webcolors.hex_to_rgb(px.colors.qualitative.Dark24[1])
+    neutral_colour = webcolors.hex_to_rgb(px.colors.qualitative.Dark24[5])
+
+    # Make colours matrix and information matrix
+    img_colours = np.zeros(shape=exchange_mat.shape, dtype=object)
+    info_mat = np.zeros(shape=exchange_mat.shape, dtype=object)
+
+    for x_idx in range(exchange_mat.shape[0]):
+        for y_idx in range(exchange_mat.shape[1]):
+            if exchange_mat[x_idx][y_idx] > 0:
+                img_colours[x_idx][y_idx] = producer_colour
+            elif exchange_mat[x_idx][y_idx] < 0:
+                img_colours[x_idx][y_idx] = consumer_colour
+
+            else:
+                img_colours[x_idx][y_idx] = neutral_colour
+
+            info_mat[
+                x_idx, y_idx
+            ] = f"Value: {exchange_mat[x_idx, y_idx]}\t Compound: {dynamic_compounds[y_idx]} \t Species: {population_names[x_idx]}"
+
+    # Setup fig
+    fig = go.Figure()
+
+    fig.add_trace(
+        go.Image(
+            z=img_colours,
+            ids=info_mat,
+            hovertext=info_mat,
+        ),
+    )
+
+    fig.update_layout(
+        width=600, height=600, showlegend=True, title="Metabolic Interactions"
+    )
+
+    fig.update_xaxes(
+        dict(
+            tickmode="array",
+            tickvals=[x for x in range(len(dynamic_compounds))],
+            ticktext=dynamic_compounds,
+        )
+    )
+
+    fig.update_yaxes(
+        dict(
+            tickmode="array",
+            tickvals=[y for y in range(len(population_names))],
+            ticktext=population_names,
+        )
+    )
+
+    return fig
+
+
+def get_total_biomass(particle, sim_data, sim_t_idx):
+    species_initial_abundance = 0
+
+    for pop in particle.populations:
+        sol_idx = particle.solution_keys.index(pop.name)
+
+        sim_val = sim_data[:, sol_idx][sim_t_idx]
+        species_initial_abundance += sim_val
+
+    return species_initial_abundance
+
+
+def figure_particle_toxin_interactions(particle):
+    population_names = [pop.name for pop in particle.populations]
+
+    toxin_mat = particle.toxin_mat
+
+    # Bsinarize
+    toxin_mat = (toxin_mat > 0) + (toxin_mat < 0) * -1
+
+    # Setup colours
+    producer_colour = webcolors.hex_to_rgb(px.colors.qualitative.Dark24[0])
+    consumer_colour = webcolors.hex_to_rgb(px.colors.qualitative.Dark24[1])
+    neutral_colour = webcolors.hex_to_rgb(px.colors.qualitative.Dark24[5])
+
+    # Make colours matrix and information matrix
+    img_colours = np.zeros(shape=toxin_mat.shape, dtype=object)
+    info_mat = np.zeros(shape=toxin_mat.shape, dtype=object)
+
+    for x_idx in range(toxin_mat.shape[0]):
+        for y_idx in range(toxin_mat.shape[1]):
+            if toxin_mat[x_idx][y_idx] > 0:
+                img_colours[x_idx][y_idx] = producer_colour
+            elif toxin_mat[x_idx][y_idx] < 0:
+                img_colours[x_idx][y_idx] = consumer_colour
+
+            else:
+                img_colours[x_idx][y_idx] = neutral_colour
+
+            info_mat[
+                x_idx, y_idx
+            ] = f"Value: {toxin_mat[x_idx, y_idx]}\t Donor: {population_names[y_idx]} \t Recipient: {population_names[x_idx]}"
+
+    # Setup fig
+    fig = go.Figure()
+
+    fig.add_trace(
+        go.Image(
+            z=img_colours,
+            ids=info_mat,
+            hovertext=info_mat,
+        ),
+    )
+
+    fig.update_layout(
+        width=600,
+        height=600,
+        showlegend=True,
+        title="Toxin Interactions",
+        xaxis_title="Toxin Sensitivity",
+        yaxis_title="Toxin Producer",
+    )
+
+    fig.update_xaxes(
+        dict(
+            tickmode="array",
+            tickvals=[x for x in range(len(population_names))],
+            ticktext=population_names,
+        )
+    )
+
+    fig.update_yaxes(
+        dict(
+            tickmode="array",
+            tickvals=[y for y in range(len(population_names))],
+            ticktext=population_names,
+        )
+    )
+
+    return fig
+
+
+def figure_particle_endpoint_abundance(particle, target_data):
+    data_dict = {"dataset_label": [], "species_label": [], "abundance": []}
+    for model_name in particle.model_names:
+        exp_data = target_data[model_name].values
+
+        data_dict["dataset_label"].append("experiment")
+        data_dict["species_label"].append(model_name)
+        data_dict["abundance"].append(exp_data[0])
+
+        total_biomasses = np.array(
+            [
+                get_total_biomass(particle, particle.sol, sim_t_idx)
+                for sim_t_idx, t in enumerate(particle.t)
+            ]
+        )
+
+        sim_sol = particle.sol[:, particle.solution_keys.index(model_name)]
+
+        abundance_sol = sim_sol / total_biomasses
+
+        data_dict["dataset_label"].append("simulation")
+        data_dict["species_label"].append(model_name)
+        data_dict["abundance"].append(abundance_sol[-1])
+
+    df = pd.DataFrame.from_dict(data_dict)
+
+    # Make figure
+    fig = px.bar(df, x="dataset_label", y="abundance", color="species_label")
+    fig.update_layout(template="simple_white", width=600, height=500, autosize=False)
+
+    return fig
+
+
+def figure_particle_abundance_timeseries(particle, target_data):
+    fig = make_subplots(
+        rows=len(particle.model_names), cols=1, shared_xaxes=True, shared_yaxes="all"
+    )
+
+    for idx, model_name in enumerate(particle.model_names):
+        print(model_name)
+        # Plot particle simulations
+        total_biomasses = np.array(
+            [
+                get_total_biomass(particle, particle.sol, sim_t_idx)
+                for sim_t_idx, t in enumerate(particle.t)
+            ]
+        )
+        sim_sol = particle.sol[:, particle.solution_keys.index(model_name)]
+
+        abundance_sol = sim_sol / total_biomasses
+
+        # Plot experimental data
+        exp_data = target_data[model_name].values
+
+        fig.add_trace(
+            go.Scatter(
+                x=target_data.time,
+                y=exp_data,
+                name="Experiment",
+                legendgroup="Experiment",
+                marker={"color": colours[-1]},
+            ),
+            row=idx + 1,
+            col=1,
+        )
+
+        fig.add_trace(
+            go.Line(
+                x=particle.t,
+                y=abundance_sol,
+                name=model_name,
+                opacity=1.0,
+                marker={"color": colours[idx]},
+            ),
+            row=idx + 1,
+            col=1,
+        )
+
+    names = set()
+    fig.for_each_trace(
+        lambda trace: trace.update(showlegend=False)
+        if (trace.name in names)
+        else names.add(trace.name)
+    )
+
+    # fig.update_xaxes(title="Time")
+    fig.update_xaxes(title="Time", row=len(particle.model_names)+1, col=1)
+    # fig.update_yaxes(title="Abundance", type='log')
+    fig.update_layout(template="simple_white", width=800, height=600)
+
+    return fig
+
+
+def load_particles(particle_regex):
+    particle_files = glob(particle_regex)
+    particles = []
+
+    for pickle_path in particle_files:
+        with open(pickle_path, "rb") as f:
+            particles.extend(pickle.load(f))
+
+    return particles
+
+
+def get_unique_particles(particles_list):
+    unique_particles = []
+    for p in particles_list:
+        is_unique = True
+        for uniq_p in unique_particles:
+            if check_particle_equality(p, uniq_p):
+                is_unique = False
+                break
+            
+        if is_unique:
+            unique_particles.append(p) 
+
+    return unique_particles
+
+def recalculate_particle_distances(particles, target_data_path):
+    exp_sol_keys = [[particles[0].model_names[idx], particles[0].model_names[idx]] for idx in range(len(particles[0].model_names))]
+    dist = distances.DistanceAbundanceError(target_data_path,
+        'time',
+        exp_sol_keys,
+        epsilon=1.0,
+        final_epsilon=1.0)
+
+    for p in particles:
+        d = dist.calculate_distance(p)
+        p.distance = d
+    
+
+
+def main():
+    wd = "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/"
+    mix_target_data_path = "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/experimental_data/mel_target_data/target_data_pH7_Mix2_Med2.csv"
+    target_data = pd.read_csv(mix_target_data_path)
+    particle_regex = f"{wd}/output/mel_mixes_growth/mel_multi_mix2_m2_growers/generation_*/run_*/*.pkl"
+
+    particles = load_particles(particle_regex)
+
+    particles = utils.get_unique_particles(particles)
+    recalculate_particle_distances(particles, mix_target_data_path)
+
+    sum_distances = [max(p.distance) for p in particles]
+
+    sorted_particles = sorted(
+        particles, key=lambda x: sum_distances[particles.index(x)]
+    )
+
+    particles = sorted_particles[:100]
+    sum_distances = [sum(p.distance) for p in particles]
+
+    for d in sum_distances:
+        print(d)
+    
+
+
+    particle_blocks = []
+    for p_idx, p in enumerate(particles):
+        endpoint_abundance_plot = figure_particle_endpoint_abundance(p, target_data)
+        timeseries_plot = figure_particle_abundance_timeseries(p, target_data)
+
+        toxin_exchange_fig = figure_particle_toxin_interactions(p)
+        met_exchange_fig = figure_particle_metabolite_exchange(p)
+
+        toxin_exchange_fig = figure_particle_toxin_interactions(p)
+        met_exchange_fig = figure_particle_metabolite_exchange(p)
+
+        abundance_block = dp.Group(
+            dp.Plot(endpoint_abundance_plot, responsive=False),
+            label="Endpoint abundance",
+        )
+
+        timeseries_bloc = dp.Group(
+            blocks=[dp.Plot(timeseries_plot, responsive=True)],
+            label="Abundance timeseries",
+        )
+
+        interactions_block = dp.Group(
+            dp.Plot(toxin_exchange_fig, responsive=False),
+            dp.Plot(met_exchange_fig, responsive=False),
+            columns=2,
+            label="Interactions",
+        )
+
+        particle_block = dp.Group(
+            dp.Select(blocks=[abundance_block, timeseries_bloc, interactions_block]),
+            label=f"Solution_{p_idx}",
+        )
+        particle_blocks.append(particle_block)
+
+        if p_idx == 5:
+            break
+
+    report = dp.Report(dp.Select(blocks=particle_blocks, type=dp.SelectType.DROPDOWN))
+    report.preview(
+        open=True, formatting=dp.ReportFormatting(width=dp.ReportWidth.MEDIUM)
+    )
+
+
+if __name__ == "__main__":
+    main()
