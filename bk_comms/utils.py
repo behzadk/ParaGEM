@@ -23,6 +23,31 @@ def load_model(model_path, model_name):
 
     return model
 
+def check_particle_equality(patricle_0, particle_1):
+    if not np.array_equal(patricle_0.toxin_mat, particle_1.toxin_mat):
+        return False
+    
+    if not np.array_equal(patricle_0.max_exchange_mat, particle_1.max_exchange_mat):
+        return False
+    
+    if not np.array_equal(patricle_0.k_vals, particle_1.k_vals):
+        return False
+
+    return True
+
+def get_unique_particles(particles_list):
+    unique_particles = []
+    for p in particles_list:
+        is_unique = True
+        for uniq_p in unique_particles:
+            if check_particle_equality(p, uniq_p):
+                is_unique = False
+                break
+            
+        if is_unique:
+            unique_particles.append(p) 
+
+    return unique_particles
 
 def find_nearest(array, value):
     array = np.asarray(array)
