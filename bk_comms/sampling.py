@@ -138,7 +138,6 @@ class SampleCombinationParticles:
 
         for idx, x in enumerate(run_dirs):
             logger.info(f"Loading {x},  mem usage (mb): {utils.get_mem_usage()}")
-            gc.collect()
 
             filtered_particles = utils.load_all_particles(x, epsilon[idx])
 
@@ -148,6 +147,8 @@ class SampleCombinationParticles:
                 del p.t
                 del p.media_df
                 p.set_init_y()
+
+            gc.collect()
 
             particles[population_names[idx]] = filtered_particles
 
