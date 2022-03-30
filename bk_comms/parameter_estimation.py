@@ -142,6 +142,9 @@ class ParameterEstimation:
             candidate_particles = self.init_particles(self.n_particles_batch)
             if not isinstance(self.filter, type(None)):
                 candidate_particles = self.filter.filter_particles(candidate_particles)
+            
+            if len(candidate_particles) == 0:
+                continue
 
             logger.info(f"Simulating candidates {len(candidate_particles)}")
             self.simulator.simulate_particles(
