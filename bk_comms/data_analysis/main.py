@@ -271,7 +271,7 @@ def figure_particle_abundance_timeseries(particle, target_data):
     )
 
     # fig.update_xaxes(title="Time")
-    fig.update_xaxes(title="Time", row=len(particle.model_names)+1, col=1)
+    fig.update_xaxes(title="Time", row=len(particle.model_names) + 1, col=1)
     # fig.update_yaxes(title="Abundance", type='log')
     fig.update_layout(template="simple_white", width=800, height=600)
 
@@ -289,32 +289,18 @@ def load_particles(particle_regex):
     return particles
 
 
-def get_unique_particles(particles_list):
-    unique_particles = []
-    for p in particles_list:
-        is_unique = True
-        for uniq_p in unique_particles:
-            if check_particle_equality(p, uniq_p):
-                is_unique = False
-                break
-            
-        if is_unique:
-            unique_particles.append(p) 
-
-    return unique_particles
-
 def recalculate_particle_distances(particles, target_data_path):
-    exp_sol_keys = [[particles[0].model_names[idx], particles[0].model_names[idx]] for idx in range(len(particles[0].model_names))]
-    dist = distances.DistanceAbundanceError(target_data_path,
-        'time',
-        exp_sol_keys,
-        epsilon=1.0,
-        final_epsilon=1.0)
+    exp_sol_keys = [
+        [particles[0].model_names[idx], particles[0].model_names[idx]]
+        for idx in range(len(particles[0].model_names))
+    ]
+    dist = distances.DistanceAbundanceError(
+        target_data_path, "time", exp_sol_keys, epsilon=1.0, final_epsilon=1.0
+    )
 
     for p in particles:
         d = dist.calculate_distance(p)
         p.distance = d
-    
 
 
 def main():
@@ -339,8 +325,6 @@ def main():
 
     for d in sum_distances:
         print(d)
-    
-
 
     particle_blocks = []
     for p_idx, p in enumerate(particles):

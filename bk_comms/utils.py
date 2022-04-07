@@ -35,19 +35,6 @@ def check_particle_equality(patricle_0, particle_1):
 
     return True
 
-def get_unique_particles(particles_list):
-    unique_particles = []
-    for p in particles_list:
-        is_unique = True
-        for uniq_p in unique_particles:
-            if check_particle_equality(p, uniq_p):
-                is_unique = False
-                break
-            
-        if is_unique:
-            unique_particles.append(p) 
-
-    return unique_particles
 
 def find_nearest(array, value):
     array = np.asarray(array)
@@ -71,6 +58,20 @@ def load_pickle(pickle_path):
     with open(pickle_path, "rb") as f:
         data = pickle.load(f)
         return data
+
+def get_unique_particles(particles_list):
+    unique_particles = []
+    for p in particles_list:
+        is_unique = True
+        for uniq_p in unique_particles:
+            if check_particle_equality(p, uniq_p):
+                is_unique = False
+                break
+            
+        if is_unique:
+            unique_particles.append(p) 
+
+    return unique_particles
 
 
 def load_all_particles(repeat_dirs, distance_filter_epsilon):
