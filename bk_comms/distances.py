@@ -103,13 +103,8 @@ class DistanceTimeseriesEuclidianDistance:
                 if np.isnan(exp_val):
                     continue
 
-                distances[distance_idx] += abs(exp_val - sim_val)
+                distances[distance_idx] = max(distances[distance_idx], abs(exp_val - sim_val))
 
-            # Temp fix
-            print(
-                "end to end diff: ",
-                abs(sim_data[:, sol_idx][0] - sim_data[:, sol_idx][-1]),
-            )
             # if abs(sim_data[:, sol_idx][0] - sim_data[:, sol_idx][-1]) < 1e-10:
             #     distances[distance_idx] = 1000
 
@@ -176,18 +171,16 @@ class DistanceFoldChangeError:
                 fold_change_sim_val = (this_sim_val - init_sim_val) / init_sim_val
 
                 if exp_val == 0.0:
-                    print("here")
-                    fold_change_error = ((fold_change_sim_val + 1) - (exp_val + 1)) / (
-                        exp_val + 1
-                    )
+                    continue
 
                 elif fold_change_sim_val == 0.0:
                     distances[distance_idx] += 10000
 
                 else:
-                    fold_change_error = (fold_change_sim_val - exp_val) / exp_val
 
-                    distances[distance_idx] += abs(fold_change_error)
+                    # distances[distance_idx] += abs(fold_change_error)
+                    distances[distance_idx] += abs(fold_change_sim_val - exp_val)
+
 
                 print(
                     f"FoldChangeError: {init_sim_val}, {this_sim_val}, {exp_val}, {fold_change_sim_val}, {distances[distance_idx]}"
