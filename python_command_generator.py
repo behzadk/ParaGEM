@@ -1,11 +1,16 @@
 import pandas as pd
     
 
-def write_execution_command(submissions_path, species_name, run_idx):
+def write_execution_command(submissions_path, species_name, gen_idx, run_idx):
     experiment_name = species_name + '_indiv'
     print(experiment_name)
     submission_df = pd.read_csv(submissions_path)
     df = submission_df.loc[submission_df['cfg.experiment_name'] == experiment_name]
+    if gen_idx == 0:
+        hotstart_regex = None
+    
+    else:
+        "\${cfg.wd}/output/mel_mixes_growth/mel_multi_mix2_m2_growers/generation_$x/run_*/*.pkl"
 
     base_cfg = 'mel_indiv_growth_base'
     python_string = f'python -u bk_comms cfg={base_cfg} cfg.run_idx={run_idx} '
