@@ -114,7 +114,7 @@ toxin_interaction_sampler:
 
 init_population_sampler:
   _target_: bk_comms.sampling.SampleUniform
-  min_val: 0.0001
+  min_val: 0.0004
   max_val: 0.0004
   distribution_type: "log_uniform"
 
