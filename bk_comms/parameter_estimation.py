@@ -60,6 +60,19 @@ class ParameterEstimation:
 
         return batch_particles
 
+    def selection_tournament(self, population, n_particles, tournament_size):
+        selected_parents = []
+
+        # One winner per tournament
+        for _ in range(n_particles):
+            contestants = list(
+                np.random.choice(population, size=tournament_size, replace=False)
+            )
+            contestants.sort(key=lambda x: sum(x.distance))
+            selected_parents.append(contestants[0])
+
+        return selected_parents
+
     def crossover_species_wise(self, n_particles, population):
         batch_particles = self.init_particles(
             n_particles,
@@ -138,15 +151,17 @@ class ParameterEstimation:
         batch_idx = 0
         while len(particles) < self.population_size:
             logger.info(f"Initial accepted particles: {len(particles)}")
+            candidate_particles = []
+            while len(candidate_particles) < self.n_particles_batch:
+                new_particles = self.init_particles(self.n_particles_batch)
 
-            candidate_particles = self.init_particles(self.n_particles_batch)
-            if not isinstance(self.filter, type(None)):
-                candidate_particles = self.filter.filter_particles(candidate_particles)
-            
-            if len(candidate_particles) == 0:
-                continue
+                if not isinstance(self.filter, type(None)):
+                    new_particles = self.filter.filter_particles(new_particles)
+
+                candidate_particles.extend(new_particles)
 
             logger.info(f"Simulating candidates {len(candidate_particles)}")
+
             self.simulator.simulate_particles(
                 candidate_particles, n_processes=n_processes, parallel=parallel
             )
@@ -158,7 +173,7 @@ class ParameterEstimation:
             if len(candidate_particles) > 0:
                 particles.extend(candidate_particles)
 
-            logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
+            logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024**2)
 
             batch_idx += 1
 
@@ -207,9 +222,6 @@ class ParameterEstimation:
 
     def delete_particle_fba_models(self, particles):
         for part in particles:
-            del part.max_exchange_prior
-            del part.k_val_prior
-            del part.toxin_interaction_prior
 
             for p in part.populations:
                 del p.model
@@ -234,13 +246,6 @@ class ParameterEstimation:
         for f in population_paths:
             particles = utils.load_pickle(f)
 
-            for p in particles:
-                try:
-                    del p.max_exchange_prior
-                    del p.k_val_prior
-                    del p.toxin_interaction_prior
-                except:
-                    continue
 
             hotstart_particles.extend(particles)
             gc.collect()
@@ -249,6 +254,7 @@ class ParameterEstimation:
             )
 
         # Set new generation
+        hotstart_particles = utils.get_unique_particles(hotstart_particles)
         self.population = hotstart_particles
 
     def calculate_and_set_particle_distances(self, particles):
@@ -360,7 +366,6 @@ class NSGAII(ParameterEstimation):
 
         logger.info(f"Finished")
 
-
     def non_dominated_sort_parent_selection(self, population, n_particles):
         # Use binary tournament to generate population of parents:
         # Randomly select two solutions, keep the better one with
@@ -427,6 +432,7 @@ class GeneticAlgorithm(ParameterEstimation):
         mutation_probability=0.1,
         epsilon_alpha=0.2,
         generation_idx=0,
+        max_generations=1,
         particle_filter=None,
     ):
         logger.info(f"Initialising GA")
@@ -446,13 +452,16 @@ class GeneticAlgorithm(ParameterEstimation):
         self.final_generation = False
 
         self.filter = particle_filter
+        self.max_generations = max_generations
 
         # Generate a list of models that will be assigned
         # to new particles. Avoids repeatedly copying models
         self.models = self.generate_models_list(n_models=self.population_size)
 
+        print(hotstart_particles_regex)
         if not isinstance(hotstart_particles_regex, type(None)):
             self.hotstart(hotstart_particles_regex)
+            logger.info(f"Hotstart complete, population size: {len(self.population)}")
 
     def selection(self, particles):
         accepted_particles = []
@@ -477,8 +486,7 @@ class GeneticAlgorithm(ParameterEstimation):
         for p in particles:
             particle_distances.append(p.distance)
 
-        particle_distances = np.vstack(particle_distances)
-
+        particle_distances = np.array(particle_distances)
         new_epsilon = []
         # For each distance, update epsilon
         for dist_idx in range(particle_distances.shape[1]):
@@ -504,7 +512,7 @@ class GeneticAlgorithm(ParameterEstimation):
             self.gen_idx += 1
 
         # Core genetic algorithm loop
-        while not self.final_generation:
+        while not self.final_generation and self.gen_idx < self.max_generations:
             batch_idx = 0
             accepted_particles = []
 
@@ -513,31 +521,52 @@ class GeneticAlgorithm(ParameterEstimation):
             new_parents = []
 
             # Update epsilon
-            self.update_epsilon(self.population)
+            # self.update_epsilon(self.population)
 
             if self.distance_object.final_epsilon == self.distance_object.epsilon:
                 self.final_generation = True
 
+            population_average_distance = np.mean(
+                [max(p.distance) for p in self.population]
+            )
+            population_mediain_distance = np.median(
+                [max(p.distance) for p in self.population]
+            )
+            population_min_distance = np.min([max(p.distance) for p in self.population])
+
+            logger.info(
+                f"Pop mean distance: {population_average_distance}, pop median distance: {population_mediain_distance}, pop min distance: {population_min_distance}"
+            )
             while len(new_offspring) <= self.population_size:
                 logger.info(
-                    f"Gen: {self.gen_idx}, batch: {batch_idx}, epsilon: {self.distance_object.epsilon}, accepted: {len(new_offspring)}, mem usage (mb): {utils.get_mem_usage()}"
+                    f"Gen: {self.gen_idx}, batch: {batch_idx}, accepted: {len(new_offspring)}, mem usage (mb): {utils.get_mem_usage()}"
                 )
 
-                # Generate new batch by crossover
-                offspring_particles = self.crossover_parameterwise(
-                    self.n_particles_batch, self.population
-                )
-
-                # Mutate batch
-                self.mutate_parameterwise(offspring_particles)
-
-                for p in offspring_particles:
-                    p.set_init_y()
-
-                if self.filter is not None:
-                    offspring_particles = self.filter.filter_particles(
-                        offspring_particles
+                offspring_particles = []
+                while len(offspring_particles) < self.n_particles_batch:
+                    parents = self.selection_tournament(
+                        self.population, 2, tournament_size=4
                     )
+
+                    # Generate new batch by crossover
+                    candidate_particles = self.crossover_parameterwise(1, parents)
+
+                    # Mutate batch
+                    self.mutate_parameterwise(candidate_particles)
+
+                    for p in candidate_particles:
+                        p.set_init_y()
+
+                    if self.filter is not None:
+                        candidate_particles = self.filter.filter_particles(
+                            candidate_particles
+                        )
+
+                    if len(candidate_particles) > 0:
+                        offspring_particles.extend(candidate_particles)
+                        new_parents.extend(parents)
+
+                offspring_particles = offspring_particles[: self.n_particles_batch]
 
                 logger.info(f"Simulating particles...")
                 # Simulate particles
@@ -548,7 +577,7 @@ class GeneticAlgorithm(ParameterEstimation):
 
                 self.delete_particle_fba_models(offspring_particles)
 
-                offspring_particles = self.selection(offspring_particles)
+                # offspring_particles = self.selection(offspring_particles)
                 new_offspring.extend(offspring_particles)
 
                 batch_idx += 1

@@ -26,7 +26,7 @@ def load_model(model_path, model_name):
 def check_particle_equality(patricle_0, particle_1):
     if not np.array_equal(patricle_0.toxin_mat, particle_1.toxin_mat):
         return False
-    
+        
     if not np.array_equal(patricle_0.max_exchange_mat, particle_1.max_exchange_mat):
         return False
     
