@@ -278,6 +278,50 @@ def figure_particle_abundance_timeseries(particle, target_data):
     return fig
 
 
+def figure_flux_map(particle):
+    print(particle.dynamic_compounds)
+
+    exchange_reactions = [x.replace("M_", "EX_") for x in particle.dynamic_compounds]
+
+
+    all_species_fluxes = []
+    for species in particle.flux_log:
+        species_data = [species]
+        for ex_r in exchange_reactions:
+            if ex_r in particle.flux_log[species].columns:
+                
+                species_data.append(particle.flux_log[species][ex_r].mean())
+            
+            else:
+                species_data.append(0)
+        all_species_fluxes.append(species_data)
+    
+    df = pd.DataFrame(all_species_fluxes, columns=["species"] + exchange_reactions)
+    
+    # Remove columns that are all zero
+    drop_cols = []
+    for col in df.columns[1:]:
+        if (df[col] == 0).all():
+            drop_cols.append(col)
+        
+        elif (df[col] >= 0).all() or (df[col] <= 0).all():
+            drop_cols.append(col)
+    
+    df = df.drop(drop_cols, axis=1)
+
+
+    fig = go.Figure(data=go.Heatmap(
+        z=df[df.columns[~df.columns.isin(['species'])]].values,
+        y=df.species,
+        x=df.columns,
+        colorscale='RdBu',
+        color_continuous_midpoint=0.0
+    ))
+
+    fig.show()
+
+    exit()
+
 def load_particles(particle_regex):
     particle_files = glob(particle_regex)
     particles = []
@@ -308,6 +352,7 @@ def main():
     mix_target_data_path = "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/experimental_data/mel_target_data/target_data_pH7_Mix2_Med2.csv"
     target_data = pd.read_csv(mix_target_data_path)
     particle_regex = f"{wd}/output/mel_mixes_growth/mel_multi_mix2_m2_growers/generation_*/run_*/*.pkl"
+    particle_regex = f"{wd}/output/mel_mixes_growth/resim_mel_multi_mix2_m2_growers/generation_0/*.pkl"
 
     particles = load_particles(particle_regex)
 
@@ -328,6 +373,7 @@ def main():
 
     particle_blocks = []
     for p_idx, p in enumerate(particles):
+        figure_flux_map(p)
         endpoint_abundance_plot = figure_particle_endpoint_abundance(p, target_data)
         timeseries_plot = figure_particle_abundance_timeseries(p, target_data)
 
