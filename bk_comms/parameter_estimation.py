@@ -37,7 +37,8 @@ class ParameterEstimation:
             comm.sample_parameters_from_prior()
             particles[i] = comm
 
-        return particles
+        return particles        
+
 
     def crossover_parameterwise(self, n_particles, population):
         batch_particles = self.init_particles(
@@ -173,7 +174,7 @@ class ParameterEstimation:
             if len(candidate_particles) > 0:
                 particles.extend(candidate_particles)
 
-            logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024**2)
+            logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
 
             batch_idx += 1
 
@@ -245,7 +246,6 @@ class ParameterEstimation:
         hotstart_particles = []
         for f in population_paths:
             particles = utils.load_pickle(f)
-
 
             hotstart_particles.extend(particles)
             gc.collect()
@@ -592,3 +592,61 @@ class GeneticAlgorithm(ParameterEstimation):
                 output_path=f"{self.output_dir}particles_gen_{self.gen_idx}.pkl",
             )
             self.gen_idx += 1
+
+
+class SimpleSimulate(ParameterEstimation):
+    def __init__(
+        self,
+        experiment_name,
+        base_community,
+        output_dir,
+        simulator,
+        n_particles_batch,
+        hotstart_particles_regex,
+        max_simulations=32,
+        particle_filter=None,
+    ):
+
+        self.experiment_name = experiment_name
+        self.base_community = base_community
+        self.output_dir = output_dir
+        self.simulator = simulator
+        self.n_particles_batch = n_particles_batch
+        self.filter = particle_filter
+        self.max_simulations = max_simulations
+
+        self.models = self.generate_models_list(n_models=self.n_particles_batch)
+
+
+        # Load hotstart particles
+        if not isinstance(hotstart_particles_regex, type(None)):
+            self.hotstart(hotstart_particles_regex)
+        else:
+            self.hotstart_particles = None
+
+
+    def run(self, n_processes=1, parallel=False):
+        particles_simulated = 0
+        batch_idx = 0
+
+        while particles_simulated < self.max_simulations:
+            particles = np.random.choice(self.population, self.n_particles_batch)
+
+            # Set models
+            for p_idx, community in enumerate(particles):
+                # Assign population models
+                for idx, pop in enumerate(community.populations):
+                    pop.model = self.models[p_idx][idx]
+
+            self.simulator.simulate_particles(
+                particles, n_processes=n_processes, parallel=parallel
+            )
+
+            print("Saving particles")
+            self.save_particles(
+                particles,
+                f"{self.output_dir}particles_{self.experiment_name}_batch_{batch_idx}.pkl",
+            )
+
+            particles_simulated += len(particles)
+            batch_idx += 1

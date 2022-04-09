@@ -21,6 +21,8 @@ class CometsTimeSeriesSimulation:
         batch_dilution=False,
         dilution_factor=0.0,
         dilution_time=0.0,
+        media_log_rate=5,
+        flux_log_rate=0.0,
     ):
         self.dt = dt
         self.max_cycles = int(np.ceil(t_end / dt))
@@ -31,6 +33,10 @@ class CometsTimeSeriesSimulation:
 
         self.comets_home_dir = comets_home_dir
         self.gurobi_home_dir = gurobi_home_dir
+
+        self.media_log_rate = int(media_log_rate)
+        self.flux_log_rate = int(flux_log_rate)
+        
 
         os.environ["GUROBI_HOME"] = gurobi_home_dir
         os.environ["GUROBI_COMETS_HOME"] = gurobi_home_dir
@@ -170,7 +176,7 @@ class CometsTimeSeriesSimulation:
                         t_idx = utils.find_nearest(s_df["t"].values, t_val)
                         sol[:, idx][t_idx] = np.nan
 
-        return sol, t
+        return sol, t        
 
     def simulate(self, community, idx=0):
         self.convert_models(community)
@@ -195,13 +201,22 @@ class CometsTimeSeriesSimulation:
         sim_params.set_param("maxSpaceBiomass", 10)
         sim_params.set_param("minSpaceBiomass", 1e-11)
         sim_params.set_param("writeMediaLog", True)
-        sim_params.set_param("MediaLogRate", 5)
+        sim_params.set_param("MediaLogRate", self.media_log_rate)
+
 
         # Optional parameters
         if self.batch_dilution:
             sim_params.set_param("batchDilution", True)
             sim_params.set_param("dilFactor", self.dilution_factor)
             sim_params.set_param("dilTime", self.dilution_time)
+
+        if self.flux_log_rate == 0.0:
+            sim_params.set_param("writeFluxLog", False)
+
+        else:
+            sim_params.set_param("writeFluxLog", True)
+            sim_params.set_param("FluxLogRate", self.flux_log_rate)
+
 
         tmp_dir = f"./tmp_{os.getpid()}/"
         if not os.path.exists(tmp_dir):
@@ -223,10 +238,14 @@ class CometsTimeSeriesSimulation:
         experiment.run(delete_files=False)
 
         sol, t = self.process_experiment(community, experiment)
+        
+        if self.flux_log_rate != 0.0:
+            community.flux_log = experiment.fluxes_by_species
 
+        print(tmp_dir)
         shutil.rmtree(tmp_dir)
 
-        return sol, t
+        return sol, t, experiment
 
     def simulate_particles(
         self, particles, n_processes=1, sim_timeout=1000.0, parallel=True
@@ -236,17 +255,18 @@ class CometsTimeSeriesSimulation:
 
             def wrapper(args):
                 idx, args = args
-                sol, t = self.simulate(args)
-                return (idx, sol, t)
+                sol, t, experiment= self.simulate(args)
+                return (idx, sol, t, experiment)
 
             pool = mp.get_context("spawn").Pool(n_processes, maxtasksperchild=1)
             futures_mp_sol = pool.imap_unordered(wrapper, enumerate(particles))
 
             for particle in particles:
                 try:
-                    idx, sol, t = futures_mp_sol.next(timeout=sim_timeout)
+                    idx, sol, t, experiment = futures_mp_sol.next(timeout=sim_timeout)
                     particles[idx].sol = sol
                     particles[idx].t = t
+                    particles[idx].flux_log = experiment.fluxes_by_species
 
                 except mp.context.TimeoutError:
                     print("TIMEOUT ERROR")
@@ -269,6 +289,7 @@ class CometsTimeSeriesSimulation:
                 sol, t, experiment = self.simulate(p)
                 p.sol = sol
                 p.t = t
+                p.flux_log = experiment.fluxes_by_species
                 p_idx += 1
                 end = time.time()
                 print("Sim time: ", end - start)
