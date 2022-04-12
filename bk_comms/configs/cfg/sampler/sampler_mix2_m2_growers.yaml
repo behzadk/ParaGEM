@@ -1,20 +1,20 @@
 max_uptake_sampler:
   _target_: bk_comms.sampling.SampleCombinationParticles
-  input_experiment_dirs: 
-    - ${cfg.wd}/output/mel_indiv_growth_filtered/B_longum_subsp_longum/
-    - ${cfg.wd}/output/mel_indiv_growth_filtered/C_perfringens_S107/
-    - ${cfg.wd}/output/mel_indiv_growth_filtered/E_coli_IAI1/
-    - ${cfg.wd}/output/mel_indiv_growth_filtered/L_paracasei/
-    - ${cfg.wd}/output/mel_indiv_growth_filtered/L_plantarum/
-    - ${cfg.wd}/output/mel_indiv_growth_filtered/S_salivarius/
+  input_particles_regex: 
+    - ${cfg.wd}/output/mel_indiv_growth_2_filtered/B_longum_subsp_longum/run_*/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_2_filtered/C_perfringens_S107/run_*/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_2_filtered/E_coli_IAI1/run_*/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_2_filtered/L_paracasei/run_*/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_2_filtered/L_plantarum/run_*/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_2_filtered/S_salivarius/run_*/*.pkl
 
   epsilon:
-    - - 0.25
-    - - 1.17
-    - - 0.25
-    - - 0.51
-    - - 1.22
-    - - 0.25
+    - - 10000.0
+    - - 10000.0
+    - - 10000.0
+    - - 10000.0
+    - - 10000.0
+    - - 10000.0
 
   population_names:
     - B_longum_subsp_longum
@@ -50,21 +50,21 @@ max_uptake_sampler:
 
 k_val_sampler:
   _target_: bk_comms.sampling.SampleCombinationParticles
-  input_experiment_dirs: 
-    - ${cfg.wd}/output/mel_indiv_growth_filtered/B_longum_subsp_longum/
-    - ${cfg.wd}/output/mel_indiv_growth_filtered/C_perfringens_S107/
-    - ${cfg.wd}/output/mel_indiv_growth_filtered/E_coli_IAI1/
-    - ${cfg.wd}/output/mel_indiv_growth_filtered/L_paracasei/
-    - ${cfg.wd}/output/mel_indiv_growth_filtered/L_plantarum/
-    - ${cfg.wd}/output/mel_indiv_growth_filtered/S_salivarius/
+  input_particles_regex: 
+    - ${cfg.wd}/output/mel_indiv_growth_2_filtered/B_longum_subsp_longum/run_*/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_2_filtered/C_perfringens_S107/run_*/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_2_filtered/E_coli_IAI1/run_*/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_2_filtered/L_paracasei/run_*/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_2_filtered/L_plantarum/run_*/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_2_filtered/S_salivarius/run_*/*.pkl
 
   epsilon:
-    - - 0.25
-    - - 1.17
-    - - 0.25
-    - - 0.51
-    - - 1.22
-    - - 0.25
+    - - 10000.0
+    - - 10000.0
+    - - 10000.0
+    - - 10000.0
+    - - 10000.0
+    - - 10000.0
 
   population_names:
     - B_longum_subsp_longum

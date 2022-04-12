@@ -183,16 +183,10 @@ class ParameterEstimation:
         return particles
 
     def save_particles(self, particles, output_path):
-        particles_out = []
-        for idx, p in enumerate(particles):
-            p_copy = copy.deepcopy(p)
-
-            particles_out.append(p_copy)
-
         logger.info(f"Saving particles {output_path}")
 
         with open(f"{output_path}", "wb") as handle:
-            pickle.dump(particles_out, handle)
+            pickle.dump(particles, handle)
 
     def save_checkpoint(self, output_dir):
         time_stamp = time.strftime("%Y-%m-%d_%H%M%S")
@@ -223,6 +217,14 @@ class ParameterEstimation:
 
     def delete_particle_fba_models(self, particles):
         for part in particles:
+            try:
+                del part.initial_population_prior
+                del part.max_exchange_prior
+                del part.k_val_prior
+                del part.toxin_interaction_prior
+
+            except:
+                pass
 
             for p in part.populations:
                 del p.model
@@ -246,6 +248,15 @@ class ParameterEstimation:
         hotstart_particles = []
         for f in population_paths:
             particles = utils.load_pickle(f)
+
+            for p in particles:
+                try:
+                    del p.sol
+                    del p.flux_log
+                    del p.experiment
+                
+                except:
+                    pass
 
             hotstart_particles.extend(particles)
             gc.collect()
@@ -456,7 +467,7 @@ class GeneticAlgorithm(ParameterEstimation):
 
         # Generate a list of models that will be assigned
         # to new particles. Avoids repeatedly copying models
-        self.models = self.generate_models_list(n_models=self.population_size)
+        self.models = self.generate_models_list(n_models=self.n_particles_batch)
 
         print(hotstart_particles_regex)
         if not isinstance(hotstart_particles_regex, type(None)):
@@ -516,6 +527,7 @@ class GeneticAlgorithm(ParameterEstimation):
             batch_idx = 0
             accepted_particles = []
 
+
             logger.info(f"Performing crossover...")
             new_offspring = []
             new_parents = []
@@ -537,7 +549,7 @@ class GeneticAlgorithm(ParameterEstimation):
             logger.info(
                 f"Pop mean distance: {population_average_distance}, pop median distance: {population_mediain_distance}, pop min distance: {population_min_distance}"
             )
-            while len(new_offspring) <= self.population_size:
+            while len(new_offspring) < self.population_size:
                 logger.info(
                     f"Gen: {self.gen_idx}, batch: {batch_idx}, accepted: {len(new_offspring)}, mem usage (mb): {utils.get_mem_usage()}"
                 )
@@ -545,14 +557,20 @@ class GeneticAlgorithm(ParameterEstimation):
                 offspring_particles = []
                 while len(offspring_particles) < self.n_particles_batch:
                     parents = self.selection_tournament(
-                        self.population, 2, tournament_size=4
+                        self.population, 2, tournament_size=12
                     )
 
                     # Generate new batch by crossover
-                    candidate_particles = self.crossover_parameterwise(1, parents)
+                    # candidate_particles = self.crossover_parameterwise(1, parents)
+
+                    candidate_particles = self.crossover_species_wise(1, parents)
+
 
                     # Mutate batch
-                    self.mutate_parameterwise(candidate_particles)
+                    # self.mutate_parameterwise(candidate_particles)
+                    self.mutate_resample_from_prior(candidate_particles)
+
+
 
                     for p in candidate_particles:
                         p.set_init_y()

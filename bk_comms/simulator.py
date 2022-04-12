@@ -239,8 +239,9 @@ class CometsTimeSeriesSimulation:
 
         sol, t = self.process_experiment(community, experiment)
         
-        if self.flux_log_rate != 0.0:
-            community.flux_log = experiment.fluxes_by_species
+        if self.flux_log_rate == 0.0:
+            experiment.fluxes_by_species = None
+        
 
         print(tmp_dir)
         shutil.rmtree(tmp_dir)
@@ -266,11 +267,17 @@ class CometsTimeSeriesSimulation:
                     idx, sol, t, experiment = futures_mp_sol.next(timeout=sim_timeout)
                     particles[idx].sol = sol
                     particles[idx].t = t
-                    particles[idx].flux_log = experiment.fluxes_by_species
 
+                    
                 except mp.context.TimeoutError:
                     print("TIMEOUT ERROR")
                     break
+
+                try:
+                    particles[idx].flux_log = experiment.fluxes_by_species
+
+                except:
+                    pass
 
             print("Terminating pool")
             pool.terminate()
