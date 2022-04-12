@@ -2,7 +2,7 @@ import numpy as np
 from bk_comms import utils
 from loguru import logger
 import gc
-
+from glob import glob
 
 class SampleDistribution:
     def sample(self, size):
@@ -104,42 +104,46 @@ class SampleUniform(SampleDistribution):
 class SampleCombinationParticles:
     def __init__(
         self,
-        input_experiment_dirs,
+        input_particles_regex,
         epsilon,
         population_names,
         growth_keys,
         min_growth,
         max_growth,
     ):
-        self.input_experiment_dirs = input_experiment_dirs
+        self.input_particles_regex = input_particles_regex
         self.population_names = population_names
         self.growth_keys = growth_keys
         self.min_growth = min_growth
         self.max_growth = max_growth
 
-        repeat_prefix = "run_"
-        run_dirs = [
-            utils.get_experiment_repeat_directories(
-                exp_dir=x, repeat_prefix=repeat_prefix
-            )
-            for x in self.input_experiment_dirs
-        ]
-
-        particles_dict = self.load_particles(run_dirs, self.population_names, epsilon)
-        self.params_dict = self.generate_parameter_dict(particles_dict)
-
+        particle_paths = []
+        for x in input_particles_regex:
+            particle_paths.append(glob(x))
+        
         self.particle_counts = {}
         for p in self.population_names:
-            self.particle_counts[p] = len(self.params_dict[p]["k_vals"])
+            self.particle_counts[p] = 0
 
-    def load_particles(self, run_dirs, population_names, epsilon):
+        particles_dict = self.load_particles(particle_paths, self.population_names, epsilon)
+        self.params_dict = self.generate_parameter_dict(particles_dict)
+
+
+    def load_particles(self, particle_paths, population_names, epsilon):
 
         particles = {}
+        for species_idx, species_particle_paths in enumerate(particle_paths):
+            logger.info(f"Loading {species_particle_paths},  mem usage (mb): {utils.get_mem_usage()}")
 
-        for idx, x in enumerate(run_dirs):
-            logger.info(f"Loading {x},  mem usage (mb): {utils.get_mem_usage()}")
+            filtered_particles = []
 
-            filtered_particles = utils.load_all_particles(x, epsilon[idx])
+            for p_path in species_particle_paths:
+                particle_population = utils.load_pickle(p_path)
+                logger.info(f"Loaded {species_particle_paths},  particles: {len(particle_population)}, mem usage (mb): {utils.get_mem_usage()}")
+                particle_population = utils.filter_particles_by_distance(particle_population, epsilon[species_idx])
+                logger.info(f"After filtering,  particles: {len(particle_population)}, mem usage (mb): {utils.get_mem_usage()}")
+
+                filtered_particles.extend(particle_population)
 
             # Clean up unwanted data
             for p in filtered_particles:
@@ -150,7 +154,13 @@ class SampleCombinationParticles:
 
             gc.collect()
 
-            particles[population_names[idx]] = filtered_particles
+            particles[population_names[species_idx]] = filtered_particles
+            self.particle_counts[population_names[species_idx]] = len(filtered_particles)
+
+            logger.info(f"{population_names[species_idx]},  particles loaded: {len(particles[population_names[species_idx]])}, mem usage (mb): {utils.get_mem_usage()}")
+
+
+
 
         return particles
 
