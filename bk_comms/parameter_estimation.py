@@ -226,7 +226,8 @@ class ParameterEstimation:
 
             for p in part.populations:
                 del p.model
-
+                
+                
         gc.collect()
 
     def get_particle_distances(self, particles):
@@ -461,6 +462,8 @@ class GeneticAlgorithm(ParameterEstimation):
         print(hotstart_particles_regex)
         if not isinstance(hotstart_particles_regex, type(None)):
             self.hotstart(hotstart_particles_regex)
+            self.population = utils.get_unique_particles(self.population)
+
             logger.info(f"Hotstart complete, population size: {len(self.population)}")
 
     def selection(self, particles):
@@ -508,6 +511,8 @@ class GeneticAlgorithm(ParameterEstimation):
             self.calculate_and_set_particle_distances(self.population)
 
             output_path = f"{self.output_dir}particles_{self.experiment_name}_gen_{self.gen_idx}.pkl"
+            self.delete_particle_fba_models(offspring_particles)
+
             self.save_particles(self.population, output_path)
             self.gen_idx += 1
 
@@ -621,6 +626,14 @@ class SimpleSimulate(ParameterEstimation):
         # Load hotstart particles
         if not isinstance(hotstart_particles_regex, type(None)):
             self.hotstart(hotstart_particles_regex)
+            sum_distances = [max(p.distance) for p in self.population]
+            self.population = sorted(
+                self.population, key=lambda x: sum_distances[self.population.index(x)]
+            )
+
+            for p in self.population:
+                print(max(p.distance))
+
         else:
             self.hotstart_particles = None
 
@@ -629,8 +642,14 @@ class SimpleSimulate(ParameterEstimation):
         particles_simulated = 0
         batch_idx = 0
 
-        while particles_simulated < self.max_simulations:
-            particles = np.random.choice(self.population, self.n_particles_batch)
+        particle_idx = 0
+
+        while particles_simulated < self.max_simulations or particle_idx > len(self.population):
+            particles = []
+
+            for _ in range(self.n_particles_batch):
+                particles.append(self.population[particle_idx])
+                particle_idx += 1
 
             # Set models
             for p_idx, community in enumerate(particles):
@@ -643,6 +662,8 @@ class SimpleSimulate(ParameterEstimation):
             )
 
             print("Saving particles")
+
+            self.delete_particle_fba_models(particles)
             self.save_particles(
                 particles,
                 f"{self.output_dir}particles_{self.experiment_name}_batch_{batch_idx}.pkl",
