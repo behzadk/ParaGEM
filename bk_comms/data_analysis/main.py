@@ -278,7 +278,7 @@ def figure_particle_abundance_timeseries(particle, target_data):
     return fig
 
 
-def figure_flux_map(particle):
+def figure_flux_map_continuous(particle):
     print(particle.dynamic_compounds)
 
     exchange_reactions = [x.replace("M_", "EX_") for x in particle.dynamic_compounds]
@@ -309,18 +309,105 @@ def figure_flux_map(particle):
     
     df = df.drop(drop_cols, axis=1)
 
-
     fig = go.Figure(data=go.Heatmap(
         z=df[df.columns[~df.columns.isin(['species'])]].values,
         y=df.species,
         x=df.columns,
         colorscale='RdBu',
-        color_continuous_midpoint=0.0
     ))
 
-    fig.show()
+    return fig
 
-    exit()
+def figure_flux_map_discrete(particle):
+    exchange_reactions = [x.replace("M_", "EX_") for x in particle.dynamic_compounds]
+    all_species_fluxes = []
+
+    for species in particle.flux_log:
+        species_data = [species]
+        for ex_r in exchange_reactions:
+            if ex_r in particle.flux_log[species].columns:
+                
+                species_data.append(particle.flux_log[species][ex_r].mean())
+            
+            else:
+                species_data.append(0)
+        all_species_fluxes.append(species_data)
+    
+    df = pd.DataFrame(all_species_fluxes, columns=["species"] + exchange_reactions)
+    
+    # Remove columns that are all zero
+    drop_cols = []
+    for col in df.columns[1:]:
+        if (df[col] == 0).all():
+            drop_cols.append(col)
+        
+        elif (df[col] >= 0).all() or (df[col] <= 0).all():
+            drop_cols.append(col)
+    
+    df = df.drop(drop_cols, axis=1)
+
+    producer_colour = webcolors.hex_to_rgb(px.colors.qualitative.Dark24[0])
+    consumer_colour = webcolors.hex_to_rgb(px.colors.qualitative.Dark24[1])
+    neutral_colour = webcolors.hex_to_rgb(px.colors.qualitative.Dark24[5])
+
+    z = df[df.columns[~df.columns.isin(['species'])]].values
+    img_colours = np.zeros(shape=z.shape, dtype=object)
+    info_mat = np.zeros(shape=z.shape, dtype=object)
+
+    print(z.shape)
+    for x_idx in range(z.shape[0]):
+        for y_idx in range(z.shape[1]):
+            if z[x_idx][y_idx] == 0.0:
+                img_colours[x_idx][y_idx] = neutral_colour
+            
+            elif z[x_idx][y_idx] > 0.0:
+                img_colours[x_idx][y_idx] = consumer_colour
+            
+            elif z[x_idx][y_idx] < 0.0:
+                img_colours[x_idx][y_idx] = producer_colour
+    
+            info_mat[
+                x_idx, y_idx
+            ] = f"Value: {z[x_idx, y_idx]}\t Species: {df.species.values[x_idx]} \t Compound: {df[df.columns[~df.columns.isin(['species'])]].columns[y_idx]}"
+
+    # Setup fig
+    fig = go.Figure()
+
+    fig.add_trace(
+        go.Image(
+            z=img_colours,
+            ids=info_mat,
+            hovertext=info_mat,
+        ),
+    )
+
+    fig.update_layout(
+        # width=600,
+        # height=600,
+        showlegend=True,
+        title="Discretised mean average flux",
+        yaxis_title="Species",
+        xaxis_title="Compound",
+    )
+
+    fig.update_yaxes(
+        dict(
+            tickmode="array",
+            tickvals=[y for y in range(len(df.species.values))],
+            ticktext=df.species.values,
+        )
+    )
+
+    fig.update_xaxes(
+        dict(
+            tickmode="array",
+            tickvals=[x for x in range(len(df[df.columns[~df.columns.isin(['species'])]].columns))],
+            ticktext=df[df.columns[~df.columns.isin(['species'])]].columns,
+        )
+    )
+    
+    return fig
+
 
 def load_particles(particle_regex):
     particle_files = glob(particle_regex)
@@ -351,8 +438,8 @@ def main():
     wd = "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/"
     mix_target_data_path = "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/experimental_data/mel_target_data/target_data_pH7_Mix2_Med2.csv"
     target_data = pd.read_csv(mix_target_data_path)
-    particle_regex = f"{wd}/output/mel_mixes_growth/mel_multi_mix2_m2_growers/generation_*/run_*/*.pkl"
-    particle_regex = f"{wd}/output/mel_mixes_growth/resim_mel_multi_mix2_m2_growers/generation_0/*.pkl"
+    particle_regex = f"{wd}/output/mel_mixes_growth_2/resim_mel_multi_mix2_m2_growers/generation_*/*.pkl"
+    output_dir = f"{wd}/output/mel_mixes_growth_2/resim_mel_multi_mix2_m2_growers/"
 
     particles = load_particles(particle_regex)
 
@@ -366,22 +453,20 @@ def main():
     )
 
     particles = sorted_particles[:100]
-    sum_distances = [sum(p.distance) for p in particles]
-
-    for d in sum_distances:
-        print(d)
+    
+    for p in sorted_particles:
+        print(max(p.distance))
+    exit()
 
     particle_blocks = []
     for p_idx, p in enumerate(particles):
-        figure_flux_map(p)
         endpoint_abundance_plot = figure_particle_endpoint_abundance(p, target_data)
         timeseries_plot = figure_particle_abundance_timeseries(p, target_data)
 
         toxin_exchange_fig = figure_particle_toxin_interactions(p)
         met_exchange_fig = figure_particle_metabolite_exchange(p)
 
-        toxin_exchange_fig = figure_particle_toxin_interactions(p)
-        met_exchange_fig = figure_particle_metabolite_exchange(p)
+        flux_mat_fig = figure_flux_map_discrete(p)
 
         abundance_block = dp.Group(
             dp.Plot(endpoint_abundance_plot, responsive=False),
@@ -396,7 +481,7 @@ def main():
         interactions_block = dp.Group(
             dp.Plot(toxin_exchange_fig, responsive=False),
             dp.Plot(met_exchange_fig, responsive=False),
-            columns=2,
+            dp.Plot(flux_mat_fig, responsive=False),
             label="Interactions",
         )
 
@@ -406,13 +491,15 @@ def main():
         )
         particle_blocks.append(particle_block)
 
-        if p_idx == 5:
-            break
+        # if p_idx == 5:
+        #     break
 
     report = dp.Report(dp.Select(blocks=particle_blocks, type=dp.SelectType.DROPDOWN))
-    report.preview(
-        open=True, formatting=dp.ReportFormatting(width=dp.ReportWidth.MEDIUM)
-    )
+    # report.preview(
+    #     open=True, formatting=dp.ReportFormatting(width=dp.ReportWidth.MEDIUM)
+    # )
+
+    report.save(output_dir + "report.html", open=True, formatting=dp.ReportFormatting(width=dp.ReportWidth.MEDIUM))
 
 
 if __name__ == "__main__":
