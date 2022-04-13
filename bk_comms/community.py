@@ -168,13 +168,15 @@ class Community:
         self.media_path = media_path
 
         self.media_df = pd.read_csv(self.media_path, delimiter="\t")
+        
+        self.dynamic_compounds = self.get_dynamic_compounds(
+            model_paths, smetana_analysis_path, self.media_df, flavor="fbc2"
+        )
+
         self.media_df = self.media_df.loc[
             self.media_df["medium"] == media_name
         ].reset_index(drop=True)
 
-        self.dynamic_compounds = self.get_dynamic_compounds(
-            model_paths, smetana_analysis_path, self.media_df, flavor="fbc2"
-        )
 
         self.reaction_keys = [x.replace("M_", "EX_") for x in self.dynamic_compounds]
 
@@ -241,6 +243,7 @@ class Community:
         """
         n_populations = len(self.populations)
         n_dynamic_compounds = len(self.dynamic_compounds)
+
 
         # If distributions exist, sample from them and set parameters.
         # Special case used if prior is from existing particles,
@@ -578,6 +581,8 @@ class Community:
         # Remove duplicates and append toxins
         # toxin_compounds = [f"M_{t}_e" for t in self.toxin_names]
         dynamic_compounds = list(dict.fromkeys(dynamic_compounds))  # + toxin_compounds
+        dynamic_compounds = list(set(dynamic_compounds))
+
 
         print(f"Total env compounds: {len(all_compounds)}")
         print(f"Crossfeeding compounds: {len(cross_feeding_compounds)}")
