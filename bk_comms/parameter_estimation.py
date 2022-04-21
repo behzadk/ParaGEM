@@ -37,7 +37,7 @@ class ParameterEstimation:
             comm.sample_parameters_from_prior()
             particles[i] = comm
 
-        return particles        
+        return particles
 
 
     def crossover_parameterwise(self, n_particles, population):
@@ -632,6 +632,7 @@ class SimpleSimulate(ParameterEstimation):
 
         self.experiment_name = experiment_name
         self.base_community = base_community
+
         self.output_dir = output_dir
         self.simulator = simulator
         self.n_particles_batch = n_particles_batch
@@ -649,12 +650,23 @@ class SimpleSimulate(ParameterEstimation):
                 self.population, key=lambda x: sum_distances[self.population.index(x)]
             )
 
+            
+
             for p in self.population:
-                print(max(p.distance))
+                # print(max(p.distance))
+                pass
 
         else:
             self.hotstart_particles = None
 
+        for d in base_community.dynamic_compounds:
+            if d not in self.population[0].dynamic_compounds:
+                print(d)
+        
+        exit()
+
+    def initialize_fresh_particle(self):
+        pass
 
     def run(self, n_processes=1, parallel=False):
         particles_simulated = 0
@@ -663,29 +675,37 @@ class SimpleSimulate(ParameterEstimation):
         particle_idx = 0
 
         while particles_simulated < self.max_simulations or particle_idx > len(self.population):
-            particles = []
+        
+            batch_particles = []
 
-            for _ in range(self.n_particles_batch):
-                particles.append(self.population[particle_idx])
+            for i in range(self.n_particles_batch):
+                # Make independent copy of base community
+                comm = copy.deepcopy(self.base_community)
+                # Assign population models
+                for idx, pop in enumerate(comm.populations):
+                    pop.model = self.models[i][idx]
+                batch_particles.append(comm)
+
+            for batch_p_idx in range(self.n_particles_batch):
+                batch_particles[batch_p_idx].set_k_value_matrix(self.population[particle_idx].k_vals)
+                batch_particles[batch_p_idx].set_max_exchange_mat(self.population[particle_idx].max_exchange_mat)
+                batch_particles[batch_p_idx].set_toxin_mat(self.population[particle_idx].toxin_mat)
+
+                batch_particles[batch_p_idx].set_init_y()
+                
                 particle_idx += 1
 
-            # Set models
-            for p_idx, community in enumerate(particles):
-                # Assign population models
-                for idx, pop in enumerate(community.populations):
-                    pop.model = self.models[p_idx][idx]
-
             self.simulator.simulate_particles(
-                particles, n_processes=n_processes, parallel=parallel
+                batch_particles, n_processes=n_processes, parallel=parallel
             )
 
             print("Saving particles")
 
-            self.delete_particle_fba_models(particles)
+            self.delete_particle_fba_models(batch_particles)
             self.save_particles(
-                particles,
+                batch_particles,
                 f"{self.output_dir}particles_{self.experiment_name}_batch_{batch_idx}.pkl",
             )
 
-            particles_simulated += len(particles)
+            particles_simulated += len(batch_particles)
             batch_idx += 1
