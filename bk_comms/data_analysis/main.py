@@ -278,6 +278,60 @@ def figure_particle_abundance_timeseries(particle, target_data):
     return fig
 
 
+def figure_particle_biomass_timeseries(particle, target_data):
+    fig = make_subplots(
+        rows=len(particle.model_names), cols=1, shared_xaxes=True, shared_yaxes="all"
+    )
+
+    for idx, model_name in enumerate(particle.model_names):
+        print(model_name)
+
+        sim_sol = particle.sol[:, particle.solution_keys.index(model_name)]
+
+        abundance_sol = sim_sol
+
+        # # Plot experimental data
+        # exp_data = target_data[model_name].values
+
+        # fig.add_trace(
+        #     go.Scatter(
+        #         x=target_data.time,
+        #         y=exp_data,
+        #         name="Experiment",
+        #         legendgroup="Experiment",
+        #         marker={"color": colours[-1]},
+        #     ),
+        #     row=idx + 1,
+        #     col=1,
+        # )
+
+        fig.add_trace(
+            go.Line(
+                x=particle.t,
+                y=abundance_sol,
+                name=model_name,
+                opacity=1.0,
+                marker={"color": colours[idx]},
+            ),
+            row=idx + 1,
+            col=1,
+        )
+
+    names = set()
+    fig.for_each_trace(
+        lambda trace: trace.update(showlegend=False)
+        if (trace.name in names)
+        else names.add(trace.name)
+    )
+
+    # fig.update_xaxes(title="Time")
+    fig.update_xaxes(title="Time", row=len(particle.model_names) + 1, col=1)
+    fig.update_yaxes(title="Abundance", type='log')
+    fig.update_layout(template="simple_white", width=800, height=600)
+
+    return fig
+
+
 def figure_flux_map_continuous(particle):
     print(particle.dynamic_compounds)
 
@@ -321,6 +375,10 @@ def figure_flux_map_continuous(particle):
 def figure_flux_map_discrete(particle):
     exchange_reactions = [x.replace("M_", "EX_") for x in particle.dynamic_compounds]
     all_species_fluxes = []
+
+    if not hasattr(particle, "flux_log") or particle.flux_log is None:
+        return go.Figure()
+
 
     for species in particle.flux_log:
         species_data = [species]
@@ -438,30 +496,32 @@ def main():
     wd = "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/"
     mix_target_data_path = "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/experimental_data/mel_target_data/target_data_pH7_Mix2_Med2.csv"
     target_data = pd.read_csv(mix_target_data_path)
-    particle_regex = f"{wd}/output/mel_mixes_growth_2/resim_mel_multi_mix2_m2_growers/generation_*/*.pkl"
-    output_dir = f"{wd}/output/mel_mixes_growth_2/resim_mel_multi_mix2_m2_growers/"
+    particle_regex = f"{wd}/output/mel_mixes_growth_3/mel_multi_mix2_m2_growers/generation_*/run_1/*.pkl"
+    output_dir = f"{wd}/output/mel_mixes_growth_3/mel_multi_mix2_m2_growers/"
 
     particles = load_particles(particle_regex)
+    particles = [p for p in particles if hasattr(p, "sol")]
 
     particles = utils.get_unique_particles(particles)
-    recalculate_particle_distances(particles, mix_target_data_path)
+    # recalculate_particle_distances(particles, mix_target_data_path)
 
-    sum_distances = [max(p.distance) for p in particles]
+    sum_distances = [sum(p.distance) for p in particles]
 
     sorted_particles = sorted(
         particles, key=lambda x: sum_distances[particles.index(x)]
     )
 
+
     particles = sorted_particles[:100]
-    
+
     for p in sorted_particles:
         print(max(p.distance))
-    exit()
 
     particle_blocks = []
     for p_idx, p in enumerate(particles):
         endpoint_abundance_plot = figure_particle_endpoint_abundance(p, target_data)
         timeseries_plot = figure_particle_abundance_timeseries(p, target_data)
+        biomass_plot = figure_particle_biomass_timeseries(p, target_data)
 
         toxin_exchange_fig = figure_particle_toxin_interactions(p)
         met_exchange_fig = figure_particle_metabolite_exchange(p)
@@ -474,8 +534,8 @@ def main():
         )
 
         timeseries_bloc = dp.Group(
-            blocks=[dp.Plot(timeseries_plot, responsive=True)],
-            label="Abundance timeseries",
+            blocks=[dp.Plot(timeseries_plot, responsive=True), dp.Plot(biomass_plot, responsive=True)],
+            label="Timeseries",
         )
 
         interactions_block = dp.Group(
