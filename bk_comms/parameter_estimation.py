@@ -252,7 +252,7 @@ class ParameterEstimation:
 
             for p in particles:
                 try:
-                    del p.sol
+                    # del p.sol
                     del p.flux_log
                     del p.experiment
                 
@@ -267,6 +267,10 @@ class ParameterEstimation:
 
         # Set new generation
         hotstart_particles = utils.get_unique_particles(hotstart_particles)
+        logger.info(
+            f"Number of hotstart particles: {len(hotstart_particles)}"
+        )
+
         self.population = hotstart_particles
 
     def calculate_and_set_particle_distances(self, particles):
@@ -334,6 +338,19 @@ class NSGAII(ParameterEstimation):
             new_parents = []
             batch_idx = 0
             while len(new_offspring) < self.population_size:
+
+                population_average_distance = np.mean(
+                [max(p.distance) for p in self.population]
+                )
+                population_mediain_distance = np.median(
+                    [max(p.distance) for p in self.population]
+                )
+                population_min_distance = np.min([max(p.distance) for p in self.population])
+
+                logger.info(
+                    f"Pop mean distance: {population_average_distance}, pop median distance: {population_mediain_distance}, pop min distance: {population_min_distance}"
+                )
+
                 # Select parents population by non-dominated sorting and crowd distance
                 parent_particles = self.non_dominated_sort_parent_selection(
                     self.population, self.n_particles_batch
@@ -355,6 +372,9 @@ class NSGAII(ParameterEstimation):
                 self.simulator.simulate_particles(
                     offspring_particles, n_processes=n_processes, parallel=parallel
                 )
+
+                self.calculate_and_set_particle_distances(offspring_particles)
+
                 self.delete_particle_fba_models(offspring_particles)
 
                 new_offspring.extend(offspring_particles)
@@ -367,8 +387,6 @@ class NSGAII(ParameterEstimation):
             # Combine population of parents and offspring (2N)
             self.population = new_offspring + new_parents
 
-            # Calculate distances
-            self.calculate_and_set_particle_distances(self.population)
 
             self.save_particles(
                 self.population,
@@ -445,6 +463,7 @@ class GeneticAlgorithm(ParameterEstimation):
         epsilon_alpha=0.2,
         generation_idx=0,
         max_generations=1,
+        tournament_size=2,
         particle_filter=None,
     ):
         logger.info(f"Initialising GA")
@@ -465,6 +484,8 @@ class GeneticAlgorithm(ParameterEstimation):
 
         self.filter = particle_filter
         self.max_generations = max_generations
+
+        self.tournament_size = tournament_size
 
         # Generate a list of models that will be assigned
         # to new particles. Avoids repeatedly copying models
@@ -522,7 +543,6 @@ class GeneticAlgorithm(ParameterEstimation):
             self.calculate_and_set_particle_distances(self.population)
 
             output_path = f"{self.output_dir}particles_{self.experiment_name}_gen_{self.gen_idx}.pkl"
-            self.delete_particle_fba_models(offspring_particles)
 
             self.save_particles(self.population, output_path)
             self.gen_idx += 1
@@ -562,20 +582,18 @@ class GeneticAlgorithm(ParameterEstimation):
                 offspring_particles = []
                 while len(offspring_particles) < self.n_particles_batch:
                     parents = self.selection_tournament(
-                        self.population, 2, tournament_size=12
+                        self.population, 2, tournament_size=self.tournament_size
                     )
 
                     # Generate new batch by crossover
-                    # candidate_particles = self.crossover_parameterwise(1, parents)
+                    candidate_particles = self.crossover_parameterwise(1, parents)
 
-                    candidate_particles = self.crossover_species_wise(1, parents)
+                    # candidate_particles = self.crossover_species_wise(1, parents)
 
 
                     # Mutate batch
-                    # self.mutate_parameterwise(candidate_particles)
-                    self.mutate_resample_from_prior(candidate_particles)
-
-
+                    self.mutate_parameterwise(candidate_particles)
+                    # self.mutate_resample_from_prior(candidate_particles)
 
                     for p in candidate_particles:
                         p.set_init_y()
