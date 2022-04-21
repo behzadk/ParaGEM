@@ -1,14 +1,16 @@
 max_uptake_sampler:
   _target_: bk_comms.sampling.SampleCombinationParticles
   input_particles_regex: 
-    - ${cfg.wd}/output/mel_indiv_growth_2_filtered/B_longum_subsp_longum/run_*/*.pkl
-    - ${cfg.wd}/output/mel_indiv_growth_2_filtered/C_perfringens_S107/run_*/*.pkl
-    - ${cfg.wd}/output/mel_indiv_growth_2_filtered/E_coli_IAI1/run_*/*.pkl
-    - ${cfg.wd}/output/mel_indiv_growth_2_filtered/L_paracasei/run_*/*.pkl
-    - ${cfg.wd}/output/mel_indiv_growth_2_filtered/L_plantarum/run_*/*.pkl
-    - ${cfg.wd}/output/mel_indiv_growth_2_filtered/S_salivarius/run_*/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_3_filtered/B_longum_subsp_longum/run_*/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_3_filtered/C_perfringens_S107/run_*/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_3_filtered/E_coli_IAI1/run_*/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_3_filtered/L_paracasei/run_*/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_3_filtered/L_plantarum/run_*/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_3_filtered/S_salivarius/run_*/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_3_filtered/C_ramosum/run_*/*.pkl
 
   epsilon:
+    - - 10000.0
     - - 10000.0
     - - 10000.0
     - - 10000.0
@@ -23,8 +25,10 @@ max_uptake_sampler:
     - L_paracasei
     - L_plantarum
     - S_salivarius
+    - C_ramosum
 
   growth_keys:
+    - Growth
     - Growth
     - Growth
     - Growth
@@ -39,8 +43,10 @@ max_uptake_sampler:
     - -1
     - -1
     - -1
+    - -1
 
   max_growth:
+    - 100.0
     - 100.0
     - 100.0
     - 100.0
@@ -51,14 +57,16 @@ max_uptake_sampler:
 k_val_sampler:
   _target_: bk_comms.sampling.SampleCombinationParticles
   input_particles_regex: 
-    - ${cfg.wd}/output/mel_indiv_growth_2_filtered/B_longum_subsp_longum/run_*/*.pkl
-    - ${cfg.wd}/output/mel_indiv_growth_2_filtered/C_perfringens_S107/run_*/*.pkl
-    - ${cfg.wd}/output/mel_indiv_growth_2_filtered/E_coli_IAI1/run_*/*.pkl
-    - ${cfg.wd}/output/mel_indiv_growth_2_filtered/L_paracasei/run_*/*.pkl
-    - ${cfg.wd}/output/mel_indiv_growth_2_filtered/L_plantarum/run_*/*.pkl
-    - ${cfg.wd}/output/mel_indiv_growth_2_filtered/S_salivarius/run_*/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_3_filtered/B_longum_subsp_longum/run_*/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_3_filtered/C_perfringens_S107/run_*/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_3_filtered/E_coli_IAI1/run_*/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_3_filtered/L_paracasei/run_*/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_3_filtered/L_plantarum/run_*/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_3_filtered/S_salivarius/run_*/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_3_filtered/C_ramosum/run_*/*.pkl
 
   epsilon:
+    - - 10000.0
     - - 10000.0
     - - 10000.0
     - - 10000.0
@@ -73,8 +81,10 @@ k_val_sampler:
     - L_paracasei
     - L_plantarum
     - S_salivarius
+    - C_ramosum
 
   growth_keys:
+    - Growth
     - Growth
     - Growth
     - Growth
@@ -89,8 +99,10 @@ k_val_sampler:
     - -1
     - -1
     - -1
+    - -1
 
   max_growth:
+    - 100.0
     - 100.0
     - 100.0
     - 100.0

@@ -17,6 +17,7 @@ model_names:
   - L_paracasei
   - L_plantarum
   - S_salivarius
+  - C_ramosum
 
 model_paths:
 - ${cfg.wd}/models/melanie_data_models/B_longum_subsp_longum.xml
@@ -25,8 +26,10 @@ model_paths:
 - ${cfg.wd}/models/melanie_data_models/L_paracasei.xml
 - ${cfg.wd}/models/melanie_data_models/L_plantarum.xml
 - ${cfg.wd}/models/melanie_data_models/S_salivarius.xml
+- ${cfg.wd}/models/melanie_data_models/C_ramosum.xml
 
 objective_reaction_keys:
+- Growth
 - Growth
 - Growth
 - Growth

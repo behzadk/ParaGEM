@@ -1,11 +1,12 @@
 _target_: bk_comms.parameter_estimation.GeneticAlgorithm
 n_particles_batch: 10
-population_size: 80
+population_size: 250
 mutation_probability: 0.05
 hotstart_particles_regex:
 generation_idx: 0
 max_generations: 1
 epsilon_alpha: 0.2
+tournament_size: 25
 simulator: ${cfg.simulator}
 experiment_name: ${cfg.experiment_name}
 base_community: ${cfg.community}

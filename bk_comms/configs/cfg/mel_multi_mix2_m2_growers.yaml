@@ -1,6 +1,6 @@
-wd: /Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/
+wd: /home/bk445/rds/hpc-work/yeast_LAB_coculture/
 run_idx: 999
-output_dir: ${cfg.wd}/output/mel_mixes_growth/mel_multi_mix2_m2_growers/generation_${cfg.algorithm.generation_idx}/run_${cfg.run_idx}/
+output_dir: ${cfg.wd}/output/mel_mixes_growth_3/mel_multi_mix2_m2_growers/generation_${cfg.algorithm.generation_idx}/run_${cfg.run_idx}/
 
 # Information about the data being used
 exp_data_path: ${cfg.wd}/experimental_data/mel_target_data/target_data_pH7_Mix2_Med2.csv
@@ -17,6 +17,8 @@ exp_sol_keys:
     - L_plantarum
   - - S_salivarius
     - S_salivarius
+  - - C_ramosum
+    - C_ramosum
 
 exp_t_key: time
 experiment_name: none
@@ -28,23 +30,25 @@ epsilon:
   - 100.0
   - 100.0
   - 100.0
+  - 100.0
 
 final_epsilon:
-  - 100.0
-  - 100.0
-  - 100.0
-  - 100.0
-  - 100.0
-  - 100.0
+  - 0.01
+  - 0.01
+  - 0.01
+  - 0.01
+  - 0.01
+  - 0.01
+  - 0.01
 
 defaults:
   - _self_
   - community: mix2_m2_growers
   - algorithm: NSGAII
-  - simulator: time_series_comets_batch_dilution
+  - simulator: time_series_comets_batch_dilution_hpc
   - sampler: sampler_mix2_m2_growers
   - distance: abundance_error
   
 filter: null
 parallel: True
-n_processes: 8
+n_processes: 10
