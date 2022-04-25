@@ -287,6 +287,8 @@ class NSGAII(ParameterEstimation):
         base_community,
         output_dir,
         simulator,
+        crossover_type='parameterwise',
+        mutate_type='parameterwise',
         n_particles_batch=8,
         particle_filter=None,
         mutation_probability=0.0,
@@ -308,6 +310,24 @@ class NSGAII(ParameterEstimation):
         self.gen_idx = int(generation_idx)
         self.final_generation = False
 
+        if crossover_type == 'parameterwise':
+            self.crossover = self.crossover_parameterwise
+        
+        elif crossover_type == 'specieswise':
+            self.crossover = self.crossover_species_wise
+        
+        else:
+            raise ValueError(f"Unknown crossover type: {crossover_type}")
+
+        if mutate_type == "parameterwise":
+            self.mutate = self.mutate_parameterwise
+        
+        elif mutate_type == "resample_prior":
+            self.mutate = self.mutate_resample_from_prior
+        
+        else:
+            raise ValueError(f"Unknown mutation type: {mutate_type}")
+
         self.filter = particle_filter
         self.models = self.generate_models_list(n_models=self.population_size)
 
@@ -315,6 +335,8 @@ class NSGAII(ParameterEstimation):
 
         if not isinstance(hotstart_particles_regex, type(None)):
             self.hotstart(hotstart_particles_regex)
+
+
 
     def run(self, n_processes=1, parallel=False):
         logger.info(f"Running NSGAII")
@@ -358,12 +380,12 @@ class NSGAII(ParameterEstimation):
 
                 logger.info(f"Performing crossover to produce offspring")
                 # Perform crossover and mutation to generate offspring of size N
-                offspring_particles = self.crossover_species_wise(
+                offspring_particles = self.crossover(
                     self.n_particles_batch, parent_particles
                 )
 
                 logger.info(f"Mutating offspring")
-                self.mutate_resample_from_prior(offspring_particles)
+                self.mutate(offspring_particles)
                 offspring_particles = list(offspring_particles)
 
                 logger.info(f"Simulating offspring")
