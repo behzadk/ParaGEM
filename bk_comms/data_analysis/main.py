@@ -494,7 +494,7 @@ def recalculate_particle_distances(particles, target_data_path):
 
 def main():
     wd = "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/"
-    mix_target_data_path = "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/experimental_data/mel_target_data/target_data_pH7_Mix2_Med2.csv"
+    mix_target_data_path = f"{wd}/experimental_data/mel_target_data/target_data_pH7_Mix2_Med2.csv"
     target_data = pd.read_csv(mix_target_data_path)
     particle_regex = f"{wd}/output/mel_mixes_growth_3/mel_multi_mix2_m2_growers/generation_*/run_1/*.pkl"
     output_dir = f"{wd}/output/mel_mixes_growth_3/mel_multi_mix2_m2_growers/"
@@ -559,7 +559,7 @@ def main():
     #     open=True, formatting=dp.ReportFormatting(width=dp.ReportWidth.MEDIUM)
     # )
 
-    report.save(output_dir + "report.html", open=True, formatting=dp.ReportFormatting(width=dp.ReportWidth.MEDIUM))
+    report.save(output_dir + "report.html", open=False, formatting=dp.ReportFormatting(width=dp.ReportWidth.MEDIUM))
 
 
 if __name__ == "__main__":
