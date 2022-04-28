@@ -583,6 +583,8 @@ class Community:
         dynamic_compounds = list(dict.fromkeys(dynamic_compounds))  # + toxin_compounds
         dynamic_compounds = list(set(dynamic_compounds))
 
+        dynamic_compounds.sort()
+
 
         print(f"Total env compounds: {len(all_compounds)}")
         print(f"Crossfeeding compounds: {len(cross_feeding_compounds)}")
