@@ -13,6 +13,8 @@ import datapane as dp
 import pandas as pd
 from bk_comms import distances
 
+from visualisation_utils import load_particles
+
 colours = [
     "#003f5c",
     "#58508d",
@@ -377,6 +379,8 @@ def figure_flux_map_discrete(particle):
     all_species_fluxes = []
 
     if not hasattr(particle, "flux_log") or particle.flux_log is None:
+        print("No flux log found")
+        # exit()
         return go.Figure()
 
 
@@ -466,16 +470,33 @@ def figure_flux_map_discrete(particle):
     
     return fig
 
+def figure_community_biomass(particle):
+    fig = make_subplots(
+        rows=1, cols=1, shared_xaxes=True, shared_yaxes="all"
+    )
 
-def load_particles(particle_regex):
-    particle_files = glob(particle_regex)
-    particles = []
+    community_biomass = np.zeros(particle.sol[:, particle.solution_keys.index(particle.model_names[0])].shape)
+    for idx, model_name in enumerate(particle.model_names):
+        community_biomass += particle.sol[:, particle.solution_keys.index(model_name)]
 
-    for pickle_path in particle_files:
-        with open(pickle_path, "rb") as f:
-            particles.extend(pickle.load(f))
+    fig.add_trace(
+        go.Line(
+            x=particle.t,
+            y=community_biomass,
+            name="Community biomass",
+            opacity=1.0,
+            marker={"color": colours[0]},
+        ),
+        row=1,
+        col=1,
+    )
 
-    return particles
+    # fig.update_xaxes(title="Time")
+    fig.update_xaxes(title="Time", row=1, col=1)
+    fig.update_yaxes(title="Biomass", type='log')
+    fig.update_layout(template="simple_white", width=800, height=600)
+
+    return fig
 
 
 def recalculate_particle_distances(particles, target_data_path):
@@ -496,8 +517,10 @@ def main():
     wd = "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/"
     mix_target_data_path = f"{wd}/experimental_data/mel_target_data/target_data_pH7_Mix2_Med2.csv"
     target_data = pd.read_csv(mix_target_data_path)
-    particle_regex = f"{wd}/output/mel_mixes_growth_3/mel_multi_mix2_m2_growers/generation_*/run_1/*.pkl"
-    output_dir = f"{wd}/output/mel_mixes_growth_3/mel_multi_mix2_m2_growers/"
+    experiment_dir = f"{wd}/output/mel_mixes_growth_test_2/mel_multi_mix2_m2_growers/"
+
+    particle_regex = f"{experiment_dir}/generation_*/run_*/*.pkl"
+    output_dir = f"{experiment_dir}/"
 
     particles = load_particles(particle_regex)
     particles = [p for p in particles if hasattr(p, "sol")]
@@ -512,7 +535,7 @@ def main():
     )
 
 
-    particles = sorted_particles[:100]
+    particles = sorted_particles[:25]
 
     for p in sorted_particles:
         print(max(p.distance))
@@ -528,13 +551,15 @@ def main():
 
         flux_mat_fig = figure_flux_map_discrete(p)
 
+        community_biomass_fig = figure_community_biomass(p)
+
         abundance_block = dp.Group(
             dp.Plot(endpoint_abundance_plot, responsive=False),
             label="Endpoint abundance",
         )
 
         timeseries_bloc = dp.Group(
-            blocks=[dp.Plot(timeseries_plot, responsive=True), dp.Plot(biomass_plot, responsive=True)],
+            blocks=[dp.Plot(timeseries_plot, responsive=True), dp.Plot(biomass_plot, responsive=True), dp.Plot(community_biomass_fig, responsive=True)],
             label="Timeseries",
         )
 
