@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from loguru import logger
 from typing import List
-
+from scipy import stats
 
 def find_nearest(array, value):
     array = np.asarray(array)
@@ -121,6 +121,57 @@ class DistanceTimeseriesEuclidianDistance:
                 return False, distance
 
         return True, distance
+
+class DistanceAbundanceSpearmanRank:
+    def __init__(
+        self,
+        exp_data_path: str,
+        exp_t_key,
+        exp_sol_keys,
+    ):
+        self.exp_data = pd.read_csv(exp_data_path)
+        self.exp_t_key = exp_t_key
+        self.exp_sol_keys = exp_sol_keys
+
+    def calculate_distance(self, community):
+        # One additonal distance because we append the spearman rank
+        n_distances = len(self.exp_sol_keys) + 1
+        distances = np.zeros(n_distances)
+
+        if community.sol is None or community.t is None:
+            return [np.inf for d in range(n_distances)]
+
+        sim_data = community.sol
+        sim_t = community.t
+
+        exp_values = []
+        sim_values = []
+        for distance_idx, key_pair in enumerate(self.exp_sol_keys):
+            for exp_data_idx, t in enumerate(self.exp_data[self.exp_t_key].values):
+                sim_t_idx = find_nearest(sim_t, t)
+
+                sol_idx = get_solution_index(community, key_pair[1])
+
+                sim_val = sim_data[:, sol_idx][sim_t_idx]
+                exp_val = self.exp_data.loc[self.exp_data[self.exp_t_key] == t][
+                    key_pair[0]
+                ].values[0]
+
+                if np.isnan(exp_val):
+                    continue
+                
+                exp_values.append(exp_val)
+                sim_values.append(sim_val)
+                
+                distances[distance_idx] = max(distances[distance_idx], abs(exp_val - sim_val))
+        
+        spearman_rank_corr = stats.spearmanr(sim_values, exp_values)[0]
+        # Normalize to between 0 and 1
+        spearman_rank_corr = (spearman_rank_corr + 1) / 2
+        distances[-1] = 1 - spearman_rank_corr
+
+        return distances
+
 
 class DistanceTimeseriesEuclidianDistancePointWise:
     def __init__(
