@@ -89,13 +89,16 @@ class ParameterEstimation:
                 batch_particles[p_batch_idx].model_names
             ):
                 # Randomly choose male or female particle and update parameters for that model
-                if np.random.randint == 0:
+                if np.random.randint(2) == 0:
                     batch_particles[p_batch_idx].k_vals[model_idx] = male_part.k_vals[
                         model_idx
                     ].copy()
+                    
                     batch_particles[p_batch_idx].max_exchange_mat[
                         model_idx
                     ] = male_part.max_exchange_mat[model_idx].copy()
+
+                    batch_particles[p_batch_idx].toxin_mat[model_idx] = male_part.toxin_mat[model_idx].copy()
 
                 else:
                     batch_particles[p_batch_idx].k_vals[model_idx] = female_part.k_vals[
@@ -105,13 +108,8 @@ class ParameterEstimation:
                         model_idx
                     ] = female_part.max_exchange_mat[model_idx].copy()
 
-            # Randomly sample toxin interactions from either male or female
-            if np.random.randint == 0:
-                batch_particles[p_batch_idx].set_toxin_mat(male_part.toxin_mat.copy())
-
-            else:
-                batch_particles[p_batch_idx].set_toxin_mat(female_part.toxin_mat.copy())
-
+                    batch_particles[p_batch_idx].toxin_mat[model_idx] = female_part.toxin_mat[model_idx].copy()
+                    
         return batch_particles
 
     def mutate_parameterwise(self, batch_particles):
@@ -329,7 +327,7 @@ class NSGAII(ParameterEstimation):
             raise ValueError(f"Unknown mutation type: {mutate_type}")
 
         self.filter = particle_filter
-        self.models = self.generate_models_list(n_models=self.population_size)
+        self.models = self.generate_models_list(n_models=self.n_particles_batch)
 
         self.max_generations = max_generations
 
@@ -367,7 +365,7 @@ class NSGAII(ParameterEstimation):
                 population_mediain_distance = np.median(
                     [max(p.distance) for p in self.population]
                 )
-                population_min_distance = np.min([max(p.distance) for p in self.population])
+                population_min_distance = np.min([sum(p.distance) for p in self.population])
 
                 logger.info(
                     f"Pop mean distance: {population_average_distance}, pop median distance: {population_mediain_distance}, pop min distance: {population_min_distance}"
