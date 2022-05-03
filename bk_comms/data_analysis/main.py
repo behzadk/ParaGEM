@@ -514,16 +514,23 @@ def recalculate_particle_distances(particles, target_data_path):
 
 
 def main():
-    wd = "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/"
+    wd = "/rds/user/bk445/hpc-work/yeast_LAB_coculture/"
     mix_target_data_path = f"{wd}/experimental_data/mel_target_data/target_data_pH7_Mix2_Med2.csv"
     target_data = pd.read_csv(mix_target_data_path)
-    experiment_dir = f"{wd}/output/mel_mixes_growth_test_2/mel_multi_mix2_m2_growers/"
+    experiment_dir = f"{wd}/output/mel_mixes_growth_5/mel_multi_mix2_m2_growers/"
 
-    particle_regex = f"{experiment_dir}/generation_*/run_*/*.pkl"
+    particle_regex = f"{experiment_dir}/generation_4/run_*/*.pkl"
     output_dir = f"{experiment_dir}/"
 
-    particles = load_particles(particle_regex)
-    particles = [p for p in particles if hasattr(p, "sol")]
+    particles = []
+
+    # Load partices
+    for pickle_path in glob(particle_regex):
+        with open(pickle_path, "rb") as f:
+            new_p_list = pickle.load(f)
+            new_p_list = [p for p in new_p_list if hasattr(p, "sol")]
+            new_p_list = [p for p in new_p_list if sum(p.distance) < 50.0]
+            particles.extend(new_p_list)
 
     particles = utils.get_unique_particles(particles)
     # recalculate_particle_distances(particles, mix_target_data_path)
