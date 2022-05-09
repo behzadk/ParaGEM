@@ -139,7 +139,7 @@ class ParameterEstimation:
             )[0]
             mut_params_vec = mut_particle.generate_parameter_vector()
 
-            if np.random.uniform() > self.mutation_probability:
+            if np.random.uniform() < self.mutation_probability:
                 particle.load_parameter_vector(mut_params_vec)
 
     def gen_initial_population(self, n_processes, parallel):
@@ -412,6 +412,8 @@ class NSGAII(ParameterEstimation):
                 self.population,
                 output_path=f"{self.output_dir}particles_gen_{self.gen_idx}.pkl",
             )
+            new_offspring = []
+            new_parents = []
             self.gen_idx += 1
 
         logger.info(f"Finished")
