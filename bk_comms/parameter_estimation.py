@@ -33,8 +33,9 @@ class ParameterEstimation:
             # Assign population models
             for idx, pop in enumerate(comm.populations):
                 pop.model = self.models[i][idx]
-
+            
             comm.sample_parameters_from_prior()
+            comm.set_init_y()
             particles[i] = comm
 
         return particles
@@ -141,6 +142,32 @@ class ParameterEstimation:
 
             if np.random.uniform() < self.mutation_probability:
                 particle.load_parameter_vector(mut_params_vec)
+
+    def mutate_community_from_prior(self, batch_particles):
+        for particle in batch_particles:
+            # Generate a 'mutation particle'
+            mut_particle = self.init_particles(
+                1,
+            )[0]
+
+            if np.random.uniform() < self.mutation_probability:
+                # For each model in the community, randomly select parameters from male or female
+                for model_idx, particle_model_name in enumerate(
+                    particle.model_names
+                ):
+                    # Randomly choose male or female particle and update parameters for that model
+                    if np.random.randint(2) == 0:
+                        particle.k_vals[model_idx] = mut_particle.k_vals[
+                            model_idx
+                        ].copy()
+                        
+                        particle.max_exchange_mat[
+                            model_idx
+                        ] = mut_particle.max_exchange_mat[model_idx].copy()
+
+                        particle.toxin_mat[model_idx] = mut_particle.toxin_mat[model_idx].copy()                        
+
+
 
     def gen_initial_population(self, n_processes, parallel):
         logger.info("Generating initial population")
@@ -297,6 +324,8 @@ class NSGAII(ParameterEstimation):
     ):
         self.experiment_name = experiment_name
         self.base_community = base_community
+        self.base_community.set_init_y()
+        
         self.n_particles_batch = n_particles_batch
 
         self.output_dir = output_dir
@@ -321,7 +350,8 @@ class NSGAII(ParameterEstimation):
             self.mutate = self.mutate_parameterwise
         
         elif mutate_type == "resample_prior":
-            self.mutate = self.mutate_resample_from_prior
+            # self.mutate = self.mutate_resample_from_prior
+            self.mutate = self.mutate_community_from_prior
         
         else:
             raise ValueError(f"Unknown mutation type: {mutate_type}")
@@ -686,14 +716,16 @@ class SimpleSimulate(ParameterEstimation):
         if not isinstance(hotstart_particles_regex, type(None)):
             self.hotstart(hotstart_particles_regex)
             sum_distances = [max(p.distance) for p in self.population]
+            self.population = utils.get_unique_particles(self.population)
+
             self.population = sorted(
                 self.population, key=lambda x: sum_distances[self.population.index(x)]
             )
 
-            
 
+            self.population = self.population
             for p in self.population:
-                # print(max(p.distance))
+                print(sum(p.distance))
                 pass
 
         else:
@@ -703,7 +735,10 @@ class SimpleSimulate(ParameterEstimation):
             if d not in self.population[0].dynamic_compounds:
                 print(d)
         
-        exit()
+        self.save_particles(
+                self.population,
+                f"{self.output_dir}hotstart_particles_{self.experiment_name}.pkl",
+            )
 
     def initialize_fresh_particle(self):
         pass
@@ -726,10 +761,16 @@ class SimpleSimulate(ParameterEstimation):
                     pop.model = self.models[i][idx]
                 batch_particles.append(comm)
 
+            # batch_particles = self.init_particles(self.n_particles_batch)
+
             for batch_p_idx in range(self.n_particles_batch):
                 batch_particles[batch_p_idx].set_k_value_matrix(self.population[particle_idx].k_vals)
                 batch_particles[batch_p_idx].set_max_exchange_mat(self.population[particle_idx].max_exchange_mat)
+
+
                 batch_particles[batch_p_idx].set_toxin_mat(self.population[particle_idx].toxin_mat)
+                batch_particles[batch_p_idx].set_initial_populations(self.population[particle_idx].init_population_values)
+
 
                 batch_particles[batch_p_idx].set_init_y()
                 
