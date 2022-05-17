@@ -91,7 +91,7 @@ class CometsTimeSeriesSimulation:
         # will be overriden if defined in media file
         for idx, toxin_name in enumerate(community.toxin_names):
             toxin_name = toxin_name + "_e"
-            layout.set_specific_metabolite(toxin_name, 0.0)
+            layout.set_specific_metabolite(toxin_name, 1e-30)
 
         # Set dynamic compound initial concentrations
         for idx, cmpd in enumerate(community.dynamic_compounds):
@@ -184,11 +184,11 @@ class CometsTimeSeriesSimulation:
         layout = cometspy.layout()
         self.set_model_initial_pop(layout, community)
         self.load_layout_models(layout, community)
-        self.set_layout_metabolite_concentrations(layout, community)
-
         self.set_lb_constraint(layout, community)
         self.set_k_values(layout, community)
         self.set_toxin_interactions(layout, community)
+
+        self.set_layout_metabolite_concentrations(layout, community)
 
         layout.media.reset_index(inplace=True)
 
