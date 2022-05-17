@@ -439,7 +439,7 @@ class Community:
                     break
 
             if not found_match:
-                init_compound_values[compound_idx] = 1e-5
+                init_compound_values[compound_idx] = 1e-30
 
         return init_compound_values
 
