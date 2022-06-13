@@ -15,6 +15,8 @@ from bk_comms import distances
 
 from visualisation_utils import load_particles
 
+import os
+
 colours = [
     "#003f5c",
     "#58508d",
@@ -215,7 +217,8 @@ def figure_particle_endpoint_abundance(particle, target_data):
 
     # Make figure
     fig = px.bar(df, x="dataset_label", y="abundance", color="species_label")
-    fig.update_layout(template="simple_white", width=600, height=500, autosize=False)
+    fig.update_layout(template="simple_white", title=f"Sum distances = {sum(particle.distance)}", 
+    width=600, height=500, autosize=False)
 
     return fig
 
@@ -508,48 +511,80 @@ def recalculate_particle_distances(particles, target_data_path):
         target_data_path, "time", exp_sol_keys, epsilon=1.0, final_epsilon=1.0
     )
 
+    # dist = distances.DistanceAbundanceSpearmanRank(
+    #     target_data_path, "time", exp_sol_keys,
+    # )
+
     for p in particles:
         d = dist.calculate_distance(p)
         p.distance = d
+
+def write_manuscript_figure(figure, output_path):
+    figure = go.Figure(figure)
+    figure.layout.sliders = None
+    # figure.update_layout(showlegend=False)
+    # figure.update_xaxes(slider=False)
+
+    figure.write_image(output_path)
 
 
 def main():
     wd = "/rds/user/bk445/hpc-work/yeast_LAB_coculture/"
     mix_target_data_path = f"{wd}/experimental_data/mel_target_data/target_data_pH7_Mix2_Med2.csv"
     target_data = pd.read_csv(mix_target_data_path)
-    experiment_dir = f"{wd}/output/mel_mixes_growth_5/mel_multi_mix2_m2_growers/"
+    experiment_dir = f"{wd}/output/mel_mixes_growth_10_filtered/resim_mel_multi_mix2_m2_growers_M2/"
+    # experiment_dir = f"{wd}/output/mel_mixes_growth_10_filtered/mel_multi_mix2_m3_growers/"
 
-    particle_regex = f"{experiment_dir}/generation_4/run_*/*.pkl"
+    particle_regex = f"{experiment_dir}/generation_*/run_*/particles_*.pkl"
     output_dir = f"{experiment_dir}/"
 
+    figures_output_dir = f"{output_dir}/figures/"
+    # Make directory if doesnt exist
+    if not os.path.exists(figures_output_dir):
+        os.makedirs(figures_output_dir)
+   
     particles = []
 
     # Load partices
     for pickle_path in glob(particle_regex):
         with open(pickle_path, "rb") as f:
             new_p_list = pickle.load(f)
+            recalculate_particle_distances(new_p_list, mix_target_data_path)
+            for p in new_p_list:
+                print(sum(p.distance))
+            print("")
             new_p_list = [p for p in new_p_list if hasattr(p, "sol")]
-            new_p_list = [p for p in new_p_list if sum(p.distance) < 50.0]
+            # new_p_list = [p for p in new_p_list if sum(p.distance) < 0.45]
+
+
             particles.extend(new_p_list)
 
     particles = utils.get_unique_particles(particles)
-    # recalculate_particle_distances(particles, mix_target_data_path)
-
     sum_distances = [sum(p.distance) for p in particles]
 
-    sorted_particles = sorted(
-        particles, key=lambda x: sum_distances[particles.index(x)]
-    )
+    # sorted_particles = sorted(
+    #     particles, key=lambda x: sum_distances[particles.index(x)]
+    # )
 
+    sorted_particles = particles
 
-    particles = sorted_particles[:25]
+    sum_distances = [sum(p.distance) for p in particles]
+    # recalculate_particle_distances(particles, mix_target_data_path)
+    spear_sum_distances = [sum(p.distance) for p in particles]
 
-    for p in sorted_particles:
-        print(max(p.distance))
+    print("Particles before cut: ", len(particles))
+
+    particles = sorted_particles[:10]
+
+    for p in particles:
+        print(p.distance)
 
     particle_blocks = []
     for p_idx, p in enumerate(particles):
         endpoint_abundance_plot = figure_particle_endpoint_abundance(p, target_data)
+        write_manuscript_figure(endpoint_abundance_plot, output_path=f"{figures_output_dir}/endpoint_abundance_{p_idx}.pdf")
+        # continue
+
         timeseries_plot = figure_particle_abundance_timeseries(p, target_data)
         biomass_plot = figure_particle_biomass_timeseries(p, target_data)
 
@@ -586,12 +621,13 @@ def main():
         # if p_idx == 5:
         #     break
 
+    print(output_dir)
     report = dp.Report(dp.Select(blocks=particle_blocks, type=dp.SelectType.DROPDOWN))
     # report.preview(
     #     open=True, formatting=dp.ReportFormatting(width=dp.ReportWidth.MEDIUM)
     # )
 
-    report.save(output_dir + "report.html", open=False, formatting=dp.ReportFormatting(width=dp.ReportWidth.MEDIUM))
+    report.save(output_dir + "report_non_spear.html", open=False, formatting=dp.ReportFormatting(width=dp.ReportWidth.MEDIUM))
 
 
 if __name__ == "__main__":
