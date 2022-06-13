@@ -144,6 +144,8 @@ class ParameterEstimation:
                 particle.load_parameter_vector(mut_params_vec)
 
     def mutate_community_from_prior(self, batch_particles):
+
+        
         for particle in batch_particles:
             # Generate a 'mutation particle'
             mut_particle = self.init_particles(
@@ -155,7 +157,7 @@ class ParameterEstimation:
                 for model_idx, particle_model_name in enumerate(
                     particle.model_names
                 ):
-                    # Randomly choose male or female particle and update parameters for that model
+                    # Either mutate the metabolism or the toxins (not both at the same time)
                     if np.random.randint(2) == 0:
                         particle.k_vals[model_idx] = mut_particle.k_vals[
                             model_idx
@@ -165,6 +167,7 @@ class ParameterEstimation:
                             model_idx
                         ] = mut_particle.max_exchange_mat[model_idx].copy()
 
+                    else:
                         particle.toxin_mat[model_idx] = mut_particle.toxin_mat[model_idx].copy()                        
 
 
@@ -416,6 +419,9 @@ class NSGAII(ParameterEstimation):
                 self.mutate(offspring_particles)
                 offspring_particles = list(offspring_particles)
 
+                if not isinstance(self.filter, type(None)):
+                    offspring_particles = self.filter.filter_particles(offspring_particles)
+
                 logger.info(f"Simulating offspring")
 
                 logger.info(f"Simulating offspring batch: {batch_idx}")
@@ -424,6 +430,9 @@ class NSGAII(ParameterEstimation):
                 )
 
                 self.calculate_and_set_particle_distances(offspring_particles)
+
+                
+                offspring_particles = [p for p in offspring_particles if not np.isnan(sum(p.distance))]
 
                 self.delete_particle_fba_models(offspring_particles)
 
