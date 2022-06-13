@@ -1,4 +1,4 @@
-wd: /home/bk445/rds/hpc-work/yeast_LAB_coculture/
+wd: /Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/
 run_idx: 999
 output_dir: ${cfg.wd}/output/mel_mixes_growth_3/mel_multi_mix2_m2_growers/generation_${cfg.algorithm.generation_idx}/run_${cfg.run_idx}/
 
@@ -45,7 +45,7 @@ defaults:
   - _self_
   - community: mix2_m2_growers
   - algorithm: NSGAII
-  - simulator: time_series_comets_batch_dilution_hpc
+  - simulator: time_series_comets_batch_dilution
   - sampler: sampler_mix2_m2_growers
   - distance: abundance_error
   
