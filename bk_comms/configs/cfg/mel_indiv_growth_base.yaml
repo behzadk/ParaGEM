@@ -1,6 +1,6 @@
 wd: /home/bk445/rds/hpc-work/yeast_LAB_coculture/
 run_idx: 999
-output_dir: ${cfg.wd}/output/mel_indiv_growth_2/${cfg.community.model_names.0}/generation_${cfg.algorithm.generation_idx}/run_${cfg.run_idx}/
+output_dir: ${cfg.wd}/output/mel_indiv_growth_10/${cfg.community.model_names.0}/generation_${cfg.algorithm.generation_idx}/run_${cfg.run_idx}/
 
 # Information about the data being used
 exp_data_path: ${cfg.wd}/experimental_data/mel_target_data/mel_indiv_target_data.csv
@@ -18,10 +18,10 @@ final_epsilon:
 defaults:
   - _self_
   - community: null
-  - algorithm: genetic_algorithm
+  - algorithm: NSGAII
   - simulator: time_series_comets_hpc
-  - sampler: default_log_uniform
-  - distance: fold_change_error
+  - sampler: log_uniform_no_production
+  - distance: fold_change_error_pointwise
   - filter: default_indiv_growth_filter
 parallel: True
-n_processes: 8
+n_processes: 10

@@ -28,7 +28,7 @@ def generate_particle_parameter_df(particles):
     column_headings = []
     column_headings += (
         init_conc_cols
-        + init_species_col[0:-1]
+        + init_species_col
         + k_val_cols
         + lb_constraint_cols
         + toxin_cols
@@ -38,8 +38,8 @@ def generate_particle_parameter_df(particles):
 
     parameters = np.zeros([len(particles), len(column_headings)])
     for idx, p in enumerate(particles):
-        # parameters[idx] = p.generate_parameter_vector().reshape(-1)
-        param_vec, initial_concs_vec, k_val_vec, max_exchange_vec, toxin_mat = p.generate_parameter_vector()
+        parameters[idx] = p.generate_parameter_vector().reshape(-1)
+        # param_vec = p.generate_parameter_vector()
 
 
     df = pd.DataFrame(data=parameters, columns=column_headings)

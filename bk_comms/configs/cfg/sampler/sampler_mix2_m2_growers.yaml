@@ -1,13 +1,13 @@
 max_uptake_sampler:
   _target_: bk_comms.sampling.SampleCombinationParticles
   input_particles_regex: 
-    - ${cfg.wd}/output/mel_indiv_growth_5_filtered/B_longum_subsp_longum/generation_0/run_*/*.pkl
-    - ${cfg.wd}/output/mel_indiv_growth_5_filtered/C_perfringens_S107/generation_0/run_*/*.pkl
-    - ${cfg.wd}/output/mel_indiv_growth_5_filtered/E_coli_IAI1/generation_0/run_*/*.pkl
-    - ${cfg.wd}/output/mel_indiv_growth_5_filtered/L_paracasei/generation_0/run_*/*.pkl
-    - ${cfg.wd}/output/mel_indiv_growth_5_filtered/L_plantarum/generation_0/run_*/*.pkl
-    - ${cfg.wd}/output/mel_indiv_growth_5_filtered/S_salivarius/generation_0/run_*/*.pkl
-    - ${cfg.wd}/output/mel_indiv_growth_5_filtered/C_ramosum/generation_0/run_*/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_10_filtered/B_longum_subsp_longum/generation_0/run_0/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_10_filtered/C_perfringens_S107/generation_0/run_0/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_10_filtered/E_coli_IAI1/generation_0/run_0/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_10_filtered/L_paracasei/generation_0/run_0/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_10_filtered/L_plantarum/generation_0/run_0/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_10_filtered/S_salivarius/generation_0/run_0/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_10_filtered/C_ramosum/generation_0/run_0/*.pkl
 
   epsilon:
     - - 10000.0
@@ -57,13 +57,13 @@ max_uptake_sampler:
 k_val_sampler:
   _target_: bk_comms.sampling.SampleCombinationParticles
   input_particles_regex: 
-    - ${cfg.wd}/output/mel_indiv_growth_5_filtered/B_longum_subsp_longum/generation_0/run_*/*.pkl
-    - ${cfg.wd}/output/mel_indiv_growth_5_filtered/C_perfringens_S107/generation_0/run_*/*.pkl
-    - ${cfg.wd}/output/mel_indiv_growth_5_filtered/E_coli_IAI1/generation_0/run_*/*.pkl
-    - ${cfg.wd}/output/mel_indiv_growth_5_filtered/L_paracasei/generation_0/run_*/*.pkl
-    - ${cfg.wd}/output/mel_indiv_growth_5_filtered/L_plantarum/generation_0/run_*/*.pkl
-    - ${cfg.wd}/output/mel_indiv_growth_5_filtered/S_salivarius/generation_0/run_*/*.pkl
-    - ${cfg.wd}/output/mel_indiv_growth_5_filtered/C_ramosum/generation_0/run_*/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_10_filtered/B_longum_subsp_longum/generation_0/run_0/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_10_filtered/C_perfringens_S107/generation_0/run_0/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_10_filtered/E_coli_IAI1/generation_0/run_0/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_10_filtered/L_paracasei/generation_0/run_0/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_10_filtered/L_plantarum/generation_0/run_0/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_10_filtered/S_salivarius/generation_0/run_0/*.pkl
+    - ${cfg.wd}/output/mel_indiv_growth_10_filtered/C_ramosum/generation_0/run_0/*.pkl
 
   epsilon:
     - - 10000.0
@@ -119,14 +119,14 @@ toxin_interaction_sampler:
     distribution_type: "uniform"
   dist_2:
     _target_: bk_comms.sampling.SampleUniform
-    min_val: 10
+    min_val: 10000
     max_val: 10000
     distribution_type: "log_uniform"
-  prob_dist_1: 0.95
+  prob_dist_1: 0.80
 
 init_population_sampler:
   _target_: bk_comms.sampling.SampleUniform
-  min_val: 0.0004
-  max_val: 0.0004
+  min_val: 0.00008
+  max_val: 0.00008
   distribution_type: "log_uniform"
 

@@ -1,7 +1,7 @@
 _target_: bk_comms.parameter_estimation.NSGAII
-population_size: 8
-n_particles_batch: 50
-mutation_probability: 0.1
+population_size: 50
+n_particles_batch: 10
+mutation_probability: 0.05
 hotstart_particles_regex:
 generation_idx: 0
 max_generations: 1
