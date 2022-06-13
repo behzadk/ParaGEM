@@ -1,0 +1,9 @@
+_target_: bk_comms.simulator.CometsTimeSeriesSimulation
+t_end: 239.9
+dt: 0.1
+gurobi_home_dir: "/usr/local/Cluster-Apps/gurobi/8.1.1/linux64"
+comets_home_dir: "/home/bk445/rds/hpc-work/comets"
+
+batch_dilution: True
+dilution_factor: 0.02
+dilution_time: 48
