@@ -12,6 +12,9 @@ import plotly.graph_objects as go
 import datapane as dp
 import pandas as pd
 from bk_comms import distances
+from pathlib import Path
+from visualisation_utils import generate_particle_parameter_df
+import scipy
 
 colours = [
     "#003f5c",
@@ -318,9 +321,41 @@ def recalculate_particle_distances_test(
         print(d)
         exit()
 
-def main():
+def calculate_posterior_volume(particles, output_path):
+    df = generate_particle_parameter_df(particles)
+    
+    param_analysis_data = {'param': [], 'range': [], 'max': [], 
+    'min': [], 'norm_test_p': [], 'norm_test_stat': []}
+
+    for c in df.columns:
+        data = df[c].values
+        norm_test = scipy.stats.normaltest(data)
+        param_analysis_data['param'].append(c)
+        param_analysis_data['max'].append(max(data))
+        param_analysis_data['min'].append(min(data))
+
+        param_analysis_data['norm_test_stat'].append(norm_test[0])
+        param_analysis_data['norm_test_p'].append(norm_test[1])
+
+        param_analysis_data['range'].append(max(data) - min(data))
+
+    param_analysis_df = pd.DataFrame(param_analysis_data)
+    param_analysis_df.sort_values('range', inplace=True)
+    param_analysis_df.to_csv(output_path)
+    exit()
+
+
+def write_manuscript_figure(figure, output_path):
+    figure = go.Figure(figure)
+    figure.layout.sliders = None
+    figure.update_layout(showlegend=False)
+    # figure.update_xaxes(slider=False)
+
+    figure.write_image(output_path)
+
+def datapane_main():
     wd = "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/"
-    data_directories = glob(f"{wd}/output/mel_indiv_growth_5_filtered/**/")
+    data_directories = glob(f"{wd}/output/mel_indiv_growth_8_filtered/**/")
     target_data_path = "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/experimental_data/mel_target_data/mel_indiv_target_data.csv"
     target_data_path = "/Users/bezk/Documents/CAM/research_code/community_study_mel_krp/target_data/individual_growth/mel_indiv_target_data.csv"
 
@@ -328,7 +363,9 @@ def main():
     individual_growth_df = pd.read_csv('/Users/bezk/Documents/CAM/research_code/community_study_mel_krp/target_data/individual_growth/formatted_individual_growth.csv')
 
 
-    output_dir = f"{wd}/output/mel_indiv_growth_5_filtered/"
+    output_dir = f"{wd}/output/mel_indiv_growth_8_filtered/"
+
+
 
     target_df = pd.read_csv(target_data_path, index_col=0)
 
@@ -346,38 +383,43 @@ def main():
 
 
     epsilon_dict = {
-        "B_longum_subsp_longum": 3.25,
-        "C_perfringens_S107": 39.037,
-        "E_coli_IAI1": 4.0,
-        "L_paracasei": 7.0,
-        "L_plantarum": 20.75,
-        "S_salivarius": 14.31,
+        "B_longum_subsp_longum": 1000,
+        "C_perfringens_S107": 1000,
+        "E_coli_IAI1": 1000,
+        "L_paracasei": 1000,
+        "L_plantarum": 1000,
+        "S_salivarius": 1000,
         "C_ramosum": 16.85
     }
 
     # figure_plot_experimental_max_OD(individual_growth_df,epsilon_dict.keys(), 'M2')
+    Path(f'{output_dir}/figures/').mkdir(parents=True, exist_ok=True)
 
     for d in data_directories:
         print(d)
         # Get top directory name
         dir_name = d.split("/")[-2]
-        print(dir_name)
+
+
 
         # if dir_name != "S_salivarius":
         #     continue
 
         # Load all particles
         particle_regex = f"{d}/run_*/particles_*.pkl"
-        # particle_regex = f"{d}/generation_*/run_1/particles_*.pkl"
+        particle_regex = f"{d}/generation_*/run_*/particles_*.pkl"
 
         particles = load_particles(particle_regex)
-        recalculate_particle_distances(
-            particles, target_data_path, target_data_key=f"{dir_name}_M2_ODfc"
-        )
+        # recalculate_particle_distances(
+        #     particles, target_data_path, target_data_key=f"{dir_name}_M2_ODfc"
+        # )
         particles = [p for p in particles if sum(p.distance) < epsilon_dict[dir_name]]
-
-        # particles = filter_particles(particles, epsilon_dict[dir_name])
         particles = [p for p in particles if hasattr(p, 'sol')]
+
+        print(len(particles))
+
+        calculate_posterior_volume(particles, output_path=f"{output_dir}/figures/{dir_name}_posterior_volume.csv")
+        exit()
 
         if len(particles) == 0:
             continue
@@ -403,7 +445,6 @@ def main():
             particles, target_df, exp_columns
         )
 
-        fig_fold_change_timeseries.show()
 
         fig_timeseries = figure_all_particle_timeseries(particles)
 
@@ -415,6 +456,14 @@ def main():
 
         print(len(fig_list))
         species_block = dp.Group(dp.Select(blocks=fig_list), label=f"{dir_name}")
+
+
+        write_manuscript_figure(fig_fold_change_timeseries, f"{output_dir}/figures/{dir_name}_fold_change_timeseries.pdf")
+        write_manuscript_figure(fig_timeseries, f"{output_dir}/figures/{dir_name}_biomass_timeseries.pdf")
+
+        for idx, fig_rep in enumerate(fitting_figs):
+            write_manuscript_figure(fig_rep, f"{output_dir}/figures/{dir_name}_fitting_rep_{idx}.pdf")
+
 
         # species_block = dp.Group(
         #     blocks=[fig_fold_change_timeseries],
@@ -432,7 +481,5 @@ def main():
 
     report.save(output_dir + "report.html", open=True, formatting=dp.ReportFormatting(width=dp.ReportWidth.MEDIUM))
 
-
-
 if __name__ == "__main__":
-    main()
+    datapane_main()
