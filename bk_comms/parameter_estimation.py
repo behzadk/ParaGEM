@@ -210,20 +210,31 @@ class ParameterEstimation:
 
         return particles
 
-    def save_particles(self, particles, output_path):
-        logger.info(f"Saving particles {output_path}")
+    def save_particles(self, particles, output_dir):
+    
+        init_populations_arr = np.array([particle.init_population_values for particle in particles])
+        k_values_arr = np.array([particle.k_vals for particle in particles])
+        max_exchange_arr = np.array([particle.max_exchange_mat for particle in particles])
+        toxin_arr = np.array([particle.toxin_mat for particle in particles])
 
-        with open(f"{output_path}", "wb") as handle:
-            pickle.dump(particles, handle)
+        distance_vectors = np.array([particle.distance for particle in particles])
 
-    def save_checkpoint(self, output_dir):
-        time_stamp = time.strftime("%Y-%m-%d_%H%M%S")
-        output_path = f"{output_dir}{self.experiment_name}_checkpoint_{time_stamp}.pkl"
+        # Write arrays to output_dir
+        np.save(f"{output_dir}/particle_init_populations.npy", init_populations_arr)
+        np.save(f"{output_dir}/particle_k_values.npy", k_values_arr)
+        np.save(f"{output_dir}/particle_max_exchange.npy", max_exchange_arr)
+        np.save(f"{output_dir}/particle_toxin.npy", toxin_arr)
 
-        logger.info(f"Saving checkpoint {output_path}")
+        if hasattr(particles[0],'distance'):
+            np.save(f"{output_dir}/particle_distance_vectors.npy", distance_vectors)
 
-        with open(output_path, "wb") as f:
-            pickle.dump(self, f)
+        if hasattr(particles[0],'sol'):
+            sol_vectors = np.array([particle.sol for particle in particles])
+            t_vectors = np.array([particle.t for particle in particles])
+
+            np.save(f"{output_dir}/particle_sol_vectors.npy", sol_vectors)
+            np.save(f"{output_dir}/particle_t_vectors.npy", t_vectors)
+
 
     def generate_models_list(self, n_models):
         # Generate a list of models that will be assigned
@@ -301,6 +312,36 @@ class ParameterEstimation:
 
         self.population = hotstart_particles
 
+    def hotstart_particles(self, hostart_parameter_dir_regex):
+        # Load all populations
+        hotstart_particles = []
+        hotstart_directories = glob.glob(hostart_parameter_dir_regex)
+        for hotstart_dir in hotstart_directories:
+            
+            # Make parameter paths
+            init_populations_arr = np.load(f"{hotstart_dir}/particle_init_populations.npy")
+            k_values_arr = np.load(f"{hotstart_dir}/particle_k_values.npy", )
+            max_exchange_arr = np.load(f"{hotstart_dir}/particle_max_exchange.npy", )
+            toxin_arr = np.load(f"{hotstart_dir}/particle_toxin.npy")
+
+            distance_arr = np.load(f"{hotstart_dir}/particle_distance_vectors.npy")
+
+            
+            naked_particles = self.init_particles(n_particles=len(max_exchange_arr))
+
+            for idx, p in enumerate(naked_particles):
+                p.set_initial_populations(init_populations_arr[idx])
+                p.set_k_value_matrix(k_values_arr[idx])
+                p.set_max_exchange_mat(max_exchange_arr[idx])
+                p.set_toxin_mat(toxin_arr[idx])
+
+                p.distance = distance_arr[idx]
+
+
+            hotstart_particles.extend(naked_particles)
+
+        self.population = hotstart_particles
+
     def calculate_and_set_particle_distances(self, particles):
         # Calculate distances
         for p in particles:
@@ -363,6 +404,7 @@ class NSGAII(ParameterEstimation):
         self.models = self.generate_models_list(n_models=self.n_particles_batch)
 
         self.max_generations = max_generations
+
 
         if not isinstance(hotstart_particles_regex, type(None)):
             self.hotstart(hotstart_particles_regex)

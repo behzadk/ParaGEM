@@ -59,6 +59,7 @@ def load_pickle(pickle_path):
         data = pickle.load(f)
         return data
 
+
 def get_unique_particles(particles_list):
     unique_particles = []
     for p in particles_list:
