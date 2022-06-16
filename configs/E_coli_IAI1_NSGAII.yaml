@@ -1,0 +1,49 @@
+run_idx: 999
+output_dir: ${user.wd}/output/${experiment_name}/${community.model_names.0}/generation_${algorithm.generation_idx}/run_${run_idx}/
+
+
+model_names:
+  - E_coli_IAI1
+
+model_paths:
+- ${user.wd}/models/melanie_data_models/E_coli_IAI1.xml
+
+objective_reaction_keys:
+- Growth
+
+# Information about the data being used
+exp_data_path: ${user.wd}/experimental_data/mel_target_data/mel_indiv_target_data.csv
+exp_sol_keys:
+  M3: 
+    - - E_coli_IAI1_M3_0_ODfc
+      - E_coli_IAI1
+  M2: 
+    - - E_coli_IAI1_M2_0_ODfc
+      - E_coli_IAI1
+
+exp_t_key: time
+experiment_name: test
+
+sim_media_names:
+  - M3
+  - M2
+
+defaults:
+  - _self_
+  - user: local
+  - community: E_coli_IAI1
+  - data: M3
+  - algorithm: NSGAII
+  - simulator: time_series_comets
+  - sampler: default_log_uniform
+  - distance: fold_change_error_pointwise
+  - filter: default_indiv_growth_filter
+  - override hydra/job_logging: none 
+  - override hydra/hydra_logging: none
+
+parallel: True
+n_processes: 2
+
+hydra.run.dir: . 
+hydra.output_subdir: null
+hydra.job.chdir: True

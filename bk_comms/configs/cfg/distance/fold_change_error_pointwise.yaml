@@ -1,5 +1,0 @@
-_target_: bk_comms.distances.DistanceFoldChangeErrorPointWise
-_convert_: partial
-exp_data_path: ${cfg.exp_data_path}
-exp_sol_keys: ${cfg.exp_sol_keys}
-exp_t_key: ${cfg.exp_t_key}

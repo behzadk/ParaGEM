@@ -1,0 +1,15 @@
+_convert_: partial
+_target_: bk_comms.community.Community
+enable_toxin_interactions: false
+initial_population_prior: ${sampler.init_population_sampler}
+k_val_prior: ${sampler.k_val_sampler}
+max_exchange_prior: ${sampler.max_uptake_sampler}
+toxin_interaction_prior: null
+media_path: ${data.media_path}
+smetana_analysis_path: ${data.smetana_analysis_path}
+model_names:
+- E_coli_IAI1
+model_paths:
+- ${user.wd}/models/melanie_data_models/E_coli_IAI1.xml
+objective_reaction_keys:
+- Growth
