@@ -19,11 +19,12 @@ import pygmo
 
 import glob
 
+from bk_comms.utils import logger_wraps
 
 class ParameterEstimation:
     def init_particles(
         self,
-        n_particles,
+        n_particles, assign_model=True
     ):
         particles = np.zeros(shape=n_particles, dtype=object)
 
@@ -31,12 +32,21 @@ class ParameterEstimation:
             # Make independent copy of base community
             comm = copy.deepcopy(self.base_community)
             # Assign population models
-            for idx, pop in enumerate(comm.populations):
-                pop.model = self.models[i][idx]
             
+            if assign_model:
+                for idx, pop in enumerate(comm.populations):
+                    pop.model = self.models[i][idx]
+                
             comm.sample_parameters_from_prior()
-            comm.set_init_y()
             particles[i] = comm
+            particles[i].distance = []
+            particles[i].sol = {}
+            particles[i].t = []
+
+            for media in self.sim_media_names:
+                particles[i].sol[media] = []
+
+            particles[i].set_media_conditions(self.sim_media_names[0])
 
         return particles
 
@@ -171,7 +181,7 @@ class ParameterEstimation:
                         particle.toxin_mat[model_idx] = mut_particle.toxin_mat[model_idx].copy()                        
 
 
-
+    @logger_wraps()
     def gen_initial_population(self, n_processes, parallel):
         logger.info("Generating initial population")
 
@@ -183,17 +193,22 @@ class ParameterEstimation:
             candidate_particles = []
             while len(candidate_particles) < self.n_particles_batch:
                 new_particles = self.init_particles(self.n_particles_batch)
+                
+                for media_name in self.sim_media_names:
+                    [p.set_media_conditions(media_name) for p in new_particles]
 
-                if not isinstance(self.filter, type(None)):
-                    new_particles = self.filter.filter_particles(new_particles)
+                    if not isinstance(self.filter, type(None)):
+                        new_particles = self.filter.filter_particles(new_particles)
 
                 candidate_particles.extend(new_particles)
 
             logger.info(f"Simulating candidates {len(candidate_particles)}")
+            for media_idx, media_name in enumerate(self.sim_media_names):
+                self.simulator.simulate_particles(
+                    candidate_particles, sol_key=media_name, n_processes=n_processes, parallel=parallel
+                )
+                self.calculate_and_set_particle_distances(candidate_particles, media_name)
 
-            self.simulator.simulate_particles(
-                candidate_particles, n_processes=n_processes, parallel=parallel
-            )
             logger.info(f"Finished simulating")
 
             logger.info(f"Deleting models")
@@ -210,20 +225,33 @@ class ParameterEstimation:
 
         return particles
 
-    def save_particles(self, particles, output_path):
-        logger.info(f"Saving particles {output_path}")
+    def save_particles(self, particles, output_dir):
+    
+        init_populations_arr = np.array([particle.init_population_values for particle in particles])
+        k_values_arr = np.array([particle.k_vals for particle in particles])
+        max_exchange_arr = np.array([particle.max_exchange_mat for particle in particles])
+        toxin_arr = np.array([particle.toxin_mat for particle in particles])
 
-        with open(f"{output_path}", "wb") as handle:
-            pickle.dump(particles, handle)
+        distance_vectors = np.array([particle.distance for particle in particles])
 
-    def save_checkpoint(self, output_dir):
-        time_stamp = time.strftime("%Y-%m-%d_%H%M%S")
-        output_path = f"{output_dir}{self.experiment_name}_checkpoint_{time_stamp}.pkl"
+        # Write arrays to output_dir
+        np.save(f"{output_dir}/particle_init_populations.npy", init_populations_arr)
+        np.save(f"{output_dir}/particle_k_values.npy", k_values_arr)
+        np.save(f"{output_dir}/particle_max_exchange.npy", max_exchange_arr)
+        np.save(f"{output_dir}/particle_toxin.npy", toxin_arr)
 
-        logger.info(f"Saving checkpoint {output_path}")
+        if hasattr(particles[0],'distance'):
+            np.save(f"{output_dir}/particle_distance_vectors.npy", distance_vectors)
 
-        with open(output_path, "wb") as f:
-            pickle.dump(self, f)
+        if hasattr(particles[0],'sol'):
+            for media in self.sim_media_names:
+                sol_arr = np.array([particle.sol[media] for particle in particles])
+                np.save(f"{output_dir}/particle_sol_{media}.npy", sol_arr)
+
+            t_vectors = np.array([particle.t for particle in particles])
+
+            np.save(f"{output_dir}/particle_t_vectors.npy", t_vectors)
+
 
     def generate_models_list(self, n_models):
         # Generate a list of models that will be assigned
@@ -259,6 +287,20 @@ class ParameterEstimation:
                 
                 
         gc.collect()
+
+    def media_transfer_particles(particles, media_set_base_particle):
+        media_set_particles = []
+        for p in particles:
+            media_set_particle = copy.deepcopy(media_set_base_particle)
+
+            # Transfer data from particle particle to media set base particle
+            media_set_particle.distance = p.distance
+            media_set_particle.sol = p.sol
+
+            # Transfer parameters from particle to media set particle
+            
+            
+            media_set_particle.set_init_y()
 
     def get_particle_distances(self, particles):
         n_distances = len(particles[0].distance)
@@ -301,10 +343,50 @@ class ParameterEstimation:
 
         self.population = hotstart_particles
 
-    def calculate_and_set_particle_distances(self, particles):
+    def hotstart_particles(self, hostart_parameter_dir_regex):
+        # Load all populations
+        hotstart_particles = []
+        hotstart_directories = glob.glob(hostart_parameter_dir_regex)
+
+        for hotstart_dir in hotstart_directories:
+            
+            # Make parameter paths
+            init_populations_arr = np.load(f"{hotstart_dir}/particle_init_populations.npy")
+            k_values_arr = np.load(f"{hotstart_dir}/particle_k_values.npy", )
+            max_exchange_arr = np.load(f"{hotstart_dir}/particle_max_exchange.npy", )
+            toxin_arr = np.load(f"{hotstart_dir}/particle_toxin.npy")
+
+            distance_arr = np.load(f"{hotstart_dir}/particle_distance_vectors.npy")
+
+            # Print array shapes
+            logger.info(f"init_populations_arr shape: {init_populations_arr.shape}")
+            logger.info(f"k_values_arr shape: {k_values_arr.shape}")
+            logger.info(f"max_exchange_arr shape: {max_exchange_arr.shape}")
+            logger.info(f"toxin_arr shape: {toxin_arr.shape}")
+            logger.info(f"distance_arr shape: {distance_arr.shape}")
+            
+            naked_particles = self.init_particles(n_particles=len(max_exchange_arr), assign_model=False)
+
+            for idx, p in enumerate(naked_particles):
+                p.set_initial_populations(init_populations_arr[idx])
+                p.set_k_value_matrix(k_values_arr[idx])
+                p.set_max_exchange_mat(max_exchange_arr[idx])
+                p.set_toxin_mat(toxin_arr[idx])
+                p.set_media_conditions(self.sim_media_names[0])
+
+
+                p.distance = distance_arr[idx]
+
+            hotstart_particles.extend(naked_particles)
+
+
+        self.population = hotstart_particles
+
+    @logger_wraps()
+    def calculate_and_set_particle_distances(self, particles, sol_distance_key):
         # Calculate distances
         for p in particles:
-            p.distance = self.distance_object.calculate_distance(p)
+            p.distance.extend(self.distance_object.calculate_distance(p, sol_distance_key))
 
 
 class NSGAII(ParameterEstimation):
@@ -315,6 +397,7 @@ class NSGAII(ParameterEstimation):
         base_community,
         output_dir,
         simulator,
+        sim_media_names,
         crossover_type='parameterwise',
         mutate_type='parameterwise',
         n_particles_batch=8,
@@ -327,9 +410,16 @@ class NSGAII(ParameterEstimation):
     ):
         self.experiment_name = experiment_name
         self.base_community = base_community
-        self.base_community.set_init_y()
-        
+
+        # self.media_set_base_communities = {}
+        # for media_name in self.sim_media_names:
+        #     comm = copy.deepcopy(base_community)
+        #     comm.set_media_conditions(media_name)
+        #     self.media_set_base_communities[media_name] = comm
+
         self.n_particles_batch = n_particles_batch
+
+        self.sim_media_names = sim_media_names
 
         self.output_dir = output_dir
         self.population_size = population_size
@@ -364,22 +454,22 @@ class NSGAII(ParameterEstimation):
 
         self.max_generations = max_generations
 
-        if not isinstance(hotstart_particles_regex, type(None)):
-            self.hotstart(hotstart_particles_regex)
+
+        # if not isinstance(hotstart_particles_regex, type(None)):
+        #     self.hotstart_particles(hotstart_particles_regex)
 
 
-
+    @logger_wraps()
     def run(self, n_processes=1, parallel=False):
         logger.info(f"Running NSGAII")
 
         # Generate first generation
         if self.gen_idx == 0:
             self.population = self.gen_initial_population(n_processes, parallel)
-            self.calculate_and_set_particle_distances(self.population)
 
             self.save_particles(
                 self.population,
-                output_path=f"{self.output_dir}particles_gen_{self.gen_idx}.pkl",
+                output_dir=f"{self.output_dir}",
             )
             self.gen_idx += 1
 
@@ -409,6 +499,7 @@ class NSGAII(ParameterEstimation):
                     self.population, self.n_particles_batch
                 )
 
+
                 logger.info(f"Performing crossover to produce offspring")
                 # Perform crossover and mutation to generate offspring of size N
                 offspring_particles = self.crossover(
@@ -425,12 +516,17 @@ class NSGAII(ParameterEstimation):
                 logger.info(f"Simulating offspring")
 
                 logger.info(f"Simulating offspring batch: {batch_idx}")
-                self.simulator.simulate_particles(
-                    offspring_particles, n_processes=n_processes, parallel=parallel
-                )
+                
+                for media_idx, media_name in enumerate(self.sim_media_names):
+                    [p.set_media_conditions(media_name) for p in offspring_particles]
 
-                self.calculate_and_set_particle_distances(offspring_particles)
+                    # Simulate particle for media name
+                    self.simulator.simulate_particles(
+                        offspring_particles, sol_key=media_name, n_processes=n_processes, parallel=parallel
+                    )
 
+                    # Calculate distance for media_name
+                    self.calculate_and_set_particle_distances(offspring_particles, media_name)
                 
                 offspring_particles = [p for p in offspring_particles if not np.isnan(sum(p.distance))]
 
@@ -449,7 +545,7 @@ class NSGAII(ParameterEstimation):
 
             self.save_particles(
                 self.population,
-                output_path=f"{self.output_dir}particles_gen_{self.gen_idx}.pkl",
+                output_dir=f"{self.output_dir}",
             )
             new_offspring = []
             new_parents = []
@@ -503,197 +599,9 @@ class NSGAII(ParameterEstimation):
             else:
                 parent_indexes.append(candidate_1_idx)
 
-        print(parent_indexes)
         parent_particles = [population[idx] for idx in parent_indexes]
 
         return parent_particles
-
-
-class GeneticAlgorithm(ParameterEstimation):
-    def __init__(
-        self,
-        experiment_name,
-        distance_object,
-        base_community,
-        output_dir,
-        simulator,
-        n_particles_batch,
-        hotstart_particles_regex=None,
-        population_size=32,
-        mutation_probability=0.1,
-        epsilon_alpha=0.2,
-        generation_idx=0,
-        max_generations=1,
-        tournament_size=2,
-        particle_filter=None,
-    ):
-        logger.info(f"Initialising GA")
-
-        self.experiment_name = experiment_name
-        self.base_community = base_community
-        self.n_particles_batch = n_particles_batch
-
-        self.output_dir = output_dir
-        self.population_size = population_size
-        self.distance_object = distance_object
-        self.mutation_probability = mutation_probability
-        self.epsilon_alpha = epsilon_alpha
-        self.simulator = simulator
-
-        self.gen_idx = int(generation_idx)
-        self.final_generation = False
-
-        self.filter = particle_filter
-        self.max_generations = max_generations
-
-        self.tournament_size = tournament_size
-
-        # Generate a list of models that will be assigned
-        # to new particles. Avoids repeatedly copying models
-        self.models = self.generate_models_list(n_models=self.n_particles_batch)
-
-        print(hotstart_particles_regex)
-        if not isinstance(hotstart_particles_regex, type(None)):
-            self.hotstart(hotstart_particles_regex)
-            self.population = utils.get_unique_particles(self.population)
-
-            logger.info(f"Hotstart complete, population size: {len(self.population)}")
-
-    def selection(self, particles):
-        accepted_particles = []
-
-        for p in particles:
-            accepted_flag, distance = self.distance_object.assess_particle(p)
-
-            with np.printoptions(precision=4, suppress=True):
-                print(f"{accepted_flag}\t {distance}")
-
-            if accepted_flag:
-                accepted_particles.append(p)
-
-            p.accepted_flag = accepted_flag
-            p.distance = distance
-
-        return accepted_particles
-
-    def update_epsilon(self, particles):
-        particle_distances = []
-        # Collate distances
-        for p in particles:
-            particle_distances.append(p.distance)
-
-        particle_distances = np.array(particle_distances)
-        new_epsilon = []
-        # For each distance, update epsilon
-        for dist_idx in range(particle_distances.shape[1]):
-            dists = particle_distances[:, dist_idx]
-            dists.sort()
-
-            # Trim distances to largest epsilon out of smallest x
-            dists = dists[: int(self.population_size * self.epsilon_alpha)]
-            new_epsilon = max(self.distance_object.final_epsilon[dist_idx], dists[-1])
-
-            self.distance_object.epsilon[dist_idx] = new_epsilon
-
-    def run(self, n_processes=1, parallel=False):
-        logger.info("Running genetic algorithm")
-
-        if self.gen_idx == 0:
-            # Generate initial population
-            self.population = self.gen_initial_population(n_processes, parallel)
-            self.calculate_and_set_particle_distances(self.population)
-
-            output_path = f"{self.output_dir}particles_{self.experiment_name}_gen_{self.gen_idx}.pkl"
-
-            self.save_particles(self.population, output_path)
-            self.gen_idx += 1
-
-        # Core genetic algorithm loop
-        while not self.final_generation and self.gen_idx < self.max_generations:
-            batch_idx = 0
-            accepted_particles = []
-
-
-            logger.info(f"Performing crossover...")
-            new_offspring = []
-            new_parents = []
-
-            # Update epsilon
-            # self.update_epsilon(self.population)
-
-            if self.distance_object.final_epsilon == self.distance_object.epsilon:
-                self.final_generation = True
-
-            population_average_distance = np.mean(
-                [max(p.distance) for p in self.population]
-            )
-            population_mediain_distance = np.median(
-                [max(p.distance) for p in self.population]
-            )
-            population_min_distance = np.min([max(p.distance) for p in self.population])
-
-            logger.info(
-                f"Pop mean distance: {population_average_distance}, pop median distance: {population_mediain_distance}, pop min distance: {population_min_distance}"
-            )
-            while len(new_offspring) < self.population_size:
-                logger.info(
-                    f"Gen: {self.gen_idx}, batch: {batch_idx}, accepted: {len(new_offspring)}, mem usage (mb): {utils.get_mem_usage()}"
-                )
-
-                offspring_particles = []
-                while len(offspring_particles) < self.n_particles_batch:
-                    parents = self.selection_tournament(
-                        self.population, 2, tournament_size=self.tournament_size
-                    )
-
-                    # Generate new batch by crossover
-                    candidate_particles = self.crossover_parameterwise(1, parents)
-
-                    # candidate_particles = self.crossover_species_wise(1, parents)
-
-
-                    # Mutate batch
-                    self.mutate_parameterwise(candidate_particles)
-                    # self.mutate_resample_from_prior(candidate_particles)
-
-                    for p in candidate_particles:
-                        p.set_init_y()
-
-                    if self.filter is not None:
-                        candidate_particles = self.filter.filter_particles(
-                            candidate_particles
-                        )
-
-                    if len(candidate_particles) > 0:
-                        offspring_particles.extend(candidate_particles)
-                        new_parents.extend(parents)
-
-                offspring_particles = offspring_particles[: self.n_particles_batch]
-
-                logger.info(f"Simulating particles...")
-                # Simulate particles
-                self.simulator.simulate_particles(
-                    offspring_particles, n_processes=n_processes, parallel=parallel
-                )
-                self.calculate_and_set_particle_distances(offspring_particles)
-
-                self.delete_particle_fba_models(offspring_particles)
-
-                # offspring_particles = self.selection(offspring_particles)
-                new_offspring.extend(offspring_particles)
-
-                batch_idx += 1
-
-            new_offspring = new_offspring[: self.population_size]
-            self.population = new_offspring + new_parents
-
-            output_path = f"{self.output_dir}particles_{self.experiment_name}_gen_{self.gen_idx}.pkl"
-
-            self.save_particles(
-                self.population,
-                output_path=f"{self.output_dir}particles_gen_{self.gen_idx}.pkl",
-            )
-            self.gen_idx += 1
 
 
 class SimpleSimulate(ParameterEstimation):
@@ -734,7 +642,6 @@ class SimpleSimulate(ParameterEstimation):
 
             self.population = self.population
             for p in self.population:
-                print(sum(p.distance))
                 pass
 
         else:
@@ -746,7 +653,7 @@ class SimpleSimulate(ParameterEstimation):
         
         self.save_particles(
                 self.population,
-                f"{self.output_dir}hotstart_particles_{self.experiment_name}.pkl",
+                output_dir=f"{self.output_dir}",
             )
 
     def initialize_fresh_particle(self):
@@ -794,7 +701,7 @@ class SimpleSimulate(ParameterEstimation):
             self.delete_particle_fba_models(batch_particles)
             self.save_particles(
                 batch_particles,
-                f"{self.output_dir}particles_{self.experiment_name}_batch_{batch_idx}.pkl",
+                output_dir=f"{self.output_dir}",
             )
 
             particles_simulated += len(batch_particles)

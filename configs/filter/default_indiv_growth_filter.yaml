@@ -1,6 +1,6 @@
 _target_: bk_comms.lo_filters.ViableGrowthFilter
 population_names:
-  - iMM904
+  - ${model_names}
 growth_keys:
   - Growth
 min_growth:

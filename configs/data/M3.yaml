@@ -1,0 +1,10 @@
+
+smetana_analysis_path: ${user.wd}/smetana_analysis/melanie_data_detailed.tsv
+
+exp_data_path: ${user.wd}/experimental_data/mel_target_data/mel_indiv_target_data.csv
+exp_sol_keys:
+  - - E_coli_IAI1_M3_0_ODfc
+    - E_coli_IAI1
+exp_t_key: time
+
+media_path: ${user.wd}/media/melanie_data_media.tsv

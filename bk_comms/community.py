@@ -30,12 +30,10 @@ class Population:
         model,
         dynamic_compounds,
         reaction_keys,
-        media_df,
     ):
         self.name = name
         logger.info(f"Loading model {name}")
         self.model = model
-        self.media_df = media_df
 
         self.dynamic_compounds = dynamic_compounds
         self.reaction_keys = reaction_keys
@@ -48,7 +46,6 @@ class Population:
         logger.info(
             f"Model  {name}, setting media, mem usage (mb): {utils.get_mem_usage()}"
         )
-        self.set_media()
 
     def load_model(self, model_path):
         """
@@ -60,10 +57,11 @@ class Population:
 
         return model
 
-    def set_media(self):
+    def set_media(self, media_df):
+
         dynamic_compounds = [x.replace("M_", "EX_") for x in self.dynamic_compounds]
 
-        defined_mets = ["EX_" + x + "_e" for x in self.media_df["compound"].values]
+        defined_mets = ["EX_" + x + "_e" for x in media_df["compound"].values]
 
         for met in list(self.model.medium):
             if met in defined_mets:
@@ -71,7 +69,7 @@ class Population:
                 key = met.replace("EX_", "").replace("_e", "")
 
                 medium = self.model.medium
-                medium[met] = self.media_df.loc[self.media_df["compound"] == key][
+                medium[met] = media_df.loc[media_df["compound"] == key][
                     "mmol_per_L"
                 ].values[0]
 
@@ -133,8 +131,6 @@ class Community:
         model_paths: List[str],
         smetana_analysis_path: str,
         media_path: str,
-        media_name: str,
-        initial_populations: List[float],
         objective_reaction_keys: List[str],
         enable_toxin_interactions: bool,
         initial_population_prior: SampleDistribution=None,
@@ -173,10 +169,6 @@ class Community:
             model_paths, smetana_analysis_path, self.media_df, flavor="fbc2"
         )
 
-        self.media_df = self.media_df.loc[
-            self.media_df["medium"] == media_name
-        ].reset_index(drop=True)
-
 
         self.reaction_keys = [x.replace("M_", "EX_") for x in self.dynamic_compounds]
 
@@ -191,19 +183,16 @@ class Community:
 
         logger.info(f"Loading compound values")
 
-        self.init_compound_values = self.load_initial_compound_values(
-            self.dynamic_compounds
-        )
-
-        self.init_population_values = initial_populations
+        # self.init_compound_values = self.load_initial_compound_values(
+        #     self.dynamic_compounds
+        # )
 
         logger.info(f"Generating k values, mem usage (mb): {utils.get_mem_usage()}")
-        k_vals_mat = self.generate_default_k_values(
-            self.init_compound_values, media_name
-        )
 
         logger.info(f"Setting k val mat, mem usage (mb): {utils.get_mem_usage()}")
-        self.set_k_value_matrix(k_vals_mat)
+        self.set_k_value_matrix(
+            np.ones(shape=[len(self.populations), len(self.dynamic_compounds)])
+        )
 
         logger.info(
             f"Setting max exchange mat, mem usage (mb): {utils.get_mem_usage()}"
@@ -229,7 +218,6 @@ class Community:
         )
         self.solution_keys = self.set_solution_key_order()
 
-        self.set_init_y()
         logger.info(
             f"Community initialisation finished,  mem usage (mb): {utils.get_mem_usage()}"
         )
@@ -421,16 +409,17 @@ class Community:
             ].reshape(self.toxin_mat.shape)
         )
 
-    def load_initial_compound_values(self, dynamic_compounds):
+    def load_initial_compound_values(self, sub_media_df):
         """
-        Loads vector of initial compound concentrations
+        Loads vector of initial compound concentrations from a subset
+        of the media df for a particular media name
         """
 
-        init_compound_values = np.zeros(len(dynamic_compounds))
+        init_compound_values = np.zeros(len(self.dynamic_compounds))
 
-        for compound_idx, dynm_cmpd in enumerate(dynamic_compounds):
+        for compound_idx, dynm_cmpd in enumerate(self.dynamic_compounds):
             found_match = False
-            for idx, row in self.media_df.iterrows():
+            for idx, row in sub_media_df.iterrows():
                 media_cmpd = "M_" + row["compound"] + "_e"
                 if dynm_cmpd == media_cmpd:
                     found_match = True
@@ -443,27 +432,6 @@ class Community:
 
         return init_compound_values
 
-    def generate_default_k_values(self, dynm_compound_concs, media_name):
-        """
-        Heuristic choices for picking default k values
-        produces a matrix of species x compounds
-        """
-
-        k_vals = np.zeros(shape=[len(self.populations), len(dynm_compound_concs)])
-
-        generic_k_val = 0.1
-
-        for species_idx, _ in enumerate(self.populations):
-            for compound_idx, _ in enumerate(dynm_compound_concs):
-                k = generic_k_val
-
-                if self.populations[species_idx].dynamic_compound_mask:
-                    if dynm_compound_concs[compound_idx] > 0.0:
-                        k = dynm_compound_concs[compound_idx] * 0.01
-
-                k_vals[species_idx][compound_idx] = k
-
-        return k_vals
 
     def set_initial_populations(self, populations_vec):
         assert len(populations_vec) == (
@@ -529,7 +497,6 @@ class Community:
                     model_paths[idx],
                     dynamic_compounds,
                     reaction_keys,
-                    media_df,
                 )
             )
 
@@ -609,6 +576,14 @@ class Community:
         self.init_y = np.concatenate(
             (self.init_population_values, self.init_compound_values), axis=None
         )
+
+    def set_media_conditions(self, media_name):
+        sub_media_df = self.media_df.loc[self.media_df["medium"] == media_name]
+
+        self.init_compound_values = self.load_initial_compound_values(sub_media_df)
+
+        self.set_init_y()
+        
 
     def calculate_exchange_reaction_lb_constraints(
         self, compound_concs, k_mat, max_exchange_mat

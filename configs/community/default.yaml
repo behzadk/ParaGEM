@@ -1,0 +1,13 @@
+_convert_: partial
+_target_: bk_comms.community.Community
+enable_toxin_interactions: false
+initial_population_prior: ${sampler.init_population_sampler}
+k_val_prior: ${sampler.k_val_sampler}
+max_exchange_prior: ${sampler.max_uptake_sampler}
+toxin_interaction_prior: null
+media_name: M2
+media_path: ${data.media_path}
+smetana_analysis_path: ${data.smetana_analysis_path}
+model_names: ${model_names}
+model_paths: ${model_paths}
+objective_reaction_keys: ${objective_reaction_keys}

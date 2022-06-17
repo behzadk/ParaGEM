@@ -104,32 +104,27 @@ class SampleUniform(SampleDistribution):
 class SampleCombinationParticles:
     def __init__(
         self,
-        input_particles_regex,
-        epsilon,
+        input_particles_parameter_vector_regex,
         population_names,
-        growth_keys,
-        min_growth,
-        max_growth,
     ):
-        self.input_particles_regex = input_particles_regex
+        self.input_particles_parameter_vector_regex = input_particles_parameter_vector_regex
         self.population_names = population_names
-        self.growth_keys = growth_keys
-        self.min_growth = min_growth
-        self.max_growth = max_growth
-
-        particle_paths = []
-        for x in input_particles_regex:
-            particle_paths.append(glob(x))
         
+
+        particles_input_info = {}
+
+        for reg_ex, pop_name in zip(self.input_particles_parameter_vector_regex, self.population_names):
+            particles_input_info[pop_name] = reg_ex
+
+
         self.particle_counts = {}
         for p in self.population_names:
             self.particle_counts[p] = 0
 
-        particles_dict = self.load_particles(particle_paths, self.population_names, epsilon)
-        self.params_dict = self.generate_parameter_dict(particles_dict)
+        self.params_dict = self.load_params_dict(particles_input_info, self.population_names)
 
 
-    def load_particles(self, particle_paths, population_names, epsilon):
+    def load_particles(self, particles_input_info, population_names, epsilon):
 
         particles = {}
         for species_idx, species_particle_paths in enumerate(particle_paths):
@@ -159,10 +154,37 @@ class SampleCombinationParticles:
 
             logger.info(f"{population_names[species_idx]},  particles loaded: {len(particles[population_names[species_idx]])}, mem usage (mb): {utils.get_mem_usage()}")
 
-
-
-
         return particles
+
+    def load_params_dict(self, particles_input_info, population_names):
+        particles_dict = {}
+
+        for pop_name in population_names:
+                particles_dict[pop_name] = {}
+                particles_dict[pop_name]["k_vals"] = []
+                particles_dict[pop_name]["max_exchange_mat"] = []
+                particles_dict[pop_name]["initial_population"] = []
+                particles_dict[pop_name]["toxin_mat"] = []
+
+        for pop_name in population_names:
+            params_dirs = glob(particles_input_info[pop_name])
+            for d in params_dirs:
+                # Make parameter paths
+                init_populations_arr = np.load(f"{d}/particle_init_populations.npy")
+                k_values_arr = np.load(f"{d}/particle_k_values.npy", )
+                max_exchange_arr = np.load(f"{d}/particle_max_exchange.npy", )
+                toxin_arr = np.load(f"{d}/particle_toxin.npy")
+
+                for idx, _ in (enumerate(init_populations_arr)):
+                    particles_dict[pop_name]["k_vals"].append(k_values_arr[idx])
+                    particles_dict[pop_name]["max_exchange_mat"].append(max_exchange_arr[idx])
+                    particles_dict[pop_name]["initial_population"].append(init_populations_arr[idx])
+                    particles_dict[pop_name]["toxin_mat"].append(toxin_arr[idx])
+
+            self.particle_counts[pop_name] = len(particles_dict[pop_name]['max_exchange_mat'])
+
+        return particles_dict
+
 
     def generate_parameter_dict(self, particles_dict):
         # Unpack particles into parameters dictionary. Each key refers

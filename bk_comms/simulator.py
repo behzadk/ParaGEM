@@ -31,6 +31,8 @@ class CometsTimeSeriesSimulation:
         self.dilution_factor = dilution_factor
         self.dilution_time = dilution_time
 
+
+
         self.comets_home_dir = comets_home_dir
         self.gurobi_home_dir = gurobi_home_dir
 
@@ -43,7 +45,7 @@ class CometsTimeSeriesSimulation:
         os.environ["COMETS_HOME"] = comets_home_dir
 
     def convert_models(self, community):
-        """Conversts cobrapy models of community to comets model inplace"""
+        """Converts cobrapy models of community to comets model inplace"""
         for idx, population in enumerate(community.populations):
 
             if isinstance(population.model, cometspy.model):
@@ -222,6 +224,8 @@ class CometsTimeSeriesSimulation:
         if not os.path.exists(tmp_dir):
             os.mkdir(tmp_dir)
 
+        print(tmp_dir)
+
         experiment = cometspy.comets(layout, sim_params, relative_dir=tmp_dir)
         self.experiment = experiment
 
@@ -249,7 +253,7 @@ class CometsTimeSeriesSimulation:
         return sol, t, experiment
 
     def simulate_particles(
-        self, particles, n_processes=1, sim_timeout=1000.0, parallel=True
+        self, particles, sol_key, n_processes=1, sim_timeout=1000.0, parallel=True
     ):
         if parallel:
             print("running parallel")
@@ -265,7 +269,7 @@ class CometsTimeSeriesSimulation:
             for particle in particles:
                 try:
                     idx, sol, t, experiment = futures_mp_sol.next(timeout=sim_timeout)
-                    particles[idx].sol = sol
+                    particles[idx].sol[sol_key] = sol
                     particles[idx].t = t
 
                     

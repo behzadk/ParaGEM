@@ -307,17 +307,23 @@ class DistanceFoldChangeErrorPointWise:
         self.exp_t_key = exp_t_key
         self.exp_sol_keys = exp_sol_keys
 
-    def calculate_distance(self, community):
-        n_distances = len(self.exp_sol_keys)
+    def calculate_distance(self, community, key):
+        """
+        Calculate the distance between the simulated and experimental data.
+        idx refers to the top layer of the exp_sol_keys to use
+        """
+        print(self.exp_sol_keys)
+        exp_sol_keys = self.exp_sol_keys[key]
+        n_distances = len(exp_sol_keys)
         distances = []
 
         if community.sol is None or community.t is None:
             return [np.inf for d in range(n_distances)]
 
-        sim_data = community.sol
+        sim_data = community.sol[key]
         sim_t = community.t
 
-        for distance_idx, key_pair in enumerate(self.exp_sol_keys):
+        for distance_idx, key_pair in enumerate(exp_sol_keys):
             for exp_data_idx, t in enumerate(self.exp_data[self.exp_t_key].values):
                 sim_t_idx = find_nearest(sim_t, t)
 

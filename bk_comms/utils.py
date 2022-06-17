@@ -11,6 +11,8 @@ import psutil
 import os
 import pickle
 import cobra
+from loguru import logger
+import functools
 
 
 def load_model(model_path, model_name):
@@ -59,6 +61,7 @@ def load_pickle(pickle_path):
         data = pickle.load(f)
         return data
 
+
 def get_unique_particles(particles_list):
     unique_particles = []
     for p in particles_list:
@@ -103,6 +106,7 @@ def get_solution_index(comm, sol_element_key):
 
 def get_mem_usage():
     return psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2
+
 
 
 def get_community_complete_environment(
@@ -161,3 +165,24 @@ def get_competition_compounds(smetana_df: pd.DataFrame, all_compounds):
             competition_compounds.append(m)
 
     return competition_compounds
+
+
+def logger_wraps(*, entry=True, exit=True, level="DEBUG"):
+    def wrapper(func):
+        name = func.__name__
+
+        @functools.wraps(func)
+        def wrapped(*args, **kwargs):
+            logger_ = logger.opt(depth=1)
+            if entry:
+                logger_.log(
+                    level, "Entering '{}' (args={}, kwargs={})", name, args, kwargs
+                )
+            result = func(*args, **kwargs)
+            if exit:
+                logger_.log(level, "Exiting '{}' (result={})", name, result)
+            return result
+
+        return wrapped
+
+    return wrapper
