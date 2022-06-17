@@ -240,6 +240,8 @@ class ParameterEstimation:
         np.save(f"{output_dir}/particle_max_exchange.npy", max_exchange_arr)
         np.save(f"{output_dir}/particle_toxin.npy", toxin_arr)
 
+        np.save(f"{output_dir}/solution_keys.npy", particles[0].solution_keys)
+
         if hasattr(particles[0],'distance'):
             np.save(f"{output_dir}/particle_distance_vectors.npy", distance_vectors)
 
