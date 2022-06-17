@@ -1,9 +1,14 @@
+"""
+Requires a model to be set
+
+"""
+
 run_idx: 999
 output_dir: ${user.wd}/output/${experiment_name}/${community.model_names.0}/generation_${algorithm.generation_idx}/run_${run_idx}/
 
 
 model_names:
-  - E_coli_IAI1
+  - null
 
 model_paths:
 - ${user.wd}/models/melanie_data_models/${model_names.0}.xml
@@ -11,17 +16,6 @@ model_paths:
 objective_reaction_keys:
 - Growth
 
-# Information about the data being used
-exp_data_path: ${user.wd}/experimental_data/mel_target_data/mel_indiv_target_data.csv
-exp_sol_keys:
-  M3: 
-    - - ${model_names.0}_M3_0_ODfc
-      - ${model_names.0}
-  M2: 
-    - - ${model_names.0}_M2_0_ODfc
-      - ${model_names.0}
-
-exp_t_key: time
 experiment_name: test
 
 sim_media_names:
