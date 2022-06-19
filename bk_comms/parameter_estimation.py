@@ -24,7 +24,7 @@ from bk_comms.utils import logger_wraps
 class ParameterEstimation:
     def init_particles(
         self,
-        n_particles, assign_model=True
+        n_particles, assign_model=True, set_media=True
     ):
         particles = np.zeros(shape=n_particles, dtype=object)
 
@@ -46,7 +46,8 @@ class ParameterEstimation:
             for media in self.sim_media_names:
                 particles[i].sol[media] = []
 
-            particles[i].set_media_conditions(self.sim_media_names[0])
+            if set_media:
+                particles[i].set_media_conditions(self.sim_media_names[0])
 
         return particles
 
@@ -239,6 +240,7 @@ class ParameterEstimation:
         np.save(f"{output_dir}/particle_k_values.npy", k_values_arr)
         np.save(f"{output_dir}/particle_max_exchange.npy", max_exchange_arr)
         np.save(f"{output_dir}/particle_toxin.npy", toxin_arr)
+        np.save(f"{output_dir}/solution_keys.npy", particles[0].solution_keys)
 
         if hasattr(particles[0],'distance'):
             np.save(f"{output_dir}/particle_distance_vectors.npy", distance_vectors)
@@ -365,14 +367,14 @@ class ParameterEstimation:
             logger.info(f"toxin_arr shape: {toxin_arr.shape}")
             logger.info(f"distance_arr shape: {distance_arr.shape}")
             
-            naked_particles = self.init_particles(n_particles=len(max_exchange_arr), assign_model=False)
+            naked_particles = self.init_particles(n_particles=len(max_exchange_arr), assign_model=False, set_media=False)
 
             for idx, p in enumerate(naked_particles):
                 p.set_initial_populations(init_populations_arr[idx])
                 p.set_k_value_matrix(k_values_arr[idx])
                 p.set_max_exchange_mat(max_exchange_arr[idx])
                 p.set_toxin_mat(toxin_arr[idx])
-                p.set_media_conditions(self.sim_media_names[0])
+                p.set_media_conditions(self.sim_media_names[0], set_media=False)
 
 
                 p.distance = distance_arr[idx]
@@ -510,8 +512,6 @@ class NSGAII(ParameterEstimation):
                 self.mutate(offspring_particles)
                 offspring_particles = list(offspring_particles)
 
-                if not isinstance(self.filter, type(None)):
-                    offspring_particles = self.filter.filter_particles(offspring_particles)
 
                 logger.info(f"Simulating offspring")
 
@@ -519,6 +519,9 @@ class NSGAII(ParameterEstimation):
                 
                 for media_idx, media_name in enumerate(self.sim_media_names):
                     [p.set_media_conditions(media_name) for p in offspring_particles]
+
+                    if not isinstance(self.filter, type(None)):
+                        offspring_particles = self.filter.filter_particles(offspring_particles)
 
                     # Simulate particle for media name
                     self.simulator.simulate_particles(
