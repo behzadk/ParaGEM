@@ -74,6 +74,7 @@ class CometsTimeSeriesSimulation:
                 # Update model lower bound
                 model.change_bounds(cmpd_str, lower_bound_constraints[cmpd_idx], 1000)
 
+
     def set_k_values(self, layout, community):
         for idx, model in enumerate(layout.models):
             k_values = community.k_vals[idx]
@@ -103,17 +104,16 @@ class CometsTimeSeriesSimulation:
             )
 
         #  Fill non dynamic compound concentrations
-        non_dynamic_media_df = community.media_df.loc[
+        non_dynamic_media_df = community.curr_media_df.loc[
             community.media_df["dynamic"] == 0
         ]
         for idx, row in non_dynamic_media_df.iterrows():
             cmpd_str = row.compound
+            cmpd_str = cmpd_str.replace("M_", "")
             cmpd_str = cmpd_str + "_e"
+            layout.set_specific_metabolite(cmpd_str, row.mmol_per_L, static=True)
 
-            layout.set_specific_metabolite(cmpd_str, row.mmol_per_L)
 
-            # Make static
-            layout.set_specific_static(cmpd_str, row.mmol_per_L)
 
     def set_model_initial_pop(self, layout, community):
         for idx, pop in enumerate(community.populations):
@@ -149,10 +149,8 @@ class CometsTimeSeriesSimulation:
     def process_experiment(self, comm, experiment):
         media_df = experiment.media
         media_df["t"] = media_df["cycle"] * self.dt
-
         met_df = experiment.get_metabolite_time_series(upper_threshold=None)
         met_df["t"] = met_df["cycle"] * self.dt
-
         biomass_df = experiment.total_biomass
         biomass_df["t"] = biomass_df["cycle"] * self.dt
 
@@ -172,6 +170,7 @@ class CometsTimeSeriesSimulation:
                     for t_val in t:
                         t_idx = utils.find_nearest(s_df["t"].values, t_val)
                         sol[:, idx][t_idx] = s_df[s].values[t_idx]
+                    
 
                 except KeyError:
                     for t_val in t:
@@ -224,7 +223,6 @@ class CometsTimeSeriesSimulation:
         if not os.path.exists(tmp_dir):
             os.mkdir(tmp_dir)
 
-        print(tmp_dir)
 
         experiment = cometspy.comets(layout, sim_params, relative_dir=tmp_dir)
         self.experiment = experiment
@@ -247,6 +245,7 @@ class CometsTimeSeriesSimulation:
             experiment.fluxes_by_species = None
         
 
+
         print(tmp_dir)
         shutil.rmtree(tmp_dir)
 
@@ -255,6 +254,7 @@ class CometsTimeSeriesSimulation:
     def simulate_particles(
         self, particles, sol_key, n_processes=1, sim_timeout=1000.0, parallel=True
     ):
+        
         if parallel:
             print("running parallel")
 
