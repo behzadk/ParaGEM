@@ -19,6 +19,7 @@ from bk_comms import distances
 from bk_comms.data_analysis.visualisation_utils import load_particles
 
 import os
+import re
 
 colours = [
     "#003f5c",
@@ -201,12 +202,32 @@ def figure_all_particle_fold_change_timeseries(
     return fig
 
 
-def load_particles_dataframe(sim_media_names, particle_directories):
-    particle_indexes = []
-    particle_path = []
-    particle_sum_distance = []
+def figure_plot_distances(particles_df):
+    generations = particles_df.generation.unique()
+    generations.sort()
+    fig = go.Figure()
 
-    data_df = {'particle_index': [], 'data_dir': [], 'sum_distance': []}
+    for gen in generations:
+        sub_df = particles_df.loc[particles_df.generation == gen]
+
+        fig.add_trace(go.Box(y=sub_df.sum_distance, name=f"{gen}", marker_color = 'lightseagreen'))
+
+    fig.update_layout(template="simple_white", width=1000, height=1000)
+    fig.update_xaxes(title="Generation")
+    fig.update_yaxes(title="Sum distances")
+
+    return fig
+
+def split_experiment_dir(exp_dir):
+    exp_dir = exp_dir.split("/")
+    run_num = int(re.findall(r'\d+', exp_dir[-2])[0])
+    generation_num = int(re.findall(r'\d+', exp_dir[-3])[0])
+
+    return generation_num, run_num
+
+def load_particles_dataframe(sim_media_names, particle_directories):
+
+    data_df = {'particle_index': [], 'data_dir': [], 'generation': [], 'run_idx': [], 'sum_distance': []}
     
     # Get distance vector paths
     for d in particle_directories:
@@ -230,6 +251,11 @@ def load_particles_dataframe(sim_media_names, particle_directories):
                 keep = False
 
             if keep:
+                generation, run_idx = split_experiment_dir(d)
+
+                data_df['generation'].append(generation)
+                data_df['run_idx'].append(run_idx)
+
                 data_df['particle_index'].append(p_idx)
                 data_df['data_dir'].append(d)
                 data_df['sum_distance'].append(sum(distance_vec[p_idx]))
@@ -268,8 +294,12 @@ def pipeline(cfg):
     particles_df = load_particles_dataframe(cfg.sim_media_names, experiment_folders)
     particles_df.sort_values(by='sum_distance', inplace=True)
     particles_df.to_csv(f'{output_dir}/particles_df.csv')
+
+
+    fig = figure_plot_distances(particles_df)
+    fig.write_html(f"{output_dir}/generation_distances.html")
+
     particles_df = particles_df.head(500)
-    
     fig = figure_all_particle_fold_change_timeseries(
     particles_df, cfg.model_names[0], target_data_df, exp_sol_keys, cfg.sim_media_names[0])
     # Save fig
