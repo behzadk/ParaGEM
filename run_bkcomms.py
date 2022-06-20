@@ -24,19 +24,15 @@ def run_algorithm(cfg: DictConfig):
     logger.remove()
     logger.add(f"{cfg.output_dir}info_log.log", level="DEBUG")
 
-
     alg = instantiate(cfg.algorithm)
 
     if not isinstance(cfg.algorithm.hotstart_particles_regex, type(None)):
         alg.hotstart_particles(cfg.algorithm.hotstart_particles_regex)
 
-        
-
     # Write config once folder structuer has ben made
     alg.run(n_processes=cfg.n_processes, parallel=cfg.parallel)
-    
-    vis_pipeline(cfg)
 
+    vis_pipeline(cfg)
 
 
 if __name__ == "__main__":

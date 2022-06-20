@@ -4,6 +4,7 @@ from loguru import logger
 import gc
 from glob import glob
 
+
 class SampleDistribution:
     def sample(self, size):
         return self.distribution(size)
@@ -107,36 +108,47 @@ class SampleCombinationParticles:
         input_particles_parameter_vector_regex,
         population_names,
     ):
-        self.input_particles_parameter_vector_regex = input_particles_parameter_vector_regex
+        self.input_particles_parameter_vector_regex = (
+            input_particles_parameter_vector_regex
+        )
         self.population_names = population_names
-        
 
         particles_input_info = {}
 
-        for reg_ex, pop_name in zip(self.input_particles_parameter_vector_regex, self.population_names):
+        for reg_ex, pop_name in zip(
+            self.input_particles_parameter_vector_regex, self.population_names
+        ):
             particles_input_info[pop_name] = reg_ex
-
 
         self.particle_counts = {}
         for p in self.population_names:
             self.particle_counts[p] = 0
 
-        self.params_dict = self.load_params_dict(particles_input_info, self.population_names)
-
+        self.params_dict = self.load_params_dict(
+            particles_input_info, self.population_names
+        )
 
     def load_particles(self, particles_input_info, population_names, epsilon):
 
         particles = {}
         for species_idx, species_particle_paths in enumerate(particle_paths):
-            logger.info(f"Loading {species_particle_paths},  mem usage (mb): {utils.get_mem_usage()}")
+            logger.info(
+                f"Loading {species_particle_paths},  mem usage (mb): {utils.get_mem_usage()}"
+            )
 
             filtered_particles = []
 
             for p_path in species_particle_paths:
                 particle_population = utils.load_pickle(p_path)
-                logger.info(f"Loaded {species_particle_paths},  particles: {len(particle_population)}, mem usage (mb): {utils.get_mem_usage()}")
-                particle_population = utils.filter_particles_by_distance(particle_population, epsilon[species_idx])
-                logger.info(f"After filtering,  particles: {len(particle_population)}, mem usage (mb): {utils.get_mem_usage()}")
+                logger.info(
+                    f"Loaded {species_particle_paths},  particles: {len(particle_population)}, mem usage (mb): {utils.get_mem_usage()}"
+                )
+                particle_population = utils.filter_particles_by_distance(
+                    particle_population, epsilon[species_idx]
+                )
+                logger.info(
+                    f"After filtering,  particles: {len(particle_population)}, mem usage (mb): {utils.get_mem_usage()}"
+                )
 
                 filtered_particles.extend(particle_population)
 
@@ -150,9 +162,13 @@ class SampleCombinationParticles:
             gc.collect()
 
             particles[population_names[species_idx]] = filtered_particles
-            self.particle_counts[population_names[species_idx]] = len(filtered_particles)
+            self.particle_counts[population_names[species_idx]] = len(
+                filtered_particles
+            )
 
-            logger.info(f"{population_names[species_idx]},  particles loaded: {len(particles[population_names[species_idx]])}, mem usage (mb): {utils.get_mem_usage()}")
+            logger.info(
+                f"{population_names[species_idx]},  particles loaded: {len(particles[population_names[species_idx]])}, mem usage (mb): {utils.get_mem_usage()}"
+            )
 
         return particles
 
@@ -160,31 +176,40 @@ class SampleCombinationParticles:
         particles_dict = {}
 
         for pop_name in population_names:
-                particles_dict[pop_name] = {}
-                particles_dict[pop_name]["k_vals"] = []
-                particles_dict[pop_name]["max_exchange_mat"] = []
-                particles_dict[pop_name]["initial_population"] = []
-                particles_dict[pop_name]["toxin_mat"] = []
+            particles_dict[pop_name] = {}
+            particles_dict[pop_name]["k_vals"] = []
+            particles_dict[pop_name]["max_exchange_mat"] = []
+            particles_dict[pop_name]["initial_population"] = []
+            particles_dict[pop_name]["toxin_mat"] = []
 
         for pop_name in population_names:
             params_dirs = glob(particles_input_info[pop_name])
             for d in params_dirs:
                 # Make parameter paths
                 init_populations_arr = np.load(f"{d}/particle_init_populations.npy")
-                k_values_arr = np.load(f"{d}/particle_k_values.npy", )
-                max_exchange_arr = np.load(f"{d}/particle_max_exchange.npy", )
+                k_values_arr = np.load(
+                    f"{d}/particle_k_values.npy",
+                )
+                max_exchange_arr = np.load(
+                    f"{d}/particle_max_exchange.npy",
+                )
                 toxin_arr = np.load(f"{d}/particle_toxin.npy")
 
-                for idx, _ in (enumerate(init_populations_arr)):
+                for idx, _ in enumerate(init_populations_arr):
                     particles_dict[pop_name]["k_vals"].append(k_values_arr[idx])
-                    particles_dict[pop_name]["max_exchange_mat"].append(max_exchange_arr[idx])
-                    particles_dict[pop_name]["initial_population"].append(init_populations_arr[idx])
+                    particles_dict[pop_name]["max_exchange_mat"].append(
+                        max_exchange_arr[idx]
+                    )
+                    particles_dict[pop_name]["initial_population"].append(
+                        init_populations_arr[idx]
+                    )
                     particles_dict[pop_name]["toxin_mat"].append(toxin_arr[idx])
 
-            self.particle_counts[pop_name] = len(particles_dict[pop_name]['max_exchange_mat'])
+            self.particle_counts[pop_name] = len(
+                particles_dict[pop_name]["max_exchange_mat"]
+            )
 
         return particles_dict
-
 
     def generate_parameter_dict(self, particles_dict):
         # Unpack particles into parameters dictionary. Each key refers

@@ -25,13 +25,14 @@ def load_model(model_path, model_name):
 
     return model
 
+
 def check_particle_equality(patricle_0, particle_1):
     if not np.array_equal(patricle_0.toxin_mat, particle_1.toxin_mat):
         return False
-        
+
     if not np.array_equal(patricle_0.max_exchange_mat, particle_1.max_exchange_mat):
         return False
-    
+
     if not np.array_equal(patricle_0.k_vals, particle_1.k_vals):
         return False
 
@@ -70,9 +71,9 @@ def get_unique_particles(particles_list):
             if check_particle_equality(p, uniq_p):
                 is_unique = False
                 break
-            
+
         if is_unique:
-            unique_particles.append(p) 
+            unique_particles.append(p)
 
     return unique_particles
 
@@ -106,7 +107,6 @@ def get_solution_index(comm, sol_element_key):
 
 def get_mem_usage():
     return psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2
-
 
 
 def get_community_complete_environment(

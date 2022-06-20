@@ -5,6 +5,7 @@ from loguru import logger
 from typing import List
 from scipy import stats
 
+
 def find_nearest(array, value):
     array = np.asarray(array)
     idx = (np.abs(array - value)).argmin()
@@ -103,7 +104,9 @@ class DistanceTimeseriesEuclidianDistance:
                 if np.isnan(exp_val):
                     continue
 
-                distances[distance_idx] = max(distances[distance_idx], abs(exp_val - sim_val))
+                distances[distance_idx] = max(
+                    distances[distance_idx], abs(exp_val - sim_val)
+                )
 
             # if abs(sim_data[:, sol_idx][0] - sim_data[:, sol_idx][-1]) < 1e-10:
             #     distances[distance_idx] = 1000
@@ -121,6 +124,7 @@ class DistanceTimeseriesEuclidianDistance:
                 return False, distance
 
         return True, distance
+
 
 class DistanceAbundanceSpearmanRank:
     def __init__(
@@ -159,12 +163,14 @@ class DistanceAbundanceSpearmanRank:
 
                 if np.isnan(exp_val):
                     continue
-                
+
                 exp_values.append(exp_val)
                 sim_values.append(sim_val)
-                
-                distances[distance_idx] = max(distances[distance_idx], abs(exp_val - sim_val))
-        
+
+                distances[distance_idx] = max(
+                    distances[distance_idx], abs(exp_val - sim_val)
+                )
+
         spearman_rank_corr = stats.spearmanr(sim_values, exp_values)[0]
         # Normalize to between 0 and 1
         spearman_rank_corr = (spearman_rank_corr + 1) / 2
@@ -183,7 +189,6 @@ class DistanceTimeseriesEuclidianDistancePointWise:
         self.exp_data = pd.read_csv(exp_data_path)
         self.exp_t_key = exp_t_key
         self.exp_sol_keys = exp_sol_keys
-
 
     def calculate_distance(self, community):
         n_distances = len(self.exp_sol_keys)
@@ -274,7 +279,6 @@ class DistanceFoldChangeError:
                     # distances[distance_idx] += abs(fold_change_error)
                     distances[distance_idx] += abs(fold_change_sim_val - exp_val)
 
-
                 print(
                     f"FoldChangeError: {init_sim_val}, {this_sim_val}, {exp_val}, {fold_change_sim_val}, {distances[distance_idx]}"
                 )
@@ -292,7 +296,6 @@ class DistanceFoldChangeError:
                 return False, distance
 
         return True, distance
-
 
 
 class DistanceFoldChangeErrorPointWise:

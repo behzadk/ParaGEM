@@ -160,7 +160,7 @@ class DataAnalysis:
         include_k_values=True,
         include_init_species=True,
         include_toxin_values=True,
-        colour_value_vector=None
+        colour_value_vector=None,
     ):
         params_df = self.generate_particle_parameter_df(self.particles)
 
@@ -177,10 +177,9 @@ class DataAnalysis:
 
         if not include_k_values:
             params_df = params_df.loc[:, ~params_df.columns.str.contains("K_")]
-        
+
         if not include_toxin_values:
             params_df = params_df.loc[:, ~params_df.columns.str.contains("toxin_")]
-
 
         tsne = manifold.TSNE(n_components=2, n_jobs=5).fit_transform(params_df)
 
@@ -193,15 +192,18 @@ class DataAnalysis:
         #     )
         # )
 
-        fig = go.Figure(data=go.Scatter(
-            x=tsne[:, 0], y=tsne[:, 1],
-            mode='markers',
-            marker=dict(
-                color=colour_value_vector, #set color equal to a variable
-                colorscale='Viridis', # one of plotly colorscales
-                showscale=True
+        fig = go.Figure(
+            data=go.Scatter(
+                x=tsne[:, 0],
+                y=tsne[:, 1],
+                mode="markers",
+                marker=dict(
+                    color=colour_value_vector,  # set color equal to a variable
+                    colorscale="Viridis",  # one of plotly colorscales
+                    showscale=True,
+                ),
             )
-        ))
+        )
 
         fig.update_layout(template="simple_white", width=800, height=800)
         fig.write_image(f"{self.output_dir}/parameter_tsne.png")
@@ -445,7 +447,7 @@ class DataAnalysis:
 
             # fig.update_yaxes(title="Abundance", type='log')
             fig.write_image(f"{self.output_dir}/abundance_bar_particle_{p_idx}.png")
-    
+
     def plot_toxin_interaction_matricies(self):
         for p_idx, p in enumerate(self.particles):
             print(p.toxin_mat)
@@ -464,7 +466,7 @@ class DataAnalysis:
             heatmap["y"] = population_names
 
             fig.add_trace(heatmap)
-            fig.update_layout(template="simple_white", title='Toxin interaction mat')
+            fig.update_layout(template="simple_white", title="Toxin interaction mat")
             fig.write_image(f"{self.output_dir}/toxin_mat_{p_idx}.png")
 
     def plot_metabolite_exchanges(self):
@@ -473,24 +475,26 @@ class DataAnalysis:
             fig = make_subplots(rows=1, cols=1, shared_xaxes=True, shared_yaxes="all")
 
             population_names = [pop.name for pop in p.populations]
-            
-            
+
             exchange_mat = p.max_exchange_mat
             print(sum(exchange_mat))
             # Apply mask
-            
-            
+
             for pop_idx, pop in enumerate(p.populations):
-                exchange_mat[pop_idx] = exchange_mat[pop_idx] * pop.dynamic_compound_mask
+                exchange_mat[pop_idx] = (
+                    exchange_mat[pop_idx] * pop.dynamic_compound_mask
+                )
 
             # Binarise
             exchange_mat = (exchange_mat > 0) + (exchange_mat < 0) * -1
 
             keep_cmpd_indexes = []
             for cmpd_idx, _ in enumerate(p.dynamic_compounds):
-                if any(exchange_mat[:, cmpd_idx] == 1) and any(exchange_mat[:, cmpd_idx] == -1):
-                    keep_cmpd_indexes.append(cmpd_idx)                
-            
+                if any(exchange_mat[:, cmpd_idx] == 1) and any(
+                    exchange_mat[:, cmpd_idx] == -1
+                ):
+                    keep_cmpd_indexes.append(cmpd_idx)
+
             exchange_mat = exchange_mat[:, keep_cmpd_indexes]
             dynamic_compounds = [p.dynamic_compounds[idx] for idx in keep_cmpd_indexes]
 
@@ -501,11 +505,11 @@ class DataAnalysis:
                 colorscale="picnic",
             )
 
-            heatmap["y"] = population_names 
+            heatmap["y"] = population_names
             heatmap["x"] = dynamic_compounds
 
             fig.add_trace(heatmap)
-            fig.update_layout(template="simple_white", title='exchanges')
+            fig.update_layout(template="simple_white", title="exchanges")
             fig.write_image(f"{self.output_dir}/exchange_mat_{p_idx}.png")
 
             figures.append(fig)
@@ -515,14 +519,15 @@ class DataAnalysis:
 def check_particle_equality(patricle_0, particle_1):
     if not np.array_equal(patricle_0.toxin_mat, particle_1.toxin_mat):
         return False
-    
+
     if not np.array_equal(patricle_0.max_exchange_mat, particle_1.max_exchange_mat):
         return False
-    
+
     if not np.array_equal(patricle_0.k_vals, particle_1.k_vals):
         return False
 
     return True
+
 
 def get_unique_particles(particles_list):
     unique_particles = []
@@ -532,17 +537,18 @@ def get_unique_particles(particles_list):
             if check_particle_equality(p, uniq_p):
                 is_unique = False
                 break
-            
+
         if is_unique:
-            unique_particles.append(p) 
+            unique_particles.append(p)
 
     return unique_particles
+
 
 def vis_multi_datapane():
     data_directories = [
         "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/output/mel_mixes_growth/mel_multi_mix2_m2_growers/"
     ]
-    
+
     data_dir = "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/output/mel_mixes_growth/mel_multi_mix2_m2_growers/"
 
     mix_target_data_path = "/Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/experimental_data/mel_target_data/target_data_pH7_Mix2_Med2.csv"
@@ -564,20 +570,19 @@ def vis_multi_datapane():
     )
     d.particles = sorted_particles[:10]
     # d.plot_toxin_interaction_matricies()
-    
+
     exchange_figures = d.plot_metabolite_exchanges()
     toxin_mat_figures = d.plot_toxin_interaction_matricies()
 
-
     labels = [f"Solution {str(x)}" for x in range(len(exchange_figures))]
     blocks = [dp.Plot(f, label=labels[idx]) for idx, f in enumerate(exchange_figures)]
-    
-    print(labels)
-    report = dp.Report(
-        dp.Select(blocks=blocks, type=dp.SelectType.DROPDOWN)
-    )
 
-    report.preview(open=True, formatting=dp.ReportFormatting(width=dp.ReportWidth.MEDIUM))
+    print(labels)
+    report = dp.Report(dp.Select(blocks=blocks, type=dp.SelectType.DROPDOWN))
+
+    report.preview(
+        open=True, formatting=dp.ReportFormatting(width=dp.ReportWidth.MEDIUM)
+    )
 
 
 def vis_multi():
@@ -609,7 +614,7 @@ def vis_multi():
         )
 
         keep_n_particles = 1000
-        d.particles = sorted_particles[:keep_n_particles]    
+        d.particles = sorted_particles[:keep_n_particles]
         d.particles = get_unique_particles(d.particles)
 
         sum_distances = sum_distances[:keep_n_particles]
@@ -622,7 +627,7 @@ def vis_multi():
         )
 
         keep_n_particles = 25
-        d.particles = sorted_particles[:keep_n_particles]    
+        d.particles = sorted_particles[:keep_n_particles]
         d.particles = get_unique_particles(d.particles)
 
         sum_distances = sum_distances[:keep_n_particles]
@@ -636,7 +641,6 @@ def vis_multi():
         # for p in d.particles:
         #     print("tox_sum", p.toxin_mat.sum())
         #     print(sum(p.distance))
-        
 
         d.plot_tsne(
             include_init_metabolites=False,
@@ -644,7 +648,7 @@ def vis_multi():
             include_k_values=True,
             include_init_species=False,
             include_toxin_values=True,
-            colour_value_vector=sum_distances
+            colour_value_vector=sum_distances,
         )
 
         d.plot_abundance_bar()

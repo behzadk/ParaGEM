@@ -34,7 +34,7 @@ class Filter:
                             and biomass_flux <= self.max_growth[name_idx]
                         ):
                             pass
-                        
+
                         else:
                             keep = False
                             break
