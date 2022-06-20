@@ -244,19 +244,31 @@ def load_particle_solutions(particle_df, solution_keys):
     for d in particle_df.data_dir.unique():
         particle_solutions.append(load_particles(d))
 
+def filter_unfinished_experiments(experiment_folders):
+    finished_experiments = []
+
+    for d in experiment_folders:
+        if len(glob(f"{d}/*.npy")) > 0:
+            finished_experiments.append(d)
+
+    return finished_experiments
 
 def pipeline(cfg):
     wd = cfg.user.wd
-    output_dir = cfg.output_dir
     experiment_dir = f"{wd}/output/{cfg.experiment_name}/"
+
+    output_dir = experiment_dir
     experiment_folders = glob(f"{experiment_dir}/{cfg.model_names[0]}/generation_*/run_**/")
+    experiment_folders = filter_unfinished_experiments(experiment_folders)
+
 
     exp_sol_keys = cfg.data.exp_sol_keys
     target_data_df = pd.read_csv(cfg.data.exp_data_path)
 
     particles_df = load_particles_dataframe(cfg.sim_media_names, experiment_folders)
-    print(particles_df)
     particles_df.sort_values(by='sum_distance', inplace=True)
+    particles_df.to_csv(f'{output_dir}/particles_df.csv')
+    particles_df = particles_df.head(500)
     
     fig = figure_all_particle_fold_change_timeseries(
     particles_df, cfg.model_names[0], target_data_df, exp_sol_keys, cfg.sim_media_names[0])
