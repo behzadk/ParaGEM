@@ -15,7 +15,7 @@ from loguru import logger
 import bk_comms
 
 from bk_comms.sampling import SampleCombinationParticles
-
+from bk_comms.data_analysis.visualisation import pipeline as vis_pipeline
 
 def logger_wraps(*, entry=True, exit=True, level="DEBUG"):
     def wrapper(func):
@@ -38,46 +38,39 @@ def logger_wraps(*, entry=True, exit=True, level="DEBUG"):
     return wrapper
 
 
-def test_main():
+@hydra.main(version_base=None, config_path="./configs")
+def test_main(cfg: DictConfig):
     """
     Test the main function
     """
-    with initialize(config_path="./configs"):
-        cfg = compose(
-            config_name="test_bk_comms",
-            overrides=[
-                "simulator.t_end=1",
-                "algorithm.population_size=4",
-                "algorithm.n_particles_batch=4",
-            ],
-        )
-        
-        Path(cfg.output_dir).mkdir(parents=True, exist_ok=True)
-        OmegaConf.save(cfg, f"{cfg.output_dir}/cfg.yaml")
+    Path(cfg.output_dir).mkdir(parents=True, exist_ok=True)
+    OmegaConf.save(cfg, f"{cfg.output_dir}/cfg.yaml")
 
-        alg = test_instantiate_algorithm(cfg)
-        alg.run(n_processes=cfg.n_processes, parallel=cfg.parallel)
+    simulator = test_instantiate_simulator(cfg)
 
-        particles = test_gen_initial_population(alg, cfg)
+    alg = test_instantiate_algorithm(cfg)
 
-        test_calculate_particle_distances(alg, particles, 'M3')
-        test_save_particles(alg, particles)
-        test_load_particles(alg)
-        test_combination_particle_sampler(alg)
 
-        simulator = test_instantiate_simulator(cfg)
+    particles = test_gen_initial_population(alg, cfg)
 
-        test_particle_simulation(simulator, particles, n_processes=2, parallel=True)
+    test_calculate_particle_distances(alg, particles, 'M3')
+    test_save_particles(alg, particles)
+    test_load_particles(alg)
+    test_combination_particle_sampler(alg)
+
+
+    vis_pipeline(cfg)
+
 
         
 
 @logger_wraps()
-def test_particle_simulation(simulator, particles, n_processes=2, parallel=True):
+def test_particle_simulation(simulator, media_name, particles, n_processes=2, parallel=True):
     """
     Test the particle simulation
     """
     simulator.simulate_particles(
-        particles, n_processes=n_processes, parallel=parallel
+        sol_key=media_name, n_processes=n_processes, parallel=parallel
     )
 
 @logger_wraps()

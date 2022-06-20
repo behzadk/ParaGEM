@@ -53,7 +53,7 @@ class Population:
         """
 
         model = cobra.io.read_sbml_model(model_path, name=str(np.random.randint(10)))
-        model.solver = "cplex"
+        model.solver = "gurobi"
 
         return model
 
@@ -62,30 +62,29 @@ class Population:
         dynamic_compounds = [x.replace("M_", "EX_") for x in self.dynamic_compounds]
 
         defined_mets = ["EX_" + x + "_e" for x in media_df["compound"].values]
+        
+
+        new_medium = self.model.medium
 
         for met in list(self.model.medium):
+            # M_glyb_e
             if met in defined_mets:
-                print("Defined in media file and model media", met)
                 key = met.replace("EX_", "").replace("_e", "")
 
-                medium = self.model.medium
-                medium[met] = media_df.loc[media_df["compound"] == key][
+                new_medium[met] = media_df.loc[media_df["compound"] == key][
                     "mmol_per_L"
                 ].values[0]
-
-                self.model.medium = medium
 
             elif met in dynamic_compounds:
                 # Compounds that are not in the media but are involved
                 # in interactions
-                medium = self.model.medium
-                medium[met] = 0.0
-                self.model.medium = medium
+                new_medium[met] = 1e-30
 
             else:
-                medium = self.model.medium
-                medium[met] = 0.0
-                self.model.medium = medium
+                new_medium[met] = 1e-30
+
+            
+        self.model.medium = new_medium
 
     def set_dynamic_compound_mask(self, community_dynamic_compounds):
         dynamic_compound_mask = []
@@ -577,10 +576,17 @@ class Community:
             (self.init_population_values, self.init_compound_values), axis=None
         )
 
-    def set_media_conditions(self, media_name):
+    def set_media_conditions(self, media_name, set_media=True):
         sub_media_df = self.media_df.loc[self.media_df["medium"] == media_name]
+        self.curr_media_df = sub_media_df
 
         self.init_compound_values = self.load_initial_compound_values(sub_media_df)
+        
+        if set_media:
+            for p in self.populations:
+                p.set_media(self.curr_media_df)
+        # for idx, c in enumerate(self.dynamic_compounds):
+        #     print(c, self.init_compound_values[idx])
 
         self.set_init_y()
         

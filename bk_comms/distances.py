@@ -312,7 +312,6 @@ class DistanceFoldChangeErrorPointWise:
         Calculate the distance between the simulated and experimental data.
         idx refers to the top layer of the exp_sol_keys to use
         """
-        print(self.exp_sol_keys)
         exp_sol_keys = self.exp_sol_keys[key]
         n_distances = len(exp_sol_keys)
         distances = []

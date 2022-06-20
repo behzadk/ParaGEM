@@ -10,6 +10,7 @@ from pathlib import Path
 from loguru import logger
 
 import warnings
+from bk_comms.data_analysis.visualisation import pipeline as vis_pipeline
 
 # warnings.filterwarnings("ignore")
 
@@ -23,9 +24,8 @@ def run_algorithm(cfg: DictConfig):
     logger.remove()
     logger.add(f"{cfg.output_dir}info_log.log", level="DEBUG")
 
+
     alg = instantiate(cfg.algorithm)
-
-
 
     if not isinstance(cfg.algorithm.hotstart_particles_regex, type(None)):
         alg.hotstart_particles(cfg.algorithm.hotstart_particles_regex)
@@ -35,6 +35,7 @@ def run_algorithm(cfg: DictConfig):
     # Write config once folder structuer has ben made
     alg.run(n_processes=cfg.n_processes, parallel=cfg.parallel)
     
+    vis_pipeline(cfg)
 
 
 
