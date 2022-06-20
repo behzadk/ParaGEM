@@ -579,7 +579,6 @@ class NSGAII(ParameterEstimation):
                 population_particle_indexes, size=2, replace=False
             )
 
-            print(candidate_0_idx, candidate_1_idx)
 
             # Identify which front they belong to
             candidate_0_front = find_front(candidate_0_idx)

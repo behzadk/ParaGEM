@@ -33,7 +33,8 @@ class Filter:
                             biomass_flux >= self.min_growth[name_idx]
                             and biomass_flux <= self.max_growth[name_idx]
                         ):
-                            print(name, biomass_flux)
+                            pass
+                        
                         else:
                             keep = False
                             break

@@ -246,7 +246,6 @@ class CometsTimeSeriesSimulation:
         
 
 
-        print(tmp_dir)
         shutil.rmtree(tmp_dir)
 
         return sol, t, experiment
