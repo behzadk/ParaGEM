@@ -5,7 +5,7 @@ media_path: ${user.wd}/media/melanie_data_media.tsv
 
 # Information about the data being used
 exp_data_path: ${user.wd}/experimental_data/mel_target_data/target_data_pH7_Mix2_Med3.csv
-  exp_sol_keys:
+exp_sol_keys:
   - - B_longum_subsp_longum
     - B_longum_subsp_longum
   - - C_perfringens_S107
