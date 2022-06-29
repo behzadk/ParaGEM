@@ -20,6 +20,7 @@ import pygmo
 import glob
 
 from bk_comms.utils import logger_wraps
+from bk_comms.utils import save_particles
 
 class ParameterEstimation:
     def init_particles(
@@ -491,7 +492,7 @@ class NSGAII(ParameterEstimation):
         if self.gen_idx == 0:
             self.population = self.gen_initial_population(n_processes, parallel)
 
-            self.save_particles(
+            save_particles(
                 self.population,
                 output_dir=f"{self.output_dir}",
             )
@@ -568,7 +569,7 @@ class NSGAII(ParameterEstimation):
             self.population = new_offspring + new_parents
 
 
-            self.save_particles(
+            save_particles(
                 self.population,
                 output_dir=f"{self.output_dir}",
             )
@@ -675,7 +676,7 @@ class SimpleSimulate(ParameterEstimation):
             if d not in self.population[0].dynamic_compounds:
                 print(d)
         
-        self.save_particles(
+        save_particles(
                 self.population,
                 output_dir=f"{self.output_dir}",
             )
@@ -723,7 +724,7 @@ class SimpleSimulate(ParameterEstimation):
             print("Saving particles")
 
             self.delete_particle_fba_models(batch_particles)
-            self.save_particles(
+            save_particles(
                 batch_particles,
                 output_dir=f"{self.output_dir}",
             )

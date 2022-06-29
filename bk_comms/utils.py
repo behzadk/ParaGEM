@@ -15,6 +15,40 @@ from loguru import logger
 import functools
 
 
+def save_particles(self, particles, output_dir):
+
+    init_populations_arr = np.array([particle.init_population_values for particle in particles])
+    k_values_arr = np.array([particle.k_vals for particle in particles])
+    max_exchange_arr = np.array([particle.max_exchange_mat for particle in particles])
+    toxin_arr = np.array([particle.toxin_mat for particle in particles])
+
+    distance_vectors = np.array([particle.distance for particle in particles])
+    
+    biomass_fluxes = np.array([particle.biomass_flux for particle in particles])
+
+    # Write arrays to output_dir
+    np.save(f"{output_dir}/particle_init_populations.npy", init_populations_arr)
+    np.save(f"{output_dir}/particle_k_values.npy", k_values_arr)
+    np.save(f"{output_dir}/particle_max_exchange.npy", max_exchange_arr)
+    np.save(f"{output_dir}/particle_toxin.npy", toxin_arr)
+    np.save(f"{output_dir}/solution_keys.npy", particles[0].solution_keys)
+    np.save(f"{output_dir}/biomass_flux.npy", biomass_fluxes)
+
+
+    if hasattr(particles[0],'distance'):
+        np.save(f"{output_dir}/particle_distance_vectors.npy", distance_vectors)
+
+    if hasattr(particles[0],'sol'):
+        for media in self.sim_media_names:
+            sol_arr = np.array([particle.sol[media] for particle in particles])
+            np.save(f"{output_dir}/particle_sol_{media}.npy", sol_arr)
+
+        t_vectors = np.array([particle.t for particle in particles])
+
+        np.save(f"{output_dir}/particle_t_vectors.npy", t_vectors)
+
+
+
 def load_model(model_path, model_name):
     """
     Loads models from model paths
