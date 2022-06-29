@@ -15,7 +15,7 @@ from loguru import logger
 import functools
 
 
-def save_particles(self, particles, output_dir):
+def save_particles(particles, output_dir):
 
     init_populations_arr = np.array([particle.init_population_values for particle in particles])
     k_values_arr = np.array([particle.k_vals for particle in particles])
