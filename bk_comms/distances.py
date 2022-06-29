@@ -341,15 +341,8 @@ class DistanceFoldChangeErrorPointWise:
 
                 fold_change_sim_val = (this_sim_val - init_sim_val) / init_sim_val
 
-                if exp_val == 0.0:
-                    continue
 
-                elif fold_change_sim_val == 0.0:
-                    distances.append(10000)
-
-                else:
-
-                    distances.append(abs(fold_change_sim_val - exp_val))
+                distances.append(abs(fold_change_sim_val - exp_val))
 
         return distances
 
