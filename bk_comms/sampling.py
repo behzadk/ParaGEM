@@ -160,11 +160,11 @@ class SampleCombinationParticles:
         particles_dict = {}
 
         for pop_name in population_names:
-                particles_dict[pop_name] = {}
-                particles_dict[pop_name]["k_vals"] = []
-                particles_dict[pop_name]["max_exchange_mat"] = []
-                particles_dict[pop_name]["initial_population"] = []
-                particles_dict[pop_name]["toxin_mat"] = []
+            particles_dict[pop_name] = {}
+            particles_dict[pop_name]["k_vals"] = []
+            particles_dict[pop_name]["max_exchange_mat"] = []
+            particles_dict[pop_name]["initial_population"] = []
+            particles_dict[pop_name]["toxin_mat"] = []
 
         for pop_name in population_names:
             params_dirs = glob(particles_input_info[pop_name])
