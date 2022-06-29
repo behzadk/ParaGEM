@@ -494,6 +494,7 @@ class NSGAII(ParameterEstimation):
 
             save_particles(
                 self.population,
+                self.sim_media_names,
                 output_dir=f"{self.output_dir}",
             )
             self.gen_idx += 1
@@ -571,6 +572,7 @@ class NSGAII(ParameterEstimation):
 
             save_particles(
                 self.population,
+                self.sim_media_names,
                 output_dir=f"{self.output_dir}",
             )
             new_offspring = []
@@ -678,6 +680,7 @@ class SimpleSimulate(ParameterEstimation):
         
         save_particles(
                 self.population,
+                self.sim_media_names,
                 output_dir=f"{self.output_dir}",
             )
 
@@ -726,6 +729,7 @@ class SimpleSimulate(ParameterEstimation):
             self.delete_particle_fba_models(batch_particles)
             save_particles(
                 batch_particles,
+                self.sim_media_names,
                 output_dir=f"{self.output_dir}",
             )
 
