@@ -11,16 +11,15 @@ model_names:
   - C_ramosum
 
 model_paths:
-  - ${cfg.wd}/models/melanie_data_models/B_longum_subsp_longum.xml
-  - ${cfg.wd}/models/melanie_data_models/C_perfringens_S107.xml
-  - ${cfg.wd}/models/melanie_data_models/E_coli_IAI1.xml
-  - ${cfg.wd}/models/melanie_data_models/L_paracasei.xml
-  - ${cfg.wd}/models/melanie_data_models/L_plantarum.xml
-  - ${cfg.wd}/models/melanie_data_models/S_salivarius.xml
-  - ${cfg.wd}/models/melanie_data_models/C_ramosum.xml
+  - ${user.wd}/models/melanie_data_models/B_longum_subsp_longum.xml
+  - ${user.wd}/models/melanie_data_models/C_perfringens_S107.xml
+  - ${user.wd}/models/melanie_data_models/E_coli_IAI1.xml
+  - ${user.wd}/models/melanie_data_models/L_paracasei.xml
+  - ${user.wd}/models/melanie_data_models/L_plantarum.xml
+  - ${user.wd}/models/melanie_data_models/S_salivarius.xml
+  - ${user.wd}/models/melanie_data_models/C_ramosum.xml
 
 objective_reaction_keys:
-  - Growth
   - Growth
   - Growth
   - Growth
@@ -38,14 +37,15 @@ defaults:
   - _self_
   - user: local
   - community: default
-  - data: M2
+  - data: M2_multi
   - algorithm: NSGAII
   - simulator: time_series_comets
-  - sampler: default_log_uniform
+  - sampler: sampler_mix2_m2_growers
   - distance: fold_change_error_pointwise
-  - filter: default_indiv_growth_filter
   - override hydra/job_logging: none 
   - override hydra/hydra_logging: none
+
+filter: null
 
 parallel: True
 n_processes: 2
