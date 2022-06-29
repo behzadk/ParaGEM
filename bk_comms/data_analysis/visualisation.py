@@ -83,16 +83,17 @@ def figure_all_particle_fold_change_timeseries(
     particles_df, species_name, target_data, exp_sol_keys, sim_media_name
 ):
 
-    
     fig = go.Figure()
 
     all_distances = []
+    sim_sols = []
+    all_t_vecs = []
 
-    # Iterate each data directory
+    # Iterate each data directory and unpack particles
     for d in particles_df.data_dir.unique():
         # Subset for this data directory
         df = particles_df[particles_df.data_dir == d]
-        
+
         # Load solutions
         sol_vec = load_solution(d, sim_media_name)
         distance_vec = load_distance_vector(d)
@@ -102,30 +103,50 @@ def figure_all_particle_fold_change_timeseries(
         for idx, row in df.iterrows():
             p_idx = row.particle_index
             sum_dist = row.sum_distance
+            all_distances.append(sum_dist)
 
-            sim_sol = sol_vec[p_idx][:, solution_keys.index(exp_sol_keys[sim_media_name][0][1])]
+
+            sim_sol = sol_vec[p_idx][
+                :, solution_keys.index(exp_sol_keys[sim_media_name][0][1])
+            ]
             t = t_vec[p_idx]
 
-            # Convert to fold change
-            init_sim = sim_sol[0]
-            calc_fc = lambda x: (x - init_sim) / init_sim
-            sim_sol = [calc_fc(n) for n in sim_sol]
+            sim_sols.append(sim_sol)
+            all_t_vecs.append(t)
 
-            all_distances.append(sum_dist)
-            fig.add_trace(
-                go.Line(
-                    x=t,
-                    y=sim_sol,
-                    name=f"Simulation {sim_media_name}",
-                    opacity=0.1,
-                    marker={"color": colours[1]},
-                    hovertext=str(round(sum_dist, 3)),
-                ),
-            ) 
+    # Sort particles by distance
+    sol_indexes = list(range(len(all_distances)))
+    sorted_indexes = [i for  _, i in sorted(zip(all_distances, sol_indexes), key=lambda pair: pair[0])]
+
+    all_distances = [all_distances[i] for i in sorted_indexes]
+    sim_sols = [sim_sols[i] for i in sorted_indexes]
+    all_t_vecs = [all_t_vecs[i] for i in sorted_indexes]
 
 
-    exp_columns = get_target_data_columns(species_name, sim_media_name, target_data.columns)
-    
+    for idx, _ in enumerate(sorted_indexes):
+        sim_sol = sim_sols[idx]
+        t = all_t_vecs[idx]
+
+        # Convert to fold change
+        init_sim = sim_sol[0]
+        calc_fc = lambda x: (x - init_sim) / init_sim
+        sim_sol = [calc_fc(n) for n in sim_sol]
+        
+        fig.add_trace(
+            go.Line(
+                x=np.around(t, decimals=2),
+                y=sim_sol,
+                name=f"Simulation {sim_media_name}",
+                opacity=0.1,
+                marker={"color": colours[1]},
+                hovertext=str(round(sum_dist, 3)),
+            ),
+        )
+
+    exp_columns = get_target_data_columns(
+        species_name, sim_media_name, target_data.columns
+    )
+
     for c in exp_columns:
         species, media, repeat_idx = split_target_column(c)
 
@@ -140,7 +161,7 @@ def figure_all_particle_fold_change_timeseries(
                 marker={"color": colours[-1]},
             ),
         )
-    
+
     # Create and add slider
     steps = []
     for i in range(len(fig.data)):
@@ -215,7 +236,8 @@ def figure_plot_distances(particles_df):
     fig.update_layout(template="simple_white", width=1000, height=1000)
     fig.update_xaxes(title="Generation")
     fig.update_yaxes(title="Sum distances")
-
+    fig.update_yaxes(type="log")
+    
     return fig
 
 def split_experiment_dir(exp_dir):
@@ -283,7 +305,7 @@ def pipeline(cfg):
     wd = cfg.user.wd
     experiment_dir = f"{wd}/output/{cfg.experiment_name}/"
 
-    output_dir = experiment_dir
+    output_dir = f"{experiment_dir}/{cfg.model_names[0]}/"
     experiment_folders = glob(f"{experiment_dir}/{cfg.model_names[0]}/generation_*/run_**/")
     experiment_folders = filter_unfinished_experiments(experiment_folders)
 
@@ -293,13 +315,14 @@ def pipeline(cfg):
 
     particles_df = load_particles_dataframe(cfg.sim_media_names, experiment_folders)
     particles_df.sort_values(by='sum_distance', inplace=True)
+    particles_df.reset_index(inplace=True)
     particles_df.to_csv(f'{output_dir}/particles_df.csv')
 
 
     fig = figure_plot_distances(particles_df)
     fig.write_html(f"{output_dir}/generation_distances.html")
 
-    particles_df = particles_df.head(500)
+    particles_df = particles_df.head(100)
     fig = figure_all_particle_fold_change_timeseries(
     particles_df, cfg.model_names[0], target_data_df, exp_sol_keys, cfg.sim_media_names[0])
     # Save fig

@@ -38,6 +38,7 @@ class ParameterEstimation:
                     pop.model = self.models[i][idx]
                 
             comm.sample_parameters_from_prior()
+
             particles[i] = comm
             particles[i].distance = []
             particles[i].sol = {}
@@ -195,6 +196,16 @@ class ParameterEstimation:
             while len(candidate_particles) < self.n_particles_batch:
                 new_particles = self.init_particles(self.n_particles_batch)
                 
+                # TEMP test to see if kvalues initial pop should be set to 1e-130
+                n_populations = len(new_particles[0].populations)
+                n_dynamic_compounds = len(new_particles[0].dynamic_compounds)
+
+                k_val_mat = np.ones([n_populations, n_dynamic_compounds])
+                k_val_mat = k_val_mat * 1e-30
+
+                [p.set_k_value_matrix(k_val_mat) for p in new_particles]
+
+
                 for media_name in self.sim_media_names:
                     [p.set_media_conditions(media_name) for p in new_particles]
 
@@ -234,6 +245,8 @@ class ParameterEstimation:
         toxin_arr = np.array([particle.toxin_mat for particle in particles])
 
         distance_vectors = np.array([particle.distance for particle in particles])
+        
+        biomass_fluxes = np.array([particle.biomass_flux for particle in particles])
 
         # Write arrays to output_dir
         np.save(f"{output_dir}/particle_init_populations.npy", init_populations_arr)
@@ -241,6 +254,8 @@ class ParameterEstimation:
         np.save(f"{output_dir}/particle_max_exchange.npy", max_exchange_arr)
         np.save(f"{output_dir}/particle_toxin.npy", toxin_arr)
         np.save(f"{output_dir}/solution_keys.npy", particles[0].solution_keys)
+        np.save(f"{output_dir}/biomass_flux.npy", biomass_fluxes)
+
 
         if hasattr(particles[0],'distance'):
             np.save(f"{output_dir}/particle_distance_vectors.npy", distance_vectors)
@@ -352,13 +367,19 @@ class ParameterEstimation:
 
         for hotstart_dir in hotstart_directories:
             
-            # Make parameter paths
-            init_populations_arr = np.load(f"{hotstart_dir}/particle_init_populations.npy")
-            k_values_arr = np.load(f"{hotstart_dir}/particle_k_values.npy", )
-            max_exchange_arr = np.load(f"{hotstart_dir}/particle_max_exchange.npy", )
-            toxin_arr = np.load(f"{hotstart_dir}/particle_toxin.npy")
+            try:
+                # Make parameter paths
+                init_populations_arr = np.load(f"{hotstart_dir}/particle_init_populations.npy")
+                k_values_arr = np.load(f"{hotstart_dir}/particle_k_values.npy", )
+                max_exchange_arr = np.load(f"{hotstart_dir}/particle_max_exchange.npy", )
+                toxin_arr = np.load(f"{hotstart_dir}/particle_toxin.npy")
 
-            distance_arr = np.load(f"{hotstart_dir}/particle_distance_vectors.npy")
+                distance_arr = np.load(f"{hotstart_dir}/particle_distance_vectors.npy")
+
+                biomass_fluxes = np.load(f"{hotstart_dir}/biomass_flux.npy")
+            
+            except FileNotFoundError:
+                continue
 
             # Print array shapes
             logger.info(f"init_populations_arr shape: {init_populations_arr.shape}")
@@ -376,11 +397,12 @@ class ParameterEstimation:
                 p.set_toxin_mat(toxin_arr[idx])
                 p.set_media_conditions(self.sim_media_names[0], set_media=False)
 
-
+                p.biomass_flux = biomass_fluxes[idx]
                 p.distance = distance_arr[idx]
 
             hotstart_particles.extend(naked_particles)
 
+        hotstart_particles = utils.get_unique_particles(hotstart_particles)
 
         self.population = hotstart_particles
 

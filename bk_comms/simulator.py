@@ -194,7 +194,7 @@ class CometsTimeSeriesSimulation:
         layout.media.reset_index(inplace=True)
 
         sim_params = cometspy.params()
-        sim_params.set_param("defaultVmax", 18.5)
+        sim_params.set_param("defaultVmax", 1000)
         sim_params.set_param("defaultKm", 0.000015)
         sim_params.set_param("maxCycles", self.max_cycles)
         sim_params.set_param("timeStep", self.dt)
