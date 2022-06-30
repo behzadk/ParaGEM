@@ -31,14 +31,11 @@ class CometsTimeSeriesSimulation:
         self.dilution_factor = dilution_factor
         self.dilution_time = dilution_time
 
-
-
         self.comets_home_dir = comets_home_dir
         self.gurobi_home_dir = gurobi_home_dir
 
         self.media_log_rate = int(media_log_rate)
         self.flux_log_rate = int(flux_log_rate)
-        
 
         os.environ["GUROBI_HOME"] = gurobi_home_dir
         os.environ["GUROBI_COMETS_HOME"] = gurobi_home_dir
@@ -73,7 +70,6 @@ class CometsTimeSeriesSimulation:
 
                 # Update model lower bound
                 model.change_bounds(cmpd_str, lower_bound_constraints[cmpd_idx], 1000)
-
 
     def set_k_values(self, layout, community):
         for idx, model in enumerate(layout.models):
@@ -112,8 +108,6 @@ class CometsTimeSeriesSimulation:
             cmpd_str = cmpd_str.replace("M_", "")
             cmpd_str = cmpd_str + "_e"
             layout.set_specific_metabolite(cmpd_str, row.mmol_per_L, static=True)
-
-
 
     def set_model_initial_pop(self, layout, community):
         for idx, pop in enumerate(community.populations):
@@ -170,14 +164,13 @@ class CometsTimeSeriesSimulation:
                     for t_val in t:
                         t_idx = utils.find_nearest(s_df["t"].values, t_val)
                         sol[:, idx][t_idx] = s_df[s].values[t_idx]
-                    
 
                 except KeyError:
                     for t_val in t:
                         t_idx = utils.find_nearest(s_df["t"].values, t_val)
                         sol[:, idx][t_idx] = np.nan
 
-        return sol, t        
+        return sol, t
 
     def simulate(self, community, idx=0):
         self.convert_models(community)
@@ -204,7 +197,6 @@ class CometsTimeSeriesSimulation:
         sim_params.set_param("writeMediaLog", True)
         sim_params.set_param("MediaLogRate", self.media_log_rate)
 
-
         # Optional parameters
         if self.batch_dilution:
             sim_params.set_param("batchDilution", True)
@@ -218,11 +210,9 @@ class CometsTimeSeriesSimulation:
             sim_params.set_param("writeFluxLog", True)
             sim_params.set_param("FluxLogRate", self.flux_log_rate)
 
-
         tmp_dir = f"./tmp_{os.getpid()}/"
         if not os.path.exists(tmp_dir):
             os.mkdir(tmp_dir)
-
 
         experiment = cometspy.comets(layout, sim_params, relative_dir=tmp_dir)
         self.experiment = experiment
@@ -240,11 +230,9 @@ class CometsTimeSeriesSimulation:
         experiment.run(delete_files=False)
 
         sol, t = self.process_experiment(community, experiment)
-        
+
         if self.flux_log_rate == 0.0:
             experiment.fluxes_by_species = None
-        
-
 
         shutil.rmtree(tmp_dir)
 
@@ -253,13 +241,13 @@ class CometsTimeSeriesSimulation:
     def simulate_particles(
         self, particles, sol_key, n_processes=1, sim_timeout=1000.0, parallel=True
     ):
-        
+
         if parallel:
             print("running parallel")
 
             def wrapper(args):
                 idx, args = args
-                sol, t, experiment= self.simulate(args)
+                sol, t, experiment = self.simulate(args)
                 return (idx, sol, t, experiment)
 
             pool = mp.get_context("spawn").Pool(n_processes, maxtasksperchild=1)
@@ -271,7 +259,6 @@ class CometsTimeSeriesSimulation:
                     particles[idx].sol[sol_key] = sol
                     particles[idx].t = t
 
-                    
                 except mp.context.TimeoutError:
                     print("TIMEOUT ERROR")
                     break
@@ -354,7 +341,7 @@ class GrowthRate:
         particle_growth_rates = np.zeros(shape=[1, n_populations])
 
         particle.set_init_y()
-        
+
         growth_rates, flux_matrix = particle.sim_step(particle.init_y)
         particle_growth_rates[0] = growth_rates
 
