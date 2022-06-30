@@ -1,5 +1,6 @@
 run_idx: 999
-output_dir: ${user.wd}/output/${experiment_name}/${community.model_names.0}/generation_${algorithm.generation_idx}/run_${run_idx}/
+experiment_dir: ${user.wd}/output/${experiment_name}/
+output_dir: ${experiment_dir}/generation_${algorithm.generation_idx}/run_${run_idx}/
 
 model_names:
   - B_longum_subsp_longum
@@ -33,22 +34,26 @@ experiment_name: test
 sim_media_names:
   - M2
 
+vis_n_particles: 15
+
+
 defaults:
   - _self_
   - user: local
-  - community: default
+  - community: default_toxin
   - data: M2_multi
   - algorithm: NSGAII
   - simulator: time_series_comets
   - sampler: sampler_mix2_m2_growers
-  - distance: fold_change_error_pointwise
+  - distance: abundance_error
+  - visualisation: multi
   - override hydra/job_logging: none 
   - override hydra/hydra_logging: none
 
 filter: null
 
 parallel: True
-n_processes: 2
+n_processes: 5
 
 hydra.run.dir: . 
 hydra.output_subdir: null
