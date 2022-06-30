@@ -17,13 +17,12 @@ import functools
 
 def save_particles(particles, sim_media_names, output_dir):
 
-    init_populations_arr = np.array([particle.init_population_values for particle in particles])
+    init_populations_arr = np.array(
+        [particle.init_population_values for particle in particles]
+    )
     k_values_arr = np.array([particle.k_vals for particle in particles])
     max_exchange_arr = np.array([particle.max_exchange_mat for particle in particles])
     toxin_arr = np.array([particle.toxin_mat for particle in particles])
-
-    
-    biomass_fluxes = np.array([particle.biomass_flux for particle in particles])
 
     # Write arrays to output_dir
     np.save(f"{output_dir}/particle_init_populations.npy", init_populations_arr)
@@ -31,14 +30,16 @@ def save_particles(particles, sim_media_names, output_dir):
     np.save(f"{output_dir}/particle_max_exchange.npy", max_exchange_arr)
     np.save(f"{output_dir}/particle_toxin.npy", toxin_arr)
     np.save(f"{output_dir}/solution_keys.npy", particles[0].solution_keys)
-    np.save(f"{output_dir}/biomass_flux.npy", biomass_fluxes)
 
+    if hasattr(particles[0], "biomass_flux"):
+        biomass_fluxes = np.array([particle.biomass_flux for particle in particles])
+        np.save(f"{output_dir}/biomass_flux.npy", biomass_fluxes)
 
-    if hasattr(particles[0],'distance'):
+    if hasattr(particles[0], "distance"):
         distance_vectors = np.array([particle.distance for particle in particles])
         np.save(f"{output_dir}/particle_distance_vectors.npy", distance_vectors)
 
-    if hasattr(particles[0],'sol'):
+    if hasattr(particles[0], "sol"):
         for media in sim_media_names:
             sol_arr = np.array([particle.sol[media] for particle in particles])
             np.save(f"{output_dir}/particle_sol_{media}.npy", sol_arr)
@@ -46,7 +47,6 @@ def save_particles(particles, sim_media_names, output_dir):
         t_vectors = np.array([particle.t for particle in particles])
 
         np.save(f"{output_dir}/particle_t_vectors.npy", t_vectors)
-
 
 
 def load_model(model_path, model_name):
@@ -59,13 +59,14 @@ def load_model(model_path, model_name):
 
     return model
 
+
 def check_particle_equality(patricle_0, particle_1):
     if not np.array_equal(patricle_0.toxin_mat, particle_1.toxin_mat):
         return False
-        
+
     if not np.array_equal(patricle_0.max_exchange_mat, particle_1.max_exchange_mat):
         return False
-    
+
     if not np.array_equal(patricle_0.k_vals, particle_1.k_vals):
         return False
 
@@ -104,9 +105,9 @@ def get_unique_particles(particles_list):
             if check_particle_equality(p, uniq_p):
                 is_unique = False
                 break
-            
+
         if is_unique:
-            unique_particles.append(p) 
+            unique_particles.append(p)
 
     return unique_particles
 
@@ -140,7 +141,6 @@ def get_solution_index(comm, sol_element_key):
 
 def get_mem_usage():
     return psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2
-
 
 
 def get_community_complete_environment(
