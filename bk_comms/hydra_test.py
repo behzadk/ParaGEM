@@ -24,11 +24,11 @@ def run_algorithm(cfg: DictConfig):
     OmegaConf.save(cfg, f"{cfg.cfg.output_dir}/cfg.yaml")
 
     cfg = cfg["cfg"]
-    
+
     logger.remove()
     logger.add(f"{cfg.output_dir}info_log.log", level="DEBUG")
 
-    print(cfg['filter'])
+    print(cfg["filter"])
 
     alg = instantiate(cfg.algorithm)
 
