@@ -23,3 +23,5 @@ init_population_sampler:
   min_val: 0.004
   max_val: 0.004
   distribution_type: "log_uniform"
+
+toxin_interaction_sampler: null
