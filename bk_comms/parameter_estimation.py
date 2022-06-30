@@ -22,22 +22,20 @@ import glob
 from bk_comms.utils import logger_wraps
 from bk_comms.utils import save_particles
 
+
 class ParameterEstimation:
-    def init_particles(
-        self,
-        n_particles, assign_model=True, set_media=True
-    ):
+    def init_particles(self, n_particles, assign_model=True, set_media=True):
         particles = np.zeros(shape=n_particles, dtype=object)
 
         for i in range(n_particles):
             # Make independent copy of base community
             comm = copy.deepcopy(self.base_community)
             # Assign population models
-            
+
             if assign_model:
                 for idx, pop in enumerate(comm.populations):
                     pop.model = self.models[i][idx]
-                
+
             comm.sample_parameters_from_prior()
 
             particles[i] = comm
@@ -52,7 +50,6 @@ class ParameterEstimation:
                 particles[i].set_media_conditions(self.sim_media_names[0])
 
         return particles
-
 
     def crossover_parameterwise(self, n_particles, population):
         batch_particles = self.init_particles(
@@ -107,12 +104,14 @@ class ParameterEstimation:
                     batch_particles[p_batch_idx].k_vals[model_idx] = male_part.k_vals[
                         model_idx
                     ].copy()
-                    
+
                     batch_particles[p_batch_idx].max_exchange_mat[
                         model_idx
                     ] = male_part.max_exchange_mat[model_idx].copy()
 
-                    batch_particles[p_batch_idx].toxin_mat[model_idx] = male_part.toxin_mat[model_idx].copy()
+                    batch_particles[p_batch_idx].toxin_mat[
+                        model_idx
+                    ] = male_part.toxin_mat[model_idx].copy()
 
                 else:
                     batch_particles[p_batch_idx].k_vals[model_idx] = female_part.k_vals[
@@ -122,8 +121,10 @@ class ParameterEstimation:
                         model_idx
                     ] = female_part.max_exchange_mat[model_idx].copy()
 
-                    batch_particles[p_batch_idx].toxin_mat[model_idx] = female_part.toxin_mat[model_idx].copy()
-                    
+                    batch_particles[p_batch_idx].toxin_mat[
+                        model_idx
+                    ] = female_part.toxin_mat[model_idx].copy()
+
         return batch_particles
 
     def mutate_parameterwise(self, batch_particles):
@@ -158,7 +159,6 @@ class ParameterEstimation:
 
     def mutate_community_from_prior(self, batch_particles):
 
-        
         for particle in batch_particles:
             # Generate a 'mutation particle'
             mut_particle = self.init_particles(
@@ -167,22 +167,21 @@ class ParameterEstimation:
 
             if np.random.uniform() < self.mutation_probability:
                 # For each model in the community, randomly select parameters from male or female
-                for model_idx, particle_model_name in enumerate(
-                    particle.model_names
-                ):
+                for model_idx, particle_model_name in enumerate(particle.model_names):
                     # Either mutate the metabolism or the toxins (not both at the same time)
                     if np.random.randint(2) == 0:
                         particle.k_vals[model_idx] = mut_particle.k_vals[
                             model_idx
                         ].copy()
-                        
+
                         particle.max_exchange_mat[
                             model_idx
                         ] = mut_particle.max_exchange_mat[model_idx].copy()
 
                     else:
-                        particle.toxin_mat[model_idx] = mut_particle.toxin_mat[model_idx].copy()                        
-
+                        particle.toxin_mat[model_idx] = mut_particle.toxin_mat[
+                            model_idx
+                        ].copy()
 
     @logger_wraps()
     def gen_initial_population(self, n_processes, parallel):
@@ -196,7 +195,7 @@ class ParameterEstimation:
             candidate_particles = []
             while len(candidate_particles) < self.n_particles_batch:
                 new_particles = self.init_particles(self.n_particles_batch)
-                
+
                 # TEMP test to see if kvalues initial pop should be set to 1e-130
                 n_populations = len(new_particles[0].populations)
                 n_dynamic_compounds = len(new_particles[0].dynamic_compounds)
@@ -205,7 +204,6 @@ class ParameterEstimation:
                 k_val_mat = k_val_mat * 1e-30
 
                 [p.set_k_value_matrix(k_val_mat) for p in new_particles]
-
 
                 for media_name in self.sim_media_names:
                     [p.set_media_conditions(media_name) for p in new_particles]
@@ -218,9 +216,14 @@ class ParameterEstimation:
             logger.info(f"Simulating candidates {len(candidate_particles)}")
             for media_idx, media_name in enumerate(self.sim_media_names):
                 self.simulator.simulate_particles(
-                    candidate_particles, sol_key=media_name, n_processes=n_processes, parallel=parallel
+                    candidate_particles,
+                    sol_key=media_name,
+                    n_processes=n_processes,
+                    parallel=parallel,
                 )
-                self.calculate_and_set_particle_distances(candidate_particles, media_name)
+                self.calculate_and_set_particle_distances(
+                    candidate_particles, media_name
+                )
 
             logger.info(f"Finished simulating")
 
@@ -239,14 +242,18 @@ class ParameterEstimation:
         return particles
 
     def save_particles(self, particles, output_dir):
-    
-        init_populations_arr = np.array([particle.init_population_values for particle in particles])
+
+        init_populations_arr = np.array(
+            [particle.init_population_values for particle in particles]
+        )
         k_values_arr = np.array([particle.k_vals for particle in particles])
-        max_exchange_arr = np.array([particle.max_exchange_mat for particle in particles])
+        max_exchange_arr = np.array(
+            [particle.max_exchange_mat for particle in particles]
+        )
         toxin_arr = np.array([particle.toxin_mat for particle in particles])
 
         distance_vectors = np.array([particle.distance for particle in particles])
-        
+
         biomass_fluxes = np.array([particle.biomass_flux for particle in particles])
 
         # Write arrays to output_dir
@@ -257,11 +264,10 @@ class ParameterEstimation:
         np.save(f"{output_dir}/solution_keys.npy", particles[0].solution_keys)
         np.save(f"{output_dir}/biomass_flux.npy", biomass_fluxes)
 
-
-        if hasattr(particles[0],'distance'):
+        if hasattr(particles[0], "distance"):
             np.save(f"{output_dir}/particle_distance_vectors.npy", distance_vectors)
 
-        if hasattr(particles[0],'sol'):
+        if hasattr(particles[0], "sol"):
             for media in self.sim_media_names:
                 sol_arr = np.array([particle.sol[media] for particle in particles])
                 np.save(f"{output_dir}/particle_sol_{media}.npy", sol_arr)
@@ -269,7 +275,6 @@ class ParameterEstimation:
             t_vectors = np.array([particle.t for particle in particles])
 
             np.save(f"{output_dir}/particle_t_vectors.npy", t_vectors)
-
 
     def generate_models_list(self, n_models):
         # Generate a list of models that will be assigned
@@ -302,8 +307,7 @@ class ParameterEstimation:
 
             for p in part.populations:
                 del p.model
-                
-                
+
         gc.collect()
 
     def media_transfer_particles(particles, media_set_base_particle):
@@ -316,8 +320,7 @@ class ParameterEstimation:
             media_set_particle.sol = p.sol
 
             # Transfer parameters from particle to media set particle
-            
-            
+
             media_set_particle.set_init_y()
 
     def get_particle_distances(self, particles):
@@ -343,7 +346,7 @@ class ParameterEstimation:
                     # del p.sol
                     del p.flux_log
                     del p.experiment
-                
+
                 except:
                     pass
 
@@ -355,9 +358,7 @@ class ParameterEstimation:
 
         # Set new generation
         hotstart_particles = utils.get_unique_particles(hotstart_particles)
-        logger.info(
-            f"Number of hotstart particles: {len(hotstart_particles)}"
-        )
+        logger.info(f"Number of hotstart particles: {len(hotstart_particles)}")
 
         self.population = hotstart_particles
 
@@ -367,18 +368,24 @@ class ParameterEstimation:
         hotstart_directories = glob.glob(hostart_parameter_dir_regex)
 
         for hotstart_dir in hotstart_directories:
-            
+
             try:
                 # Make parameter paths
-                init_populations_arr = np.load(f"{hotstart_dir}/particle_init_populations.npy")
-                k_values_arr = np.load(f"{hotstart_dir}/particle_k_values.npy", )
-                max_exchange_arr = np.load(f"{hotstart_dir}/particle_max_exchange.npy", )
+                init_populations_arr = np.load(
+                    f"{hotstart_dir}/particle_init_populations.npy"
+                )
+                k_values_arr = np.load(
+                    f"{hotstart_dir}/particle_k_values.npy",
+                )
+                max_exchange_arr = np.load(
+                    f"{hotstart_dir}/particle_max_exchange.npy",
+                )
                 toxin_arr = np.load(f"{hotstart_dir}/particle_toxin.npy")
 
                 distance_arr = np.load(f"{hotstart_dir}/particle_distance_vectors.npy")
 
-                biomass_fluxes = np.load(f"{hotstart_dir}/biomass_flux.npy")
-            
+                # biomass_fluxes = np.load(f"{hotstart_dir}/biomass_flux.npy")
+
             except FileNotFoundError:
                 continue
 
@@ -388,8 +395,10 @@ class ParameterEstimation:
             logger.info(f"max_exchange_arr shape: {max_exchange_arr.shape}")
             logger.info(f"toxin_arr shape: {toxin_arr.shape}")
             logger.info(f"distance_arr shape: {distance_arr.shape}")
-            
-            naked_particles = self.init_particles(n_particles=len(max_exchange_arr), assign_model=False, set_media=False)
+
+            naked_particles = self.init_particles(
+                n_particles=len(max_exchange_arr), assign_model=False, set_media=False
+            )
 
             for idx, p in enumerate(naked_particles):
                 p.set_initial_populations(init_populations_arr[idx])
@@ -398,7 +407,7 @@ class ParameterEstimation:
                 p.set_toxin_mat(toxin_arr[idx])
                 p.set_media_conditions(self.sim_media_names[0], set_media=False)
 
-                p.biomass_flux = biomass_fluxes[idx]
+                # p.biomass_flux = biomass_fluxes[idx]
                 p.distance = distance_arr[idx]
 
             hotstart_particles.extend(naked_particles)
@@ -411,7 +420,9 @@ class ParameterEstimation:
     def calculate_and_set_particle_distances(self, particles, sol_distance_key):
         # Calculate distances
         for p in particles:
-            p.distance.extend(self.distance_object.calculate_distance(p, sol_distance_key))
+            p.distance.extend(
+                self.distance_object.calculate_distance(p, sol_distance_key)
+            )
 
 
 class NSGAII(ParameterEstimation):
@@ -423,8 +434,8 @@ class NSGAII(ParameterEstimation):
         output_dir,
         simulator,
         sim_media_names,
-        crossover_type='parameterwise',
-        mutate_type='parameterwise',
+        crossover_type="parameterwise",
+        mutate_type="parameterwise",
         n_particles_batch=8,
         particle_filter=None,
         mutation_probability=0.0,
@@ -455,22 +466,22 @@ class NSGAII(ParameterEstimation):
         self.gen_idx = int(generation_idx)
         self.final_generation = False
 
-        if crossover_type == 'parameterwise':
+        if crossover_type == "parameterwise":
             self.crossover = self.crossover_parameterwise
-        
-        elif crossover_type == 'specieswise':
+
+        elif crossover_type == "specieswise":
             self.crossover = self.crossover_species_wise
-        
+
         else:
             raise ValueError(f"Unknown crossover type: {crossover_type}")
 
         if mutate_type == "parameterwise":
             self.mutate = self.mutate_parameterwise
-        
+
         elif mutate_type == "resample_prior":
             # self.mutate = self.mutate_resample_from_prior
             self.mutate = self.mutate_community_from_prior
-        
+
         else:
             raise ValueError(f"Unknown mutation type: {mutate_type}")
 
@@ -479,10 +490,8 @@ class NSGAII(ParameterEstimation):
 
         self.max_generations = max_generations
 
-
         # if not isinstance(hotstart_particles_regex, type(None)):
         #     self.hotstart_particles(hotstart_particles_regex)
-
 
     @logger_wraps()
     def run(self, n_processes=1, parallel=False):
@@ -509,12 +518,14 @@ class NSGAII(ParameterEstimation):
             while len(new_offspring) < self.population_size:
 
                 population_average_distance = np.mean(
-                [max(p.distance) for p in self.population]
+                    [max(p.distance) for p in self.population]
                 )
                 population_mediain_distance = np.median(
                     [max(p.distance) for p in self.population]
                 )
-                population_min_distance = np.min([sum(p.distance) for p in self.population])
+                population_min_distance = np.min(
+                    [sum(p.distance) for p in self.population]
+                )
 
                 logger.info(
                     f"Pop mean distance: {population_average_distance}, pop median distance: {population_mediain_distance}, pop min distance: {population_min_distance}"
@@ -524,7 +535,6 @@ class NSGAII(ParameterEstimation):
                 parent_particles = self.non_dominated_sort_parent_selection(
                     self.population, self.n_particles_batch
                 )
-
 
                 logger.info(f"Performing crossover to produce offspring")
                 # Perform crossover and mutation to generate offspring of size N
@@ -536,26 +546,34 @@ class NSGAII(ParameterEstimation):
                 self.mutate(offspring_particles)
                 offspring_particles = list(offspring_particles)
 
-
                 logger.info(f"Simulating offspring")
 
                 logger.info(f"Simulating offspring batch: {batch_idx}")
-                
+
                 for media_idx, media_name in enumerate(self.sim_media_names):
                     [p.set_media_conditions(media_name) for p in offspring_particles]
 
                     if not isinstance(self.filter, type(None)):
-                        offspring_particles = self.filter.filter_particles(offspring_particles)
+                        offspring_particles = self.filter.filter_particles(
+                            offspring_particles
+                        )
 
                     # Simulate particle for media name
                     self.simulator.simulate_particles(
-                        offspring_particles, sol_key=media_name, n_processes=n_processes, parallel=parallel
+                        offspring_particles,
+                        sol_key=media_name,
+                        n_processes=n_processes,
+                        parallel=parallel,
                     )
 
                     # Calculate distance for media_name
-                    self.calculate_and_set_particle_distances(offspring_particles, media_name)
-                
-                offspring_particles = [p for p in offspring_particles if not np.isnan(sum(p.distance))]
+                    self.calculate_and_set_particle_distances(
+                        offspring_particles, media_name
+                    )
+
+                offspring_particles = [
+                    p for p in offspring_particles if not np.isnan(sum(p.distance))
+                ]
 
                 self.delete_particle_fba_models(offspring_particles)
 
@@ -568,7 +586,6 @@ class NSGAII(ParameterEstimation):
 
             # Combine population of parents and offspring (2N)
             self.population = new_offspring + new_parents
-
 
             save_particles(
                 self.population,
@@ -603,7 +620,6 @@ class NSGAII(ParameterEstimation):
             candidate_0_idx, candidate_1_idx = np.random.choice(
                 population_particle_indexes, size=2, replace=False
             )
-
 
             # Identify which front they belong to
             candidate_0_front = find_front(candidate_0_idx)
@@ -655,7 +671,6 @@ class SimpleSimulate(ParameterEstimation):
 
         self.models = self.generate_models_list(n_models=self.n_particles_batch)
 
-
         # Load hotstart particles
         if not isinstance(hotstart_particles_regex, type(None)):
             self.hotstart(hotstart_particles_regex)
@@ -665,7 +680,6 @@ class SimpleSimulate(ParameterEstimation):
             self.population = sorted(
                 self.population, key=lambda x: sum_distances[self.population.index(x)]
             )
-
 
             self.population = self.population
             for p in self.population:
@@ -677,12 +691,12 @@ class SimpleSimulate(ParameterEstimation):
         for d in base_community.dynamic_compounds:
             if d not in self.population[0].dynamic_compounds:
                 print(d)
-        
+
         save_particles(
-                self.population,
-                self.sim_media_names,
-                output_dir=f"{self.output_dir}",
-            )
+            self.population,
+            self.sim_media_names,
+            output_dir=f"{self.output_dir}",
+        )
 
     def initialize_fresh_particle(self):
         pass
@@ -693,8 +707,10 @@ class SimpleSimulate(ParameterEstimation):
 
         particle_idx = 0
 
-        while particles_simulated < self.max_simulations or particle_idx > len(self.population):
-        
+        while particles_simulated < self.max_simulations or particle_idx > len(
+            self.population
+        ):
+
             batch_particles = []
 
             for i in range(self.n_particles_batch):
@@ -708,16 +724,22 @@ class SimpleSimulate(ParameterEstimation):
             # batch_particles = self.init_particles(self.n_particles_batch)
 
             for batch_p_idx in range(self.n_particles_batch):
-                batch_particles[batch_p_idx].set_k_value_matrix(self.population[particle_idx].k_vals)
-                batch_particles[batch_p_idx].set_max_exchange_mat(self.population[particle_idx].max_exchange_mat)
+                batch_particles[batch_p_idx].set_k_value_matrix(
+                    self.population[particle_idx].k_vals
+                )
+                batch_particles[batch_p_idx].set_max_exchange_mat(
+                    self.population[particle_idx].max_exchange_mat
+                )
 
-
-                batch_particles[batch_p_idx].set_toxin_mat(self.population[particle_idx].toxin_mat)
-                batch_particles[batch_p_idx].set_initial_populations(self.population[particle_idx].init_population_values)
-
+                batch_particles[batch_p_idx].set_toxin_mat(
+                    self.population[particle_idx].toxin_mat
+                )
+                batch_particles[batch_p_idx].set_initial_populations(
+                    self.population[particle_idx].init_population_values
+                )
 
                 batch_particles[batch_p_idx].set_init_y()
-                
+
                 particle_idx += 1
 
             self.simulator.simulate_particles(
