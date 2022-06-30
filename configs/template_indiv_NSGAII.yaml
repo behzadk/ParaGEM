@@ -1,6 +1,6 @@
 run_idx: 999
-output_dir: ${user.wd}/output/${experiment_name}/${community.model_names.0}/generation_${algorithm.generation_idx}/run_${run_idx}/
-
+experiment_dir: ${user.wd}/output/${experiment_name}/${community.model_names.0}/
+output_dir: ${experiment_dir}/generation_${algorithm.generation_idx}/run_${run_idx}/
 
 model_names:
   - null
@@ -17,16 +17,19 @@ sim_media_names:
   - M3
   - M2
 
+vis_n_particles: 15
+
 defaults:
   - _self_
   - user: local
   - community: default
-  - data: M3
+  - data: M2_M3
   - algorithm: NSGAII
   - simulator: time_series_comets
   - sampler: default_log_uniform
   - distance: fold_change_error_pointwise
   - filter: default_indiv_growth_filter
+  - visualisation: indiv
   - override hydra/job_logging: none 
   - override hydra/hydra_logging: none
 
