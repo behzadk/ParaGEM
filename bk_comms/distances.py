@@ -5,6 +5,7 @@ from loguru import logger
 from typing import List
 from scipy import stats
 
+
 def find_nearest(array, value):
     array = np.asarray(array)
     idx = (np.abs(array - value)).argmin()
@@ -103,7 +104,9 @@ class DistanceTimeseriesEuclidianDistance:
                 if np.isnan(exp_val):
                     continue
 
-                distances[distance_idx] = max(distances[distance_idx], abs(exp_val - sim_val))
+                distances[distance_idx] = max(
+                    distances[distance_idx], abs(exp_val - sim_val)
+                )
 
             # if abs(sim_data[:, sol_idx][0] - sim_data[:, sol_idx][-1]) < 1e-10:
             #     distances[distance_idx] = 1000
@@ -121,6 +124,7 @@ class DistanceTimeseriesEuclidianDistance:
                 return False, distance
 
         return True, distance
+
 
 class DistanceAbundanceSpearmanRank:
     def __init__(
@@ -159,12 +163,14 @@ class DistanceAbundanceSpearmanRank:
 
                 if np.isnan(exp_val):
                     continue
-                
+
                 exp_values.append(exp_val)
                 sim_values.append(sim_val)
-                
-                distances[distance_idx] = max(distances[distance_idx], abs(exp_val - sim_val))
-        
+
+                distances[distance_idx] = max(
+                    distances[distance_idx], abs(exp_val - sim_val)
+                )
+
         spearman_rank_corr = stats.spearmanr(sim_values, exp_values)[0]
         # Normalize to between 0 and 1
         spearman_rank_corr = (spearman_rank_corr + 1) / 2
@@ -183,7 +189,6 @@ class DistanceTimeseriesEuclidianDistancePointWise:
         self.exp_data = pd.read_csv(exp_data_path)
         self.exp_t_key = exp_t_key
         self.exp_sol_keys = exp_sol_keys
-
 
     def calculate_distance(self, community):
         n_distances = len(self.exp_sol_keys)
@@ -274,7 +279,6 @@ class DistanceFoldChangeError:
                     # distances[distance_idx] += abs(fold_change_error)
                     distances[distance_idx] += abs(fold_change_sim_val - exp_val)
 
-
                 print(
                     f"FoldChangeError: {init_sim_val}, {this_sim_val}, {exp_val}, {fold_change_sim_val}, {distances[distance_idx]}"
                 )
@@ -292,7 +296,6 @@ class DistanceFoldChangeError:
                 return False, distance
 
         return True, distance
-
 
 
 class DistanceFoldChangeErrorPointWise:
@@ -341,7 +344,6 @@ class DistanceFoldChangeErrorPointWise:
 
                 fold_change_sim_val = (this_sim_val - init_sim_val) / init_sim_val
 
-
                 distances.append(abs(fold_change_sim_val - exp_val))
 
         return distances
@@ -353,28 +355,24 @@ class DistanceAbundanceError:
         exp_data_path: str,
         exp_t_key,
         exp_sol_keys,
-        epsilon=1.0,
-        final_epsilon=1.0,
     ):
         self.exp_data = pd.read_csv(exp_data_path)
         self.exp_t_key = exp_t_key
         self.exp_sol_keys = exp_sol_keys
 
         # Here, epsilon behaves as a percentage error tolerance
-        self.epsilon = epsilon
-        self.final_epsilon = final_epsilon
 
-    def assess_particle(self, community):
-        distance = self.calculate_distance(community)
+    # def assess_particle(self, community):
+    #     distance = self.calculate_distance(community)
 
-        for idx, d in enumerate(distance):
-            if d < self.epsilon[idx]:
-                continue
+    #     for idx, d in enumerate(distance):
+    #         if d < self.epsilon[idx]:
+    #             continue
 
-            else:
-                return False, distance
+    #         else:
+    #             return False, distance
 
-        return True, distance
+    #     return True, distance
 
     def get_total_biomass(self, community, sim_data, sim_t_idx):
         species_initial_abundance = 0
@@ -387,14 +385,14 @@ class DistanceAbundanceError:
 
         return species_initial_abundance
 
-    def calculate_distance(self, community):
+    def calculate_distance(self, community, key):
         n_distances = len(self.exp_sol_keys)
         distances = np.zeros(n_distances)
 
         if community.sol is None or community.t is None:
             return [np.inf for d in range(n_distances)]
 
-        sim_data = community.sol
+        sim_data = community.sol[key]
         sim_t = community.t
 
         for distance_idx, key_pair in enumerate(self.exp_sol_keys):
