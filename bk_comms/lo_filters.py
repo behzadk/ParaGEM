@@ -15,7 +15,7 @@ class Filter:
         for p in particles:
             p.sim_step(p.init_y)
             keep = True
-            
+
             p.biomass_flux = []
 
             for pop_idx, _ in enumerate(p.populations):
@@ -39,7 +39,7 @@ class Filter:
                             and biomass_flux <= self.max_growth[name_idx]
                         ):
                             pass
-                        
+
                         else:
                             keep = False
                             break
