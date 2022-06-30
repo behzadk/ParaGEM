@@ -13,7 +13,7 @@ import datapane as dp
 import pandas as pd
 from bk_comms import distances
 from pathlib import Path
-from visualisation_utils import generate_particle_parameter_df
+from bk_comms.data_analysisvisualisation_utils import generate_particle_parameter_df
 import scipy
 
 colours = [
@@ -51,7 +51,7 @@ def get_target_data_columns(target_species_name, target_media_name, all_target_c
     return target_data_columns
 
 
-def load_particles(particle_regex, epsilon=None):
+def load_particle(particle_regex, epsilon=None):
     particle_files = glob(particle_regex)
     particles = []
 
