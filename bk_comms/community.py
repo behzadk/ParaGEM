@@ -62,7 +62,6 @@ class Population:
         dynamic_compounds = [x.replace("M_", "EX_") for x in self.dynamic_compounds]
 
         defined_mets = ["EX_" + x + "_e" for x in media_df["compound"].values]
-        
 
         new_medium = self.model.medium
 
@@ -83,7 +82,6 @@ class Population:
             else:
                 new_medium[met] = 1e-30
 
-            
         self.model.medium = new_medium
 
     def set_dynamic_compound_mask(self, community_dynamic_compounds):
@@ -132,10 +130,10 @@ class Community:
         media_path: str,
         objective_reaction_keys: List[str],
         enable_toxin_interactions: bool,
-        initial_population_prior: SampleDistribution=None,
-        max_exchange_prior: SampleDistribution=None,
-        k_val_prior: SampleDistribution=None,
-        toxin_interaction_prior: SampleDistribution=None,
+        initial_population_prior: SampleDistribution = None,
+        max_exchange_prior: SampleDistribution = None,
+        k_val_prior: SampleDistribution = None,
+        toxin_interaction_prior: SampleDistribution = None,
     ):
         self.model_names = model_names
         self.model_paths = model_paths
@@ -163,11 +161,10 @@ class Community:
         self.media_path = media_path
 
         self.media_df = pd.read_csv(self.media_path, delimiter="\t")
-        
+
         self.dynamic_compounds = self.get_dynamic_compounds(
             model_paths, smetana_analysis_path, self.media_df, flavor="fbc2"
         )
-
 
         self.reaction_keys = [x.replace("M_", "EX_") for x in self.dynamic_compounds]
 
@@ -231,13 +228,14 @@ class Community:
         n_populations = len(self.populations)
         n_dynamic_compounds = len(self.dynamic_compounds)
 
-
         # If distributions exist, sample from them and set parameters.
         # Special case used if prior is from existing particles,
 
         if self.initial_population_prior is not None:
             if isinstance(self.initial_population_prior, SampleCombinationParticles):
-                populations_vec = self.initial_population_prior.sample(self.model_names, data_field='initial_population')
+                populations_vec = self.initial_population_prior.sample(
+                    self.model_names, data_field="initial_population"
+                )
 
             else:
                 populations_vec = self.initial_population_prior.sample(
@@ -249,8 +247,10 @@ class Community:
 
         if self.max_exchange_prior is not None:
             if isinstance(self.max_exchange_prior, SampleCombinationParticles):
-                max_exchange_mat = self.max_exchange_prior.sample(self.model_names, data_field='max_exchange_mat')
-            
+                max_exchange_mat = self.max_exchange_prior.sample(
+                    self.model_names, data_field="max_exchange_mat"
+                )
+
             else:
                 max_exchange_mat = self.max_exchange_prior.sample(
                     size=[n_populations, n_dynamic_compounds]
@@ -259,8 +259,10 @@ class Community:
 
         if self.k_val_prior is not None:
             if isinstance(self.k_val_prior, SampleCombinationParticles):
-                k_val_mat = self.k_val_prior.sample(self.model_names, data_field='k_vals')
-            
+                k_val_mat = self.k_val_prior.sample(
+                    self.model_names, data_field="k_vals"
+                )
+
             else:
                 k_val_mat = self.k_val_prior.sample(
                     size=[n_populations, n_dynamic_compounds]
@@ -431,7 +433,6 @@ class Community:
 
         return init_compound_values
 
-
     def set_initial_populations(self, populations_vec):
         assert len(populations_vec) == (
             len(self.populations)
@@ -551,7 +552,6 @@ class Community:
 
         dynamic_compounds.sort()
 
-
         print(f"Total env compounds: {len(all_compounds)}")
         print(f"Crossfeeding compounds: {len(cross_feeding_compounds)}")
         print(f"Competition compounds: {len(competition_compounds)}")
@@ -581,7 +581,7 @@ class Community:
         self.curr_media_df = sub_media_df
 
         self.init_compound_values = self.load_initial_compound_values(sub_media_df)
-        
+
         if set_media:
             for p in self.populations:
                 p.set_media(self.curr_media_df)
@@ -589,7 +589,6 @@ class Community:
         #     print(c, self.init_compound_values[idx])
 
         self.set_init_y()
-        
 
     def calculate_exchange_reaction_lb_constraints(
         self, compound_concs, k_mat, max_exchange_mat
