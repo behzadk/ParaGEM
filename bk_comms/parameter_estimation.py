@@ -22,6 +22,8 @@ import glob
 from bk_comms.utils import logger_wraps
 from bk_comms.utils import save_particles
 
+from bk_comms.data_analysis.visualisation import load_particles_dataframe
+from bk_comms.data_analysis.visualisation import filter_unfinished_experiments
 
 class ParameterEstimation:
     def init_particles(self, n_particles, assign_model=True, set_media=True):
@@ -254,7 +256,7 @@ class ParameterEstimation:
 
         distance_vectors = np.array([particle.distance for particle in particles])
 
-        biomass_fluxes = np.array([particle.biomass_flux for particle in particles])
+        # biomass_fluxes = np.array([particle.biomass_flux for particle in particles])
 
         # Write arrays to output_dir
         np.save(f"{output_dir}/particle_init_populations.npy", init_populations_arr)
@@ -420,9 +422,10 @@ class ParameterEstimation:
     def calculate_and_set_particle_distances(self, particles, sol_distance_key):
         # Calculate distances
         for p in particles:
-            p.distance.extend(
-                self.distance_object.calculate_distance(p, sol_distance_key)
-            )
+            for distance_func in self.distance_object:
+                p.distance.extend(
+                    distance_func.calculate_distance(p, sol_distance_key)
+                )
 
 
 class NSGAII(ParameterEstimation):
@@ -479,8 +482,8 @@ class NSGAII(ParameterEstimation):
             self.mutate = self.mutate_parameterwise
 
         elif mutate_type == "resample_prior":
-            # self.mutate = self.mutate_resample_from_prior
-            self.mutate = self.mutate_community_from_prior
+            self.mutate = self.mutate_resample_from_prior
+            # self.mutate = self.mutate_community_from_prior
 
         else:
             raise ValueError(f"Unknown mutation type: {mutate_type}")
@@ -490,8 +493,10 @@ class NSGAII(ParameterEstimation):
 
         self.max_generations = max_generations
 
-        # if not isinstance(hotstart_particles_regex, type(None)):
-        #     self.hotstart_particles(hotstart_particles_regex)
+
+
+        if not isinstance(hotstart_particles_regex, type(None)):
+            self.hotstart_particles(hotstart_particles_regex)
 
     @logger_wraps()
     def run(self, n_processes=1, parallel=False):
@@ -515,7 +520,7 @@ class NSGAII(ParameterEstimation):
             new_offspring = []
             new_parents = []
             batch_idx = 0
-            while len(new_offspring) < self.population_size:
+            while len(new_offspring) <= self.population_size:
 
                 population_average_distance = np.mean(
                     [max(p.distance) for p in self.population]
@@ -651,46 +656,126 @@ class SimpleSimulate(ParameterEstimation):
     def __init__(
         self,
         experiment_name,
+        distance_object,
         base_community,
         output_dir,
         simulator,
+        sim_media_names,
         n_particles_batch,
+        population_size,
         hotstart_particles_regex,
-        max_simulations=32,
-        particle_filter=None,
+        generation_idx,
+        filter=None
     ):
 
         self.experiment_name = experiment_name
         self.base_community = base_community
+        self.sim_media_names = sim_media_names
 
+        self.distance_object = distance_object
+        
         self.output_dir = output_dir
         self.simulator = simulator
         self.n_particles_batch = n_particles_batch
-        self.filter = particle_filter
-        self.max_simulations = max_simulations
+        self.population_size = population_size
+        self.generation_idx = generation_idx
+
+        self.hotstart_particles_regex = hotstart_particles_regex
+        self.filter = filter
+
+        print(self.hotstart_particles_regex)
 
         self.models = self.generate_models_list(n_models=self.n_particles_batch)
 
-        # Load hotstart particles
-        if not isinstance(hotstart_particles_regex, type(None)):
-            self.hotstart(hotstart_particles_regex)
-            sum_distances = [max(p.distance) for p in self.population]
-            self.population = utils.get_unique_particles(self.population)
 
-            self.population = sorted(
-                self.population, key=lambda x: sum_distances[self.population.index(x)]
-            )
+        experiment_folders = glob.glob(self.hotstart_particles_regex)
 
-            self.population = self.population
-            for p in self.population:
-                pass
+        experiment_folders = filter_unfinished_experiments(experiment_folders)
 
-        else:
-            self.hotstart_particles = None
+        self.particles_df = load_particles_dataframe(self.sim_media_names, experiment_folders)
+        self.particles_df.sort_values(by="sum_distance", inplace=True)
 
-        for d in base_community.dynamic_compounds:
-            if d not in self.population[0].dynamic_compounds:
-                print(d)
+    def initialize_fresh_particle(self):
+        load_particles_dataframe
+
+    def load_particle(self, particle_dir, particle_idx):
+        print("particle_dir", particle_dir)
+        # Make parameter paths
+        init_populations_arr = np.load(
+            f"{particle_dir}/particle_init_populations.npy"
+        )[particle_idx]
+        k_values_arr = np.load(
+            f"{particle_dir}/particle_k_values.npy",
+        )[particle_idx]
+        max_exchange_arr = np.load(
+            f"{particle_dir}/particle_max_exchange.npy",
+        )[particle_idx]
+        toxin_arr = np.load(f"{particle_dir}/particle_toxin.npy")[particle_idx]
+        
+        p = self.init_particles(
+            n_particles=1, assign_model=False, set_media=False
+        )[0]
+
+        p.set_initial_populations(init_populations_arr)
+        p.set_k_value_matrix(k_values_arr)
+        p.set_max_exchange_mat(max_exchange_arr)
+        p.set_toxin_mat(toxin_arr)
+        p.set_media_conditions(self.sim_media_names[0], set_media=False)
+
+        return p
+
+    def run(self, n_processes=1, parallel=False):
+        particles_simulated = 0
+        batch_idx = 0
+        row_idx = 0
+
+        self.population = []
+        while len(self.population) <= self.population_size:
+
+            # Load batch particles
+            batch_particles = []
+            for i in range(self.n_particles_batch):
+                row = self.particles_df.iloc[row_idx]
+                p = self.load_particle(particle_dir=row['data_dir'], particle_idx=row['particle_index'])
+                
+                for idx, pop in enumerate(p.populations):
+                    pop.model = self.models[i][idx]
+                
+                batch_particles.append(p)
+                row_idx += 1
+
+            # Simulate particles in each media
+            for media_idx, media_name in enumerate(self.sim_media_names):
+                logger.info(f"Simulating in media {media_name}")
+                [p.set_media_conditions(media_name) for p in batch_particles]
+
+                if not isinstance(self.filter, type(None)):
+                    batch_particles = self.filter.filter_particles(
+                        batch_particles
+                    )
+
+                # Simulate particle for media name
+                self.simulator.simulate_particles(
+                    batch_particles,
+                    sol_key=media_name,
+                    n_processes=n_processes,
+                    parallel=parallel,
+                )
+
+                # # Calculate distance for media_name
+                # self.calculate_and_set_particle_distances(
+                #     batch_particles, media_name
+                # )
+
+                for p in batch_particles:
+                    p.distance = [1]
+                
+
+            print("Saving particles")
+
+            self.delete_particle_fba_models(batch_particles)
+            self.population.extend(batch_particles)
+
 
         save_particles(
             self.population,
@@ -698,62 +783,5 @@ class SimpleSimulate(ParameterEstimation):
             output_dir=f"{self.output_dir}",
         )
 
-    def initialize_fresh_particle(self):
-        pass
-
-    def run(self, n_processes=1, parallel=False):
-        particles_simulated = 0
-        batch_idx = 0
-
-        particle_idx = 0
-
-        while particles_simulated < self.max_simulations or particle_idx > len(
-            self.population
-        ):
-
-            batch_particles = []
-
-            for i in range(self.n_particles_batch):
-                # Make independent copy of base community
-                comm = copy.deepcopy(self.base_community)
-                # Assign population models
-                for idx, pop in enumerate(comm.populations):
-                    pop.model = self.models[i][idx]
-                batch_particles.append(comm)
-
-            # batch_particles = self.init_particles(self.n_particles_batch)
-
-            for batch_p_idx in range(self.n_particles_batch):
-                batch_particles[batch_p_idx].set_k_value_matrix(
-                    self.population[particle_idx].k_vals
-                )
-                batch_particles[batch_p_idx].set_max_exchange_mat(
-                    self.population[particle_idx].max_exchange_mat
-                )
-
-                batch_particles[batch_p_idx].set_toxin_mat(
-                    self.population[particle_idx].toxin_mat
-                )
-                batch_particles[batch_p_idx].set_initial_populations(
-                    self.population[particle_idx].init_population_values
-                )
-
-                batch_particles[batch_p_idx].set_init_y()
-
-                particle_idx += 1
-
-            self.simulator.simulate_particles(
-                batch_particles, n_processes=n_processes, parallel=parallel
-            )
-
-            print("Saving particles")
-
-            self.delete_particle_fba_models(batch_particles)
-            save_particles(
-                batch_particles,
-                self.sim_media_names,
-                output_dir=f"{self.output_dir}",
-            )
-
-            particles_simulated += len(batch_particles)
-            batch_idx += 1
+        particles_simulated += len(batch_particles)
+        batch_idx += 1

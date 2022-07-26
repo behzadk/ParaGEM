@@ -102,6 +102,52 @@ class SampleUniform(SampleDistribution):
         return mat
 
 
+class SampleUniformConstant(SampleDistribution):
+    def __init__(self, min_val, max_val, distribution_type="uniform"):
+        self.min_val = min_val
+        self.max_val = max_val
+        self.distribution_type = distribution_type
+
+        dist_options = ["uniform", "log_uniform"]
+        assert (
+            self.distribution_type in dist_options
+        ), f"Error distribution, {self.distribution_type}, not in {dist_options}"
+
+        self.distribution = self.sample_constant_matrix
+    
+    
+    def sample_constant_matrix(self, size):
+        if self.distribution_type == "uniform":
+            value = np.random.uniform(self.min_val, self.max_val)
+            mat = np.ones(shape=size)
+            mat *= value
+
+        elif self.distribution_type == "log_uniform":
+            is_negative = False
+
+            if self.min_val < 0 and self.max_val < 0:
+                is_negative = True
+
+            elif self.min_val < 0 or self.max_val < 0:
+                raise ValueError
+
+            value = np.exp(
+                np.random.uniform(
+                    np.log(abs(self.min_val)), np.log(abs((self.max_val)))
+                )
+            )
+
+            mat = np.ones(shape=size)
+            mat *= value
+
+            if is_negative:
+                mat = mat * -1
+
+        else:
+            raise ValueError("incorrect distribution definition")
+
+        return mat
+
 class SampleCombinationParticles:
     def __init__(
         self,

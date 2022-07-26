@@ -21,7 +21,7 @@ vis_n_particles: 15
 
 defaults:
   - _self_
-  - user: local
+  - user: hpc
   - community: default
   - data: M2_M3
   - algorithm: NSGAII
@@ -34,7 +34,7 @@ defaults:
   - override hydra/hydra_logging: none
 
 parallel: True
-n_processes: 2
+n_processes: 10
 
 hydra.run.dir: . 
 hydra.output_subdir: null

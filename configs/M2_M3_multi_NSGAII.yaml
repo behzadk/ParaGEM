@@ -33,6 +33,7 @@ experiment_name: test
 
 sim_media_names:
   - M2
+  - M3
 
 vis_n_particles: 15
 

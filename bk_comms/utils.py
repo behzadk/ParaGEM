@@ -31,9 +31,9 @@ def save_particles(particles, sim_media_names, output_dir):
     np.save(f"{output_dir}/particle_toxin.npy", toxin_arr)
     np.save(f"{output_dir}/solution_keys.npy", particles[0].solution_keys)
 
-    if hasattr(particles[0], "biomass_flux"):
-        biomass_fluxes = np.array([particle.biomass_flux for particle in particles])
-        np.save(f"{output_dir}/biomass_flux.npy", biomass_fluxes)
+    # if hasattr(particles[0], "biomass_flux"):
+    #     biomass_fluxes = np.array([particle.biomass_flux for particle in particles])
+    #     np.save(f"{output_dir}/biomass_flux.npy", biomass_fluxes)
 
     if hasattr(particles[0], "distance"):
         distance_vectors = np.array([particle.distance for particle in particles])

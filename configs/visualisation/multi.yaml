@@ -1,5 +1,3 @@
-- _target_: bk_comms.data_analysis.visualisation.prepare_particles_df(cfg)
-
 - _target_: bk_comms.data_analysis.visualisation.figure_plot_distances
   output_dir: ${experiment_dir}
 

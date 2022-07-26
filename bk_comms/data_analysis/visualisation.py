@@ -62,6 +62,11 @@ def load_solution(directory, media_name):
 
     return sol_vec
 
+def load_toxin_mat(directory):
+    toxin_mat_path = f"{directory}/particle_toxin.npy"
+
+    return np.load(toxin_mat_path)
+
 
 def load_distance_vector(directory):
     distance_vector_path = f"{directory}/particle_distance_vectors.npy"
@@ -127,6 +132,7 @@ def figure_all_particle_fold_change_timeseries(
             sum_dist = row.sum_distance
             all_distances.append(sum_dist)
 
+            
             sim_sol = sol_vec[p_idx][
                 :, solution_keys.index(exp_sol_keys[sim_media_name][0][1])
             ]
@@ -288,8 +294,9 @@ def load_particles_dataframe(sim_media_names, particle_directories):
 
     # Get distance vector paths
     for d in particle_directories:
-        distance_vec = load_distance_vector(d)
         solution_keys = load_solution_keys(d)
+
+        distance_vec = load_distance_vector(d)
 
         solution_vectors = []
         for m in sim_media_names:
@@ -341,6 +348,7 @@ def prepare_particles_df(cfg):
     output_dir = f"{cfg.experiment_dir}/"
     experiment_folders = glob(f"{output_dir}/generation_*/run_**/")
     experiment_folders = filter_unfinished_experiments(experiment_folders)
+    print(experiment_folders)
 
     particles_df = load_particles_dataframe(cfg.sim_media_names, experiment_folders)
     particles_df.sort_values(by="sum_distance", inplace=True)
@@ -376,7 +384,7 @@ def figure_particle_abundance_timeseries(
     abundance_timeseries_colours = px.colors.qualitative.Dark24
 
 
-    for idx, row in particles_df.iterrows():
+    for part_idx, row in particles_df.iterrows():
 
         d = row["data_dir"]
         p_idx = row.particle_index
@@ -448,7 +456,9 @@ def figure_particle_abundance_timeseries(
         fig.update_xaxes(title="Time", row=len(pop_names) + 1, col=1)
         # fig.update_yaxes(title="Abundance", type='log')
         fig.update_layout(template="simple_white", width=800, height=600)
-        fig.show()
+
+        fig.write_html(f"{output_dir}/particle_rank_{part_idx}_media_{sim_media_name}_ts_abundance.html")
+        fig.write_json(f"{output_dir}/particle_rank_{part_idx}_media_{sim_media_name}_ts_abundance.json")
 
     return fig
 
@@ -464,7 +474,6 @@ def figure_particle_endpoint_abundance(particles_df,
     particles_df = particles_df.head(n_particles_vis)
     target_data_df = pd.read_csv(target_data_path)
 
-    abundance_timeseries_colours = px.colors.qualitative.Dark24
 
     for idx, row in particles_df.iterrows():
         d = row["data_dir"]
@@ -511,10 +520,190 @@ def figure_particle_endpoint_abundance(particles_df,
         width=600, height=500, autosize=False)
 
         fig.write_html(f"{output_dir}/particle_rank_{idx}_media_{sim_media_name}_endpoint_abundance.html")
-
+        fig.write_json(f"{output_dir}/particle_rank_{idx}_media_{sim_media_name}_endpoint_abundance.json")
 
     return fig
 
+def figure_particle_toxin_interactions(particles_df, n_particles_vis, model_names, output_dir):
+    particles_df = particles_df.head(n_particles_vis)
+    model_names = list(model_names)
+
+    for particle_rank, row in particles_df.iterrows():
+        d = row["data_dir"]
+        p_idx = row.particle_index
+
+        toxin_mat = load_toxin_mat(d)[p_idx]
+
+        # Bsinarize
+        toxin_mat = (toxin_mat > 0) + (toxin_mat < 0) * -1
+
+        # Setup colours
+        producer_colour = webcolors.hex_to_rgb(px.colors.qualitative.Dark24[0])
+        consumer_colour = webcolors.hex_to_rgb(px.colors.qualitative.Dark24[1])
+        neutral_colour = webcolors.hex_to_rgb(px.colors.qualitative.Dark24[5])
+
+        # Make colours matrix and information matrix
+        img_colours = np.zeros(shape=toxin_mat.shape, dtype=object)
+        info_mat = np.zeros(shape=toxin_mat.shape, dtype=object)
+
+        for x_idx in range(toxin_mat.shape[0]):
+            for y_idx in range(toxin_mat.shape[1]):
+                if toxin_mat[x_idx][y_idx] > 0:
+                    img_colours[x_idx][y_idx] = producer_colour
+                elif toxin_mat[x_idx][y_idx] < 0:
+                    img_colours[x_idx][y_idx] = consumer_colour
+
+                else:
+                    img_colours[x_idx][y_idx] = neutral_colour
+
+                info_mat[
+                    x_idx, y_idx
+                ] = f"Value: {toxin_mat[x_idx, y_idx]}\t Donor: {model_names[y_idx]} \t Recipient: {model_names[x_idx]}"
+
+        # Setup fig
+        fig = go.Figure()
+
+        fig.add_trace(
+            go.Image(
+                z=img_colours,
+                ids=info_mat,
+                hovertext=info_mat,
+            ),
+        )
+
+        fig.update_layout(
+            width=600,
+            height=600,
+            showlegend=True,
+            title="Toxin Interactions",
+            xaxis_title="Toxin Sensitivity",
+            yaxis_title="Toxin Producer",
+        )
+
+        fig.update_xaxes(
+            dict(
+                tickmode="array",
+                tickvals=[x for x in range(len(model_names))],
+                ticktext=model_names,
+            )
+        )
+
+        fig.update_yaxes(
+            dict(
+                tickmode="array",
+                tickvals=[y for y in range(len(model_names))],
+                ticktext=model_names,
+            )
+        )
+
+        fig.write_html(f"{output_dir}/particle_rank_{particle_rank}_toxin_interactions.html")
+        fig.write_json(f"{output_dir}/particle_rank_{particle_rank}_toxin_interactions.json")
+
+
+def figure_particle_biomass_timeseries(particles_df, model_names, media_name):
+
+    for particle_rank, row in particles_df.iterrows():
+        d = row["data_dir"]
+        p_idx = row.particle_index
+
+        solution_keys = load_solution_keys(d)
+        solution = load_solution(d, media_name)
+
+        for idx, model_name in enumerate(model_names):
+            sim_sol = solution[:, solution_keys.index(model_name)]
+        pass
+
+def figure_community_biomass(particles_df, n_particles_vis, model_names, media_name, output_dir):
+    particles_df = particles_df.head(n_particles_vis)
+    model_names = list(model_names)
+
+    for particle_rank, row in particles_df.iterrows():
+        d = row["data_dir"]
+        p_idx = row.particle_index
+
+        solution_keys = list(load_solution_keys(d))
+        solution = load_solution(d, media_name)[p_idx]
+        t = np.around(load_time_vector(d)[p_idx], decimals=2)
+
+        community_biomass = np.zeros(solution[:, solution_keys.index(model_names[0])].shape)
+        for idx, model_name in enumerate(model_names):
+            community_biomass += solution[:, solution_keys.index(model_name)]
+
+        fig = make_subplots(
+            rows=1, cols=1, shared_xaxes=True, shared_yaxes="all"
+        )
+
+        fig.add_trace(
+            go.Line(
+                x=t,
+                y=community_biomass,
+                name="Community biomass",
+                opacity=1.0,
+                marker={"color": colours[0]},
+            ),
+            row=1,
+            col=1,
+        )
+
+        # fig.update_xaxes(title="Time")
+        fig.update_xaxes(title="Time", row=1, col=1)
+        fig.update_yaxes(title="Biomass", type='log')
+        fig.update_layout(template="simple_white", width=800, height=600)
+        
+        fig.write_html(f"{output_dir}/particle_rank_{particle_rank}_media_{media_name}_community_biomass.html")
+        fig.write_json(f"{output_dir}/particle_rank_{particle_rank}_media_{media_name}_community_biomass.json")
+
+
+def figure_datapane(particles_df, sim_media_names, n_particles_vis, output_dir):
+    particle_blocks = []
+    for particle_rank in range(n_particles_vis):
+        abundance_figures = []
+        community_biomass_figures = []
+
+        for media_name in sim_media_names:
+            particle_endpoint_path = f"{output_dir}/particle_rank_{particle_rank}_media_{media_name}_endpoint_abundance.json"
+            particle_community_biomass_path = f"{output_dir}/particle_rank_{particle_rank}_media_{media_name}_community_biomass.json"
+
+            fig_endpoint = dp.Plot(plotly.io.read_json(particle_endpoint_path), caption=f"Media {media_name}")
+            fig_community_biomass = dp.Plot(plotly.io.read_json(particle_community_biomass_path), caption=f"Media {media_name}")
+
+            abundance_figures.append(fig_endpoint)
+            community_biomass_figures.append(fig_community_biomass)
+
+
+        toxin_fig_path = f"{output_dir}/particle_rank_{particle_rank}_toxin_interactions.json"
+        toxin_interaction_figure = dp.Plot(plotly.io.read_json(toxin_fig_path), caption=f"Binarised toxin interactions")
+
+        abundance_group = dp.Group(
+            blocks=[x for x in abundance_figures],
+            label='Endpoint Abundance',
+            # responsive=False,
+            columns=(len(sim_media_names))
+        )
+
+        community_biomass_group = dp.Group(
+            blocks=[x for x in community_biomass_figures],
+            label='Community biomass',
+            # responsive=False,
+            columns=(len(sim_media_names))
+        )
+
+        toxin_group = dp.Group(
+            blocks=[toxin_interaction_figure],
+            label='Toxin Interactions',
+            # responsive=False,
+        )
+
+        particle_block = dp.Group(
+            dp.Select(blocks=[abundance_group, community_biomass_group, toxin_group]),
+            label=f"Particle_rank_{particle_rank}",
+        )
+
+        particle_blocks.append(particle_block)
+
+
+    report = dp.Report(dp.Select(blocks=particle_blocks, type=dp.SelectType.DROPDOWN))
+    report.save(f"{output_dir}/report.html", open=False, formatting=dp.ReportFormatting(width=dp.ReportWidth.MEDIUM))
 
 
 def pipeline(cfg):

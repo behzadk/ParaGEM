@@ -33,8 +33,9 @@ experiment_name: test
 
 sim_media_names:
   - M2
+  - M3
 
-vis_n_particles: 15
+vis_n_particles: 25
 
 
 defaults:
@@ -42,11 +43,11 @@ defaults:
   - user: hpc
   - community: default_toxin
   - data: M2_multi
-  - algorithm: NSGAII
+  - algorithm: default_simulate
   - simulator: time_series_comets_batch_dilution
   - sampler: sampler_mix2_m2_growers
   - distance: abundance_error
-  - visualisation: multi
+  - visualisation: multi_m2_m3
   - override hydra/job_logging: none 
   - override hydra/hydra_logging: none
 
