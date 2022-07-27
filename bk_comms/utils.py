@@ -23,12 +23,14 @@ def save_particles(particles, sim_media_names, output_dir):
     k_values_arr = np.array([particle.k_vals for particle in particles])
     max_exchange_arr = np.array([particle.max_exchange_mat for particle in particles])
     toxin_arr = np.array([particle.toxin_mat for particle in particles])
+    biomass_constraints_arr = np.array([particle.biomass_constraints for particle in particles])
 
     # Write arrays to output_dir
     np.save(f"{output_dir}/particle_init_populations.npy", init_populations_arr)
     np.save(f"{output_dir}/particle_k_values.npy", k_values_arr)
     np.save(f"{output_dir}/particle_max_exchange.npy", max_exchange_arr)
     np.save(f"{output_dir}/particle_toxin.npy", toxin_arr)
+    np.save(f"{output_dir}/particle_biomass_rate_constr_vectors.npy", biomass_constraints_arr)
     np.save(f"{output_dir}/solution_keys.npy", particles[0].solution_keys)
 
     # if hasattr(particles[0], "biomass_flux"):

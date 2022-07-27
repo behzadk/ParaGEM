@@ -226,6 +226,8 @@ class SampleCombinationParticles:
             particles_dict[pop_name]["k_vals"] = []
             particles_dict[pop_name]["max_exchange_mat"] = []
             particles_dict[pop_name]["initial_population"] = []
+            particles_dict[pop_name]["biomass_rate_constraints"] = []
+
             particles_dict[pop_name]["toxin_mat"] = []
 
         for pop_name in population_names:
@@ -240,6 +242,7 @@ class SampleCombinationParticles:
                     f"{d}/particle_max_exchange.npy",
                 )
                 toxin_arr = np.load(f"{d}/particle_toxin.npy")
+                biomass_rate_constr = np.load(f"{d}/particle_biomass_rate_constr_vectors.npy")
 
                 for idx, _ in enumerate(init_populations_arr):
                     particles_dict[pop_name]["k_vals"].append(k_values_arr[idx])
@@ -250,6 +253,7 @@ class SampleCombinationParticles:
                         init_populations_arr[idx]
                     )
                     particles_dict[pop_name]["toxin_mat"].append(toxin_arr[idx])
+                    particles_dict[pop_name]["biomass_rate_constraints"].append(biomass_rate_constr[idx])
 
             self.particle_counts[pop_name] = len(
                 particles_dict[pop_name]["max_exchange_mat"]
@@ -258,23 +262,6 @@ class SampleCombinationParticles:
 
         return particles_dict
 
-    def generate_parameter_dict(self, particles_dict):
-        # Unpack particles into parameters dictionary. Each key refers
-        # to a population name
-        params = {}
-
-        for key in particles_dict:
-            params[key] = {}
-            params[key]["k_vals"] = []
-            params[key]["max_exchange_mat"] = []
-            params[key]["initial_population"] = []
-
-            for p in particles_dict[key]:
-                params[key]["k_vals"].append(p.k_vals)
-                params[key]["max_exchange_mat"].append(p.max_exchange_mat)
-                params[key]["initial_population"].append(p.init_population_values)
-
-        return params
 
     def generate_random_index_combination(self):
         index_combination = {}
@@ -289,7 +276,7 @@ class SampleCombinationParticles:
         data_field,
         index_combination=None,
     ):
-        legal_data_fields = ["k_vals", "max_exchange_mat", "initial_population"]
+        legal_data_fields = ["k_vals", "max_exchange_mat", "initial_population", "biomass_rate_constraints"]
         assert (
             data_field in legal_data_fields
         ), f"{data_field} not in legal datafields: {legal_data_fields}"

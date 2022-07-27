@@ -5,6 +5,7 @@ initial_population_prior: ${sampler.init_population_sampler}
 k_val_prior: ${sampler.k_val_sampler}
 max_exchange_prior: ${sampler.max_uptake_sampler}
 toxin_interaction_prior: ${sampler.toxin_interaction_sampler}
+biomass_rate_constraint_prior: ${sampler.biomass_rate_constraint_sampler}
 media_path: ${data.media_path}
 smetana_analysis_path: ${data.smetana_analysis_path}
 model_names: ${model_names}

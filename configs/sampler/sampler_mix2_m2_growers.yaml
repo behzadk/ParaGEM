@@ -1,13 +1,13 @@
 max_uptake_sampler:
   _target_: bk_comms.sampling.SampleCombinationParticles
   input_particles_parameter_vector_regex: 
-    - ${user.wd}/output/indiv_growth_4_filtered/B_longum_subsp_longum/generation_0/run_0/
-    - ${user.wd}/output/indiv_growth_4_filtered/C_perfringens_S107/generation_0/run_0/
-    - ${user.wd}/output/indiv_growth_4_filtered/E_coli_IAI1/generation_0/run_0/
-    - ${user.wd}/output/indiv_growth_4_filtered/L_paracasei/generation_0/run_0/
-    - ${user.wd}/output/indiv_growth_4_filtered/L_plantarum/generation_0/run_0/
-    - ${user.wd}/output/indiv_growth_4_filtered/S_salivarius/generation_0/run_0/
-    - ${user.wd}/output/indiv_growth_4_filtered/C_ramosum/generation_0/run_0/
+    - ${user.wd}/output/indiv_growth_test/B_longum_subsp_longum/generation_0/run_0/
+    - ${user.wd}/output/indiv_growth_test/C_perfringens_S107/generation_0/run_0/
+    - ${user.wd}/output/indiv_growth_test/E_coli_IAI1/generation_0/run_0/
+    - ${user.wd}/output/indiv_growth_test/L_paracasei/generation_0/run_0/
+    - ${user.wd}/output/indiv_growth_test/L_plantarum/generation_0/run_0/
+    - ${user.wd}/output/indiv_growth_test/S_salivarius/generation_0/run_0/
+    - ${user.wd}/output/indiv_growth_test/C_ramosum/generation_0/run_0/
 
 
   population_names:
@@ -22,13 +22,13 @@ max_uptake_sampler:
 k_val_sampler:
   _target_: bk_comms.sampling.SampleCombinationParticles
   input_particles_parameter_vector_regex: 
-    - ${user.wd}/output/indiv_growth_4_filtered/B_longum_subsp_longum/generation_0/run_0/
-    - ${user.wd}/output/indiv_growth_4_filtered/C_perfringens_S107/generation_0/run_0/
-    - ${user.wd}/output/indiv_growth_4_filtered/E_coli_IAI1/generation_0/run_0/
-    - ${user.wd}/output/indiv_growth_4_filtered/L_paracasei/generation_0/run_0/
-    - ${user.wd}/output/indiv_growth_4_filtered/L_plantarum/generation_0/run_0/
-    - ${user.wd}/output/indiv_growth_4_filtered/S_salivarius/generation_0/run_0/
-    - ${user.wd}/output/indiv_growth_4_filtered/C_ramosum/generation_0/run_0/
+    - ${user.wd}/output/indiv_growth_test/B_longum_subsp_longum/generation_0/run_0/
+    - ${user.wd}/output/indiv_growth_test/C_perfringens_S107/generation_0/run_0/
+    - ${user.wd}/output/indiv_growth_test/E_coli_IAI1/generation_0/run_0/
+    - ${user.wd}/output/indiv_growth_test/L_paracasei/generation_0/run_0/
+    - ${user.wd}/output/indiv_growth_test/L_plantarum/generation_0/run_0/
+    - ${user.wd}/output/indiv_growth_test/S_salivarius/generation_0/run_0/
+    - ${user.wd}/output/indiv_growth_test/C_ramosum/generation_0/run_0/
 
   population_names:
     - B_longum_subsp_longum
@@ -38,6 +38,27 @@ k_val_sampler:
     - L_plantarum
     - S_salivarius
     - C_ramosum
+
+biomass_rate_constraint_sampler:
+  _target_: bk_comms.sampling.SampleCombinationParticles
+  input_particles_parameter_vector_regex: 
+    - ${user.wd}/output/indiv_growth_test/B_longum_subsp_longum/generation_0/run_0/
+    - ${user.wd}/output/indiv_growth_test/C_perfringens_S107/generation_0/run_0/
+    - ${user.wd}/output/indiv_growth_test/E_coli_IAI1/generation_0/run_0/
+    - ${user.wd}/output/indiv_growth_test/L_paracasei/generation_0/run_0/
+    - ${user.wd}/output/indiv_growth_test/L_plantarum/generation_0/run_0/
+    - ${user.wd}/output/indiv_growth_test/S_salivarius/generation_0/run_0/
+    - ${user.wd}/output/indiv_growth_test/C_ramosum/generation_0/run_0/
+
+  population_names:
+    - B_longum_subsp_longum
+    - C_perfringens_S107
+    - E_coli_IAI1
+    - L_paracasei
+    - L_plantarum
+    - S_salivarius
+    - C_ramosum
+
 
 toxin_interaction_sampler:
   _target_: bk_comms.sampling.MultiDistribution

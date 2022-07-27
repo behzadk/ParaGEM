@@ -41,10 +41,19 @@ class CometsTimeSeriesSimulation:
         os.environ["GUROBI_COMETS_HOME"] = gurobi_home_dir
         os.environ["COMETS_HOME"] = comets_home_dir
 
+    def apply_biomass_constraints(self, community):
+        # For each population, set the objective reaction bound
+        if not isinstance(community.biomass_constraints, type(None)): 
+            for pop_idx in range(len(community.populations)):
+                objective_reaction_keys = community.objective_reaction_keys
+                print(objective_reaction_keys)
+                print(community.biomass_constraints, community.biomass_constraints[pop_idx])
+                community.populations[pop_idx].model.change_bounds(objective_reaction_keys[pop_idx], 0.0, community.biomass_constraints[pop_idx])
+
     def convert_models(self, community):
         """Converts cobrapy models of community to comets model inplace"""
+        # Convert models 
         for idx, population in enumerate(community.populations):
-
             if isinstance(population.model, cometspy.model):
                 continue
 
@@ -174,14 +183,14 @@ class CometsTimeSeriesSimulation:
 
     def simulate(self, community, idx=0):
         self.convert_models(community)
-
         layout = cometspy.layout()
+        self.apply_biomass_constraints(community)
+
         self.set_model_initial_pop(layout, community)
         self.load_layout_models(layout, community)
         self.set_lb_constraint(layout, community)
         self.set_k_values(layout, community)
         self.set_toxin_interactions(layout, community)
-
         self.set_layout_metabolite_concentrations(layout, community)
 
         layout.media.reset_index(inplace=True)
@@ -284,7 +293,7 @@ class CometsTimeSeriesSimulation:
                 start = time.time()
                 print(f"Simulating particle idx: {p_idx}")
                 sol, t, experiment = self.simulate(p)
-                p.sol = sol
+                p.sol[sol_key] = sol
                 p.t = t
                 p.flux_log = experiment.fluxes_by_species
                 p_idx += 1

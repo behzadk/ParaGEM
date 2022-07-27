@@ -111,6 +111,11 @@ class ParameterEstimation:
                         model_idx
                     ] = male_part.max_exchange_mat[model_idx].copy()
 
+                    batch_particles[p_batch_idx].biomass_constraints[
+                        model_idx
+                    ] = male_part.biomass_constraints[model_idx].copy()
+
+
                     batch_particles[p_batch_idx].toxin_mat[
                         model_idx
                     ] = male_part.toxin_mat[model_idx].copy()
@@ -122,6 +127,10 @@ class ParameterEstimation:
                     batch_particles[p_batch_idx].max_exchange_mat[
                         model_idx
                     ] = female_part.max_exchange_mat[model_idx].copy()
+
+                    batch_particles[p_batch_idx].biomass_constraints[
+                        model_idx
+                    ] = female_part.biomass_constraints[model_idx].copy()
 
                     batch_particles[p_batch_idx].toxin_mat[
                         model_idx
@@ -243,40 +252,6 @@ class ParameterEstimation:
 
         return particles
 
-    def save_particles(self, particles, output_dir):
-
-        init_populations_arr = np.array(
-            [particle.init_population_values for particle in particles]
-        )
-        k_values_arr = np.array([particle.k_vals for particle in particles])
-        max_exchange_arr = np.array(
-            [particle.max_exchange_mat for particle in particles]
-        )
-        toxin_arr = np.array([particle.toxin_mat for particle in particles])
-
-        distance_vectors = np.array([particle.distance for particle in particles])
-
-        # biomass_fluxes = np.array([particle.biomass_flux for particle in particles])
-
-        # Write arrays to output_dir
-        np.save(f"{output_dir}/particle_init_populations.npy", init_populations_arr)
-        np.save(f"{output_dir}/particle_k_values.npy", k_values_arr)
-        np.save(f"{output_dir}/particle_max_exchange.npy", max_exchange_arr)
-        np.save(f"{output_dir}/particle_toxin.npy", toxin_arr)
-        np.save(f"{output_dir}/solution_keys.npy", particles[0].solution_keys)
-        np.save(f"{output_dir}/biomass_flux.npy", biomass_fluxes)
-
-        if hasattr(particles[0], "distance"):
-            np.save(f"{output_dir}/particle_distance_vectors.npy", distance_vectors)
-
-        if hasattr(particles[0], "sol"):
-            for media in self.sim_media_names:
-                sol_arr = np.array([particle.sol[media] for particle in particles])
-                np.save(f"{output_dir}/particle_sol_{media}.npy", sol_arr)
-
-            t_vectors = np.array([particle.t for particle in particles])
-
-            np.save(f"{output_dir}/particle_t_vectors.npy", t_vectors)
 
     def generate_models_list(self, n_models):
         # Generate a list of models that will be assigned
@@ -386,6 +361,8 @@ class ParameterEstimation:
 
                 distance_arr = np.load(f"{hotstart_dir}/particle_distance_vectors.npy")
 
+                biomass_rate_constraints_arr = np.load(f"{hotstart_dir}/particle_biomass_rate_constr_vectors.npy")
+
                 # biomass_fluxes = np.load(f"{hotstart_dir}/biomass_flux.npy")
 
             except FileNotFoundError:
@@ -397,6 +374,7 @@ class ParameterEstimation:
             logger.info(f"max_exchange_arr shape: {max_exchange_arr.shape}")
             logger.info(f"toxin_arr shape: {toxin_arr.shape}")
             logger.info(f"distance_arr shape: {distance_arr.shape}")
+            logger.info(f"biomass_rate_constraints_arr shape: {biomass_rate_constraints_arr.shape}")
 
             naked_particles = self.init_particles(
                 n_particles=len(max_exchange_arr), assign_model=False, set_media=False
@@ -408,6 +386,7 @@ class ParameterEstimation:
                 p.set_max_exchange_mat(max_exchange_arr[idx])
                 p.set_toxin_mat(toxin_arr[idx])
                 p.set_media_conditions(self.sim_media_names[0], set_media=False)
+                p.set_biomass_rate_constraints(biomass_constraints_arr[idx])
 
                 # p.biomass_flux = biomass_fluxes[idx]
                 p.distance = distance_arr[idx]
