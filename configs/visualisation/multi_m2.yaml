@@ -1,0 +1,16 @@
+- _target_: bk_comms.data_analysis.visualisation.figure_plot_distances
+  output_dir: ${experiment_dir}
+
+- _target_: bk_comms.data_analysis.visualisation.figure_particle_abundance_timeseries
+  target_data_path: ${user.wd}/experimental_data/mel_target_data/target_data_pH7_Mix2_Med2.csv
+  exp_sol_keys: ${data.exp_sol_keys}
+  sim_media_name: ${sim_media_names.0}
+  n_particles_vis: 10
+  output_dir: ${experiment_dir}
+
+- _target_: bk_comms.data_analysis.visualisation.figure_particle_endpoint_abundance
+  target_data_path: ${user.wd}/experimental_data/mel_target_data/target_data_pH7_Mix2_Med2.csv
+  exp_sol_keys: ${data.exp_sol_keys}
+  sim_media_name: ${sim_media_names.0}
+  n_particles_vis: 10
+  output_dir: ${experiment_dir}
