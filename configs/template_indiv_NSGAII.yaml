@@ -26,7 +26,7 @@ defaults:
   - data: M2_M3
   - algorithm: NSGAII
   - simulator: time_series_comets
-  - sampler: default_log_uniform
+  - sampler: default_log_uniform_constr_biomass
   - distance: fold_change_error_pointwise
   - filter: default_indiv_growth_filter
   - visualisation: indiv
