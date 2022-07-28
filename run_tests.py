@@ -17,7 +17,6 @@ import bk_comms
 from bk_comms.sampling import SampleCombinationParticles
 from bk_comms.data_analysis.visualisation import pipeline as vis_pipeline
 
-
 def logger_wraps(*, entry=True, exit=True, level="DEBUG"):
     def wrapper(func):
         name = func.__name__
@@ -51,20 +50,21 @@ def test_main(cfg: DictConfig):
 
     alg = test_instantiate_algorithm(cfg)
 
+
     particles = test_gen_initial_population(alg, cfg)
 
-    test_calculate_particle_distances(alg, particles, "M3")
+    test_calculate_particle_distances(alg, particles, 'M3')
     test_save_particles(alg, particles)
     test_load_particles(alg)
     test_combination_particle_sampler(alg)
 
+
     vis_pipeline(cfg)
 
 
+
 @logger_wraps()
-def test_particle_simulation(
-    simulator, media_name, particles, n_processes=2, parallel=True
-):
+def test_particle_simulation(simulator, media_name, particles, n_processes=2, parallel=True):
     """
     Test the particle simulation
     """

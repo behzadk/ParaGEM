@@ -1,6 +1,6 @@
 _convert_: partial
 _target_: bk_comms.community.Community
-enable_toxin_interactions: false
+enable_toxin_interactions: true
 initial_population_prior: ${sampler.init_population_sampler}
 k_val_prior: ${sampler.k_val_sampler}
 max_exchange_prior: ${sampler.max_uptake_sampler}

@@ -44,10 +44,10 @@ class SampleSkewNormal(SampleDistribution):
         self.distribution = self.random_skew_normal
 
     def random_skew_normal(self, size):
-        sigma = self.alpha / np.sqrt(1.0 + self.alpha ** 2)
+        sigma = self.alpha / np.sqrt(1.0 + self.alpha**2)
         u0 = np.random.standard_normal(size)
         v = np.random.standard_normal(size)
-        u1 = (sigma * u0 + np.sqrt(1.0 - sigma ** 2) * v) * self.scale
+        u1 = (sigma * u0 + np.sqrt(1.0 - sigma**2) * v) * self.scale
         u1[u0 < 0] *= -1
         u1 = u1 + self.loc
 
@@ -92,6 +92,52 @@ class SampleUniform(SampleDistribution):
                     np.log(abs(self.min_val)), np.log(abs((self.max_val))), size=size
                 )
             )
+
+            if is_negative:
+                mat = mat * -1
+
+        else:
+            raise ValueError("incorrect distribution definition")
+
+        return mat
+
+
+class SampleUniformConstant(SampleDistribution):
+    def __init__(self, min_val, max_val, distribution_type="uniform"):
+        self.min_val = min_val
+        self.max_val = max_val
+        self.distribution_type = distribution_type
+
+        dist_options = ["uniform", "log_uniform"]
+        assert (
+            self.distribution_type in dist_options
+        ), f"Error distribution, {self.distribution_type}, not in {dist_options}"
+
+        self.distribution = self.sample_constant_matrix
+
+    def sample_constant_matrix(self, size):
+        if self.distribution_type == "uniform":
+            value = np.random.uniform(self.min_val, self.max_val)
+            mat = np.ones(shape=size)
+            mat *= value
+
+        elif self.distribution_type == "log_uniform":
+            is_negative = False
+
+            if self.min_val < 0 and self.max_val < 0:
+                is_negative = True
+
+            elif self.min_val < 0 or self.max_val < 0:
+                raise ValueError
+
+            value = np.exp(
+                np.random.uniform(
+                    np.log(abs(self.min_val)), np.log(abs((self.max_val)))
+                )
+            )
+
+            mat = np.ones(shape=size)
+            mat *= value
 
             if is_negative:
                 mat = mat * -1
@@ -180,6 +226,8 @@ class SampleCombinationParticles:
             particles_dict[pop_name]["k_vals"] = []
             particles_dict[pop_name]["max_exchange_mat"] = []
             particles_dict[pop_name]["initial_population"] = []
+            particles_dict[pop_name]["biomass_rate_constraints"] = []
+
             particles_dict[pop_name]["toxin_mat"] = []
 
         for pop_name in population_names:
@@ -194,6 +242,9 @@ class SampleCombinationParticles:
                     f"{d}/particle_max_exchange.npy",
                 )
                 toxin_arr = np.load(f"{d}/particle_toxin.npy")
+                biomass_rate_constr = np.load(
+                    f"{d}/particle_biomass_rate_constr_vectors.npy"
+                )
 
                 for idx, _ in enumerate(init_populations_arr):
                     particles_dict[pop_name]["k_vals"].append(k_values_arr[idx])
@@ -204,30 +255,16 @@ class SampleCombinationParticles:
                         init_populations_arr[idx]
                     )
                     particles_dict[pop_name]["toxin_mat"].append(toxin_arr[idx])
+                    particles_dict[pop_name]["biomass_rate_constraints"].append(
+                        biomass_rate_constr[idx]
+                    )
 
             self.particle_counts[pop_name] = len(
                 particles_dict[pop_name]["max_exchange_mat"]
             )
+            print(self.particle_counts)
 
         return particles_dict
-
-    def generate_parameter_dict(self, particles_dict):
-        # Unpack particles into parameters dictionary. Each key refers
-        # to a population name
-        params = {}
-
-        for key in particles_dict:
-            params[key] = {}
-            params[key]["k_vals"] = []
-            params[key]["max_exchange_mat"] = []
-            params[key]["initial_population"] = []
-
-            for p in particles_dict[key]:
-                params[key]["k_vals"].append(p.k_vals)
-                params[key]["max_exchange_mat"].append(p.max_exchange_mat)
-                params[key]["initial_population"].append(p.init_population_values)
-
-        return params
 
     def generate_random_index_combination(self):
         index_combination = {}
@@ -242,7 +279,12 @@ class SampleCombinationParticles:
         data_field,
         index_combination=None,
     ):
-        legal_data_fields = ["k_vals", "max_exchange_mat", "initial_population"]
+        legal_data_fields = [
+            "k_vals",
+            "max_exchange_mat",
+            "initial_population",
+            "biomass_rate_constraints",
+        ]
         assert (
             data_field in legal_data_fields
         ), f"{data_field} not in legal datafields: {legal_data_fields}"

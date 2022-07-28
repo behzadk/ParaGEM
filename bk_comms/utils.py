@@ -15,6 +15,47 @@ from loguru import logger
 import functools
 
 
+def save_particles(particles, sim_media_names, output_dir):
+
+    init_populations_arr = np.array(
+        [particle.init_population_values for particle in particles]
+    )
+    k_values_arr = np.array([particle.k_vals for particle in particles])
+    max_exchange_arr = np.array([particle.max_exchange_mat for particle in particles])
+    toxin_arr = np.array([particle.toxin_mat for particle in particles])
+    biomass_constraints_arr = np.array(
+        [particle.biomass_constraints for particle in particles]
+    )
+
+    # Write arrays to output_dir
+    np.save(f"{output_dir}/particle_init_populations.npy", init_populations_arr)
+    np.save(f"{output_dir}/particle_k_values.npy", k_values_arr)
+    np.save(f"{output_dir}/particle_max_exchange.npy", max_exchange_arr)
+    np.save(f"{output_dir}/particle_toxin.npy", toxin_arr)
+    np.save(
+        f"{output_dir}/particle_biomass_rate_constr_vectors.npy",
+        biomass_constraints_arr,
+    )
+    np.save(f"{output_dir}/solution_keys.npy", particles[0].solution_keys)
+
+    # if hasattr(particles[0], "biomass_flux"):
+    #     biomass_fluxes = np.array([particle.biomass_flux for particle in particles])
+    #     np.save(f"{output_dir}/biomass_flux.npy", biomass_fluxes)
+
+    if hasattr(particles[0], "distance"):
+        distance_vectors = np.array([particle.distance for particle in particles])
+        np.save(f"{output_dir}/particle_distance_vectors.npy", distance_vectors)
+
+    if hasattr(particles[0], "sol"):
+        for media in sim_media_names:
+            sol_arr = np.array([particle.sol[media] for particle in particles])
+            np.save(f"{output_dir}/particle_sol_{media}.npy", sol_arr)
+
+        t_vectors = np.array([particle.t for particle in particles])
+
+        np.save(f"{output_dir}/particle_t_vectors.npy", t_vectors)
+
+
 def load_model(model_path, model_name):
     """
     Loads models from model paths
@@ -106,8 +147,7 @@ def get_solution_index(comm, sol_element_key):
 
 
 def get_mem_usage():
-    return psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2
-
+    return psutil.Process(os.getpid()).memory_info().rss / 1024**2
 
 def get_community_complete_environment(
     model_paths: List[str], max_uptake=10.0, flavor="cobra"

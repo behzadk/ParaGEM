@@ -1,9 +1,11 @@
 _target_: bk_comms.parameter_estimation.SimpleSimulate
+experiment_name: ${experiment_name}
+distance_object: ${distance}
+base_community: ${community}
+output_dir: ${output_dir}
+simulator: ${simulator}
+sim_media_names: ${sim_media_names}
 n_particles_batch: 10
-max_simulations: 5
-hotstart_particles_regex: null
-simulator: ${cfg.simulator}
-experiment_name: ${cfg.experiment_name}
-base_community: ${cfg.community}
-output_dir: ${cfg.output_dir}
-particle_filter: ${cfg.filter}
+population_size: 50
+hotstart_particles_regex: 
+generation_idx: 0

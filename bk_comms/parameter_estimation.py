@@ -1,3 +1,4 @@
+from cProfile import run
 from bk_comms import utils
 
 import copy
@@ -16,10 +17,16 @@ from sympy.core.cache import *
 import time
 import sys
 import pygmo
+from pathlib import Path
 
 import glob
 
 from bk_comms.utils import logger_wraps
+from bk_comms.utils import save_particles
+
+from bk_comms.data_analysis.visualisation import load_particles_dataframe
+from bk_comms.data_analysis.visualisation import filter_unfinished_experiments
+
 
 
 class ParameterEstimation:
@@ -36,6 +43,7 @@ class ParameterEstimation:
                     pop.model = self.models[i][idx]
 
             comm.sample_parameters_from_prior()
+
             particles[i] = comm
             particles[i].distance = []
             particles[i].sol = {}
@@ -107,6 +115,10 @@ class ParameterEstimation:
                         model_idx
                     ] = male_part.max_exchange_mat[model_idx].copy()
 
+                    batch_particles[p_batch_idx].biomass_constraints[
+                        model_idx
+                    ] = male_part.biomass_constraints[model_idx].copy()
+
                     batch_particles[p_batch_idx].toxin_mat[
                         model_idx
                     ] = male_part.toxin_mat[model_idx].copy()
@@ -118,6 +130,10 @@ class ParameterEstimation:
                     batch_particles[p_batch_idx].max_exchange_mat[
                         model_idx
                     ] = female_part.max_exchange_mat[model_idx].copy()
+
+                    batch_particles[p_batch_idx].biomass_constraints[
+                        model_idx
+                    ] = female_part.biomass_constraints[model_idx].copy()
 
                     batch_particles[p_batch_idx].toxin_mat[
                         model_idx
@@ -222,47 +238,13 @@ class ParameterEstimation:
             if len(candidate_particles) > 0:
                 particles.extend(candidate_particles)
 
-            logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
+            logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024**2)
 
             batch_idx += 1
 
         particles = particles[: self.population_size]
 
         return particles
-
-    def save_particles(self, particles, output_dir):
-
-        init_populations_arr = np.array(
-            [particle.init_population_values for particle in particles]
-        )
-        k_values_arr = np.array([particle.k_vals for particle in particles])
-        max_exchange_arr = np.array(
-            [particle.max_exchange_mat for particle in particles]
-        )
-        toxin_arr = np.array([particle.toxin_mat for particle in particles])
-
-        distance_vectors = np.array([particle.distance for particle in particles])
-
-        # Write arrays to output_dir
-        np.save(f"{output_dir}/particle_init_populations.npy", init_populations_arr)
-        np.save(f"{output_dir}/particle_k_values.npy", k_values_arr)
-        np.save(f"{output_dir}/particle_max_exchange.npy", max_exchange_arr)
-        np.save(f"{output_dir}/particle_toxin.npy", toxin_arr)
-        np.save(f"{output_dir}/solution_keys.npy", particles[0].solution_keys)
-
-        np.save(f"{output_dir}/solution_keys.npy", particles[0].solution_keys)
-
-        if hasattr(particles[0], "distance"):
-            np.save(f"{output_dir}/particle_distance_vectors.npy", distance_vectors)
-
-        if hasattr(particles[0], "sol"):
-            for media in self.sim_media_names:
-                sol_arr = np.array([particle.sol[media] for particle in particles])
-                np.save(f"{output_dir}/particle_sol_{media}.npy", sol_arr)
-
-            t_vectors = np.array([particle.t for particle in particles])
-
-            np.save(f"{output_dir}/particle_t_vectors.npy", t_vectors)
 
     def generate_models_list(self, n_models):
         # Generate a list of models that will be assigned
@@ -357,19 +339,29 @@ class ParameterEstimation:
 
         for hotstart_dir in hotstart_directories:
 
-            # Make parameter paths
-            init_populations_arr = np.load(
-                f"{hotstart_dir}/particle_init_populations.npy"
-            )
-            k_values_arr = np.load(
-                f"{hotstart_dir}/particle_k_values.npy",
-            )
-            max_exchange_arr = np.load(
-                f"{hotstart_dir}/particle_max_exchange.npy",
-            )
-            toxin_arr = np.load(f"{hotstart_dir}/particle_toxin.npy")
+            try:
+                # Make parameter paths
+                init_populations_arr = np.load(
+                    f"{hotstart_dir}/particle_init_populations.npy"
+                )
+                k_values_arr = np.load(
+                    f"{hotstart_dir}/particle_k_values.npy",
+                )
+                max_exchange_arr = np.load(
+                    f"{hotstart_dir}/particle_max_exchange.npy",
+                )
+                toxin_arr = np.load(f"{hotstart_dir}/particle_toxin.npy")
 
-            distance_arr = np.load(f"{hotstart_dir}/particle_distance_vectors.npy")
+                distance_arr = np.load(f"{hotstart_dir}/particle_distance_vectors.npy")
+
+                biomass_rate_constraints_arr = np.load(
+                    f"{hotstart_dir}/particle_biomass_rate_constr_vectors.npy"
+                )
+
+                # biomass_fluxes = np.load(f"{hotstart_dir}/biomass_flux.npy")
+
+            except FileNotFoundError:
+                continue
 
             # Print array shapes
             logger.info(f"init_populations_arr shape: {init_populations_arr.shape}")
@@ -377,10 +369,15 @@ class ParameterEstimation:
             logger.info(f"max_exchange_arr shape: {max_exchange_arr.shape}")
             logger.info(f"toxin_arr shape: {toxin_arr.shape}")
             logger.info(f"distance_arr shape: {distance_arr.shape}")
+            logger.info(
+                f"biomass_rate_constraints_arr shape: {biomass_rate_constraints_arr.shape}"
+            )
 
             naked_particles = self.init_particles(
                 n_particles=len(max_exchange_arr), assign_model=False, set_media=False
             )
+
+            print("Naked Particles: ", len(naked_particles))
 
             for idx, p in enumerate(naked_particles):
                 p.set_initial_populations(init_populations_arr[idx])
@@ -388,10 +385,16 @@ class ParameterEstimation:
                 p.set_max_exchange_mat(max_exchange_arr[idx])
                 p.set_toxin_mat(toxin_arr[idx])
                 p.set_media_conditions(self.sim_media_names[0], set_media=False)
+                p.set_biomass_rate_constraints(biomass_rate_constraints_arr[idx])
 
+                # p.biomass_flux = biomass_fluxes[idx]
                 p.distance = distance_arr[idx]
 
             hotstart_particles.extend(naked_particles)
+            print("hotstart_particles: ", len(hotstart_particles))
+
+        hotstart_particles = utils.get_unique_particles(hotstart_particles)
+        print("hotstart_particles: ", len(hotstart_particles))
 
         self.population = hotstart_particles
 
@@ -399,9 +402,8 @@ class ParameterEstimation:
     def calculate_and_set_particle_distances(self, particles, sol_distance_key):
         # Calculate distances
         for p in particles:
-            p.distance.extend(
-                self.distance_object.calculate_distance(p, sol_distance_key)
-            )
+            for distance_func in self.distance_object:
+                p.distance.extend(distance_func.calculate_distance(p, sol_distance_key))
 
 
 class NSGAII(ParameterEstimation):
@@ -410,7 +412,7 @@ class NSGAII(ParameterEstimation):
         experiment_name,
         distance_object,
         base_community,
-        output_dir,
+        experiment_dir,
         simulator,
         sim_media_names,
         crossover_type="parameterwise",
@@ -419,6 +421,7 @@ class NSGAII(ParameterEstimation):
         particle_filter=None,
         mutation_probability=0.0,
         generation_idx=0,
+        run_idx=0,
         hotstart_particles_regex=None,
         population_size=32,
         max_generations=10,
@@ -435,8 +438,7 @@ class NSGAII(ParameterEstimation):
         self.n_particles_batch = n_particles_batch
 
         self.sim_media_names = sim_media_names
-
-        self.output_dir = output_dir
+        self.experiment_dir = experiment_dir
         self.population_size = population_size
         self.distance_object = distance_object
         self.mutation_probability = mutation_probability
@@ -444,6 +446,11 @@ class NSGAII(ParameterEstimation):
 
         self.gen_idx = int(generation_idx)
         self.final_generation = False
+        self.run_idx = run_idx
+
+        self.output_dir = (
+            f"{self.experiment_dir}/generation_{self.gen_idx}/run_{self.run_idx}/"
+        )
 
         if crossover_type == "parameterwise":
             self.crossover = self.crossover_parameterwise
@@ -458,8 +465,8 @@ class NSGAII(ParameterEstimation):
             self.mutate = self.mutate_parameterwise
 
         elif mutate_type == "resample_prior":
-            # self.mutate = self.mutate_resample_from_prior
-            self.mutate = self.mutate_community_from_prior
+            self.mutate = self.mutate_resample_from_prior
+            # self.mutate = self.mutate_community_from_prior
 
         else:
             raise ValueError(f"Unknown mutation type: {mutate_type}")
@@ -469,8 +476,8 @@ class NSGAII(ParameterEstimation):
 
         self.max_generations = max_generations
 
-        # if not isinstance(hotstart_particles_regex, type(None)):
-        #     self.hotstart_particles(hotstart_particles_regex)
+        if not isinstance(hotstart_particles_regex, type(None)):
+            self.hotstart_particles(hotstart_particles_regex)
 
     @logger_wraps()
     def run(self, n_processes=1, parallel=False):
@@ -478,22 +485,33 @@ class NSGAII(ParameterEstimation):
 
         # Generate first generation
         if self.gen_idx == 0:
+            self.output_dir = (
+                f"{self.experiment_dir}/generation_{self.gen_idx}/run_{self.run_idx}/"
+            )
+            Path(self.output_dir).mkdir(parents=True, exist_ok=True)
+
             self.population = self.gen_initial_population(n_processes, parallel)
 
-            self.save_particles(
+            save_particles(
                 self.population,
+                self.sim_media_names,
                 output_dir=f"{self.output_dir}",
             )
             self.gen_idx += 1
 
         while self.gen_idx < self.max_generations:
+            self.output_dir = (
+                f"{self.experiment_dir}/generation_{self.gen_idx}/run_{self.run_idx}/"
+            )
+            Path(self.output_dir).mkdir(parents=True, exist_ok=True)
+
             logger.info(f"Running generation {self.gen_idx}")
             logger.info(f"Selecting parents")
 
             new_offspring = []
             new_parents = []
             batch_idx = 0
-            while len(new_offspring) < self.population_size:
+            while len(new_offspring) <= self.population_size:
 
                 population_average_distance = np.mean(
                     [max(p.distance) for p in self.population]
@@ -508,6 +526,8 @@ class NSGAII(ParameterEstimation):
                 logger.info(
                     f"Pop mean distance: {population_average_distance}, pop median distance: {population_mediain_distance}, pop min distance: {population_min_distance}"
                 )
+
+                print(self.population)
 
                 # Select parents population by non-dominated sorting and crowd distance
                 parent_particles = self.non_dominated_sort_parent_selection(
@@ -565,8 +585,9 @@ class NSGAII(ParameterEstimation):
             # Combine population of parents and offspring (2N)
             self.population = new_offspring + new_parents
 
-            self.save_particles(
+            save_particles(
                 self.population,
+                self.sim_media_names,
                 output_dir=f"{self.output_dir}",
             )
             new_offspring = []
@@ -628,107 +649,129 @@ class SimpleSimulate(ParameterEstimation):
     def __init__(
         self,
         experiment_name,
+        distance_object,
         base_community,
         output_dir,
         simulator,
+        sim_media_names,
         n_particles_batch,
+        population_size,
         hotstart_particles_regex,
-        max_simulations=32,
-        particle_filter=None,
+        generation_idx,
+        filter=None,
     ):
 
         self.experiment_name = experiment_name
         self.base_community = base_community
+        self.sim_media_names = sim_media_names
+
+        self.distance_object = distance_object
 
         self.output_dir = output_dir
         self.simulator = simulator
         self.n_particles_batch = n_particles_batch
-        self.filter = particle_filter
-        self.max_simulations = max_simulations
+        self.population_size = population_size
+        self.generation_idx = generation_idx
+
+        self.hotstart_particles_regex = hotstart_particles_regex
+        self.filter = filter
+
+        print(self.hotstart_particles_regex)
 
         self.models = self.generate_models_list(n_models=self.n_particles_batch)
 
-        # Load hotstart particles
-        if not isinstance(hotstart_particles_regex, type(None)):
-            self.hotstart(hotstart_particles_regex)
-            sum_distances = [max(p.distance) for p in self.population]
-            self.population = utils.get_unique_particles(self.population)
+        experiment_folders = glob.glob(self.hotstart_particles_regex)
 
-            self.population = sorted(
-                self.population, key=lambda x: sum_distances[self.population.index(x)]
-            )
+        experiment_folders = filter_unfinished_experiments(experiment_folders)
 
-            self.population = self.population
-            for p in self.population:
-                pass
-
-        else:
-            self.hotstart_particles = None
-
-        for d in base_community.dynamic_compounds:
-            if d not in self.population[0].dynamic_compounds:
-                print(d)
-
-        self.save_particles(
-            self.population,
-            output_dir=f"{self.output_dir}",
+        self.particles_df = load_particles_dataframe(
+            self.sim_media_names, experiment_folders
         )
+        self.particles_df.sort_values(by="sum_distance", inplace=True)
 
     def initialize_fresh_particle(self):
-        pass
+        load_particles_dataframe
+
+    def load_particle(self, particle_dir, particle_idx):
+        print("particle_dir", particle_dir)
+        # Make parameter paths
+        init_populations_arr = np.load(f"{particle_dir}/particle_init_populations.npy")[
+            particle_idx
+        ]
+        k_values_arr = np.load(
+            f"{particle_dir}/particle_k_values.npy",
+        )[particle_idx]
+        max_exchange_arr = np.load(
+            f"{particle_dir}/particle_max_exchange.npy",
+        )[particle_idx]
+        toxin_arr = np.load(f"{particle_dir}/particle_toxin.npy")[particle_idx]
+
+        p = self.init_particles(n_particles=1, assign_model=False, set_media=False)[0]
+
+        p.set_initial_populations(init_populations_arr)
+        p.set_k_value_matrix(k_values_arr)
+        p.set_max_exchange_mat(max_exchange_arr)
+        p.set_toxin_mat(toxin_arr)
+        p.set_media_conditions(self.sim_media_names[0], set_media=False)
+
+        return p
 
     def run(self, n_processes=1, parallel=False):
         particles_simulated = 0
         batch_idx = 0
+        row_idx = 0
 
-        particle_idx = 0
+        self.population = []
+        while len(self.population) <= self.population_size:
 
-        while particles_simulated < self.max_simulations or particle_idx > len(
-            self.population
-        ):
-
+            # Load batch particles
             batch_particles = []
-
             for i in range(self.n_particles_batch):
-                # Make independent copy of base community
-                comm = copy.deepcopy(self.base_community)
-                # Assign population models
-                for idx, pop in enumerate(comm.populations):
+                row = self.particles_df.iloc[row_idx]
+                p = self.load_particle(
+                    particle_dir=row["data_dir"], particle_idx=row["particle_index"]
+                )
+
+                for idx, pop in enumerate(p.populations):
                     pop.model = self.models[i][idx]
-                batch_particles.append(comm)
 
-            # batch_particles = self.init_particles(self.n_particles_batch)
+                batch_particles.append(p)
+                row_idx += 1
 
-            for batch_p_idx in range(self.n_particles_batch):
-                batch_particles[batch_p_idx].set_k_value_matrix(
-                    self.population[particle_idx].k_vals
+            # Simulate particles in each media
+            for media_idx, media_name in enumerate(self.sim_media_names):
+                logger.info(f"Simulating in media {media_name}")
+                [p.set_media_conditions(media_name) for p in batch_particles]
+
+                if not isinstance(self.filter, type(None)):
+                    batch_particles = self.filter.filter_particles(batch_particles)
+
+                # Simulate particle for media name
+                self.simulator.simulate_particles(
+                    batch_particles,
+                    sol_key=media_name,
+                    n_processes=n_processes,
+                    parallel=parallel,
                 )
-                batch_particles[batch_p_idx].set_max_exchange_mat(
-                    self.population[particle_idx].max_exchange_mat
-                )
 
-                batch_particles[batch_p_idx].set_toxin_mat(
-                    self.population[particle_idx].toxin_mat
-                )
-                batch_particles[batch_p_idx].set_initial_populations(
-                    self.population[particle_idx].init_population_values
-                )
+                # # Calculate distance for media_name
+                # self.calculate_and_set_particle_distances(
+                #     batch_particles, media_name
+                # )
 
-                batch_particles[batch_p_idx].set_init_y()
-
-                particle_idx += 1
-
-            self.simulator.simulate_particles(
-                batch_particles, n_processes=n_processes, parallel=parallel
-            )
+                for p in batch_particles:
+                    p.distance = [1]
 
             print("Saving particles")
 
             self.delete_particle_fba_models(batch_particles)
-            self.save_particles(
-                batch_particles,
-                output_dir=f"{self.output_dir}",
-            )
+            self.population.extend(batch_particles)
 
-            particles_simulated += len(batch_particles)
-            batch_idx += 1
+        save_particles(
+            self.population,
+            self.sim_media_names,
+            output_dir=f"{self.output_dir}",
+        )
+
+        particles_simulated += len(batch_particles)
+        batch_idx += 1

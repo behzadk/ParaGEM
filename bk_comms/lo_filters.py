@@ -16,6 +16,8 @@ class Filter:
             p.sim_step(p.init_y)
             keep = True
 
+            p.biomass_flux = []
+
             for pop_idx, _ in enumerate(p.populations):
                 population = p.populations[pop_idx]
 
@@ -29,6 +31,9 @@ class Filter:
                         biomass_flux = df.loc[df["name"] == growth_key][
                             "fluxes"
                         ].values[0]
+
+                        p.biomass_flux.append(biomass_flux)
+
                         if (
                             biomass_flux >= self.min_growth[name_idx]
                             and biomass_flux <= self.max_growth[name_idx]

@@ -1,7 +1,7 @@
 _target_: bk_comms.parameter_estimation.NSGAII
-population_size: 10
-n_particles_batch: 5
-mutation_probability: 0.05
+population_size: 50
+n_particles_batch: 10
+mutation_probability: 0.15
 hotstart_particles_regex:
 generation_idx: 0
 max_generations: 1
@@ -12,5 +12,6 @@ simulator: ${simulator}
 experiment_name: ${experiment_name}
 base_community: ${community}
 distance_object: ${distance}
-output_dir: ${output_dir}
+experiment_dir: ${experiment_dir}
+run_idx: ${run_idx}
 particle_filter: ${filter}
