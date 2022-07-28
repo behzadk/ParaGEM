@@ -44,10 +44,10 @@ class SampleSkewNormal(SampleDistribution):
         self.distribution = self.random_skew_normal
 
     def random_skew_normal(self, size):
-        sigma = self.alpha / np.sqrt(1.0 + self.alpha ** 2)
+        sigma = self.alpha / np.sqrt(1.0 + self.alpha**2)
         u0 = np.random.standard_normal(size)
         v = np.random.standard_normal(size)
-        u1 = (sigma * u0 + np.sqrt(1.0 - sigma ** 2) * v) * self.scale
+        u1 = (sigma * u0 + np.sqrt(1.0 - sigma**2) * v) * self.scale
         u1[u0 < 0] *= -1
         u1 = u1 + self.loc
 
@@ -114,8 +114,7 @@ class SampleUniformConstant(SampleDistribution):
         ), f"Error distribution, {self.distribution_type}, not in {dist_options}"
 
         self.distribution = self.sample_constant_matrix
-    
-    
+
     def sample_constant_matrix(self, size):
         if self.distribution_type == "uniform":
             value = np.random.uniform(self.min_val, self.max_val)
@@ -147,6 +146,7 @@ class SampleUniformConstant(SampleDistribution):
             raise ValueError("incorrect distribution definition")
 
         return mat
+
 
 class SampleCombinationParticles:
     def __init__(
@@ -242,7 +242,9 @@ class SampleCombinationParticles:
                     f"{d}/particle_max_exchange.npy",
                 )
                 toxin_arr = np.load(f"{d}/particle_toxin.npy")
-                biomass_rate_constr = np.load(f"{d}/particle_biomass_rate_constr_vectors.npy")
+                biomass_rate_constr = np.load(
+                    f"{d}/particle_biomass_rate_constr_vectors.npy"
+                )
 
                 for idx, _ in enumerate(init_populations_arr):
                     particles_dict[pop_name]["k_vals"].append(k_values_arr[idx])
@@ -253,7 +255,9 @@ class SampleCombinationParticles:
                         init_populations_arr[idx]
                     )
                     particles_dict[pop_name]["toxin_mat"].append(toxin_arr[idx])
-                    particles_dict[pop_name]["biomass_rate_constraints"].append(biomass_rate_constr[idx])
+                    particles_dict[pop_name]["biomass_rate_constraints"].append(
+                        biomass_rate_constr[idx]
+                    )
 
             self.particle_counts[pop_name] = len(
                 particles_dict[pop_name]["max_exchange_mat"]
@@ -261,7 +265,6 @@ class SampleCombinationParticles:
             print(self.particle_counts)
 
         return particles_dict
-
 
     def generate_random_index_combination(self):
         index_combination = {}
@@ -276,7 +279,12 @@ class SampleCombinationParticles:
         data_field,
         index_combination=None,
     ):
-        legal_data_fields = ["k_vals", "max_exchange_mat", "initial_population", "biomass_rate_constraints"]
+        legal_data_fields = [
+            "k_vals",
+            "max_exchange_mat",
+            "initial_population",
+            "biomass_rate_constraints",
+        ]
         assert (
             data_field in legal_data_fields
         ), f"{data_field} not in legal datafields: {legal_data_fields}"

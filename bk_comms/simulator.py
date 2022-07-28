@@ -43,16 +43,23 @@ class CometsTimeSeriesSimulation:
 
     def apply_biomass_constraints(self, community):
         # For each population, set the objective reaction bound
-        if not isinstance(community.biomass_constraints, type(None)): 
+        if not isinstance(community.biomass_constraints, type(None)):
             for pop_idx in range(len(community.populations)):
                 objective_reaction_keys = community.objective_reaction_keys
                 print(objective_reaction_keys)
-                print(community.biomass_constraints, community.biomass_constraints[pop_idx])
-                community.populations[pop_idx].model.change_bounds(objective_reaction_keys[pop_idx], 0.0, community.biomass_constraints[pop_idx])
+                print(
+                    community.biomass_constraints,
+                    community.biomass_constraints[pop_idx],
+                )
+                community.populations[pop_idx].model.change_bounds(
+                    objective_reaction_keys[pop_idx],
+                    0.0,
+                    community.biomass_constraints[pop_idx],
+                )
 
     def convert_models(self, community):
         """Converts cobrapy models of community to comets model inplace"""
-        # Convert models 
+        # Convert models
         for idx, population in enumerate(community.populations):
             if isinstance(population.model, cometspy.model):
                 continue

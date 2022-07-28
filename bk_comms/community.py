@@ -193,17 +193,12 @@ class Community:
             np.ones(shape=[len(self.populations), len(self.dynamic_compounds)]) * -1
         )
 
-        logger.info(
-            f"Setting toxin mat, mem usage (mb): {utils.get_mem_usage()}"
-        )
+        logger.info(f"Setting toxin mat, mem usage (mb): {utils.get_mem_usage()}")
         self.set_toxin_mat(
             np.zeros(shape=[len(self.populations), len(self.populations)])
         )
 
-        self.set_biomass_rate_constraints(
-            np.ones(len(self.populations)) * 1000
-        )
-
+        self.set_biomass_rate_constraints(np.ones(len(self.populations)) * 1000)
 
         logger.info(f"Setting pop indexesmem usage (mb): {utils.get_mem_usage()}")
         self.population_indexes = self.set_population_indexes()
@@ -279,18 +274,22 @@ class Community:
             )
             self.set_toxin_mat(toxin_mat)
 
-        
         if self.biomass_rate_constraint_prior is not None:
-            if isinstance(self.biomass_rate_constraint_prior, SampleCombinationParticles):
+            if isinstance(
+                self.biomass_rate_constraint_prior, SampleCombinationParticles
+            ):
                 biomass_constraints = self.biomass_rate_constraint_prior.sample(
                     self.model_names, data_field="biomass_rate_constraints"
                 )
 
             else:
-                biomass_constraints = self.biomass_rate_constraint_prior.sample(size=[n_populations,])
-            
-            self.set_biomass_rate_constraints(biomass_constraints)
+                biomass_constraints = self.biomass_rate_constraint_prior.sample(
+                    size=[
+                        n_populations,
+                    ]
+                )
 
+            self.set_biomass_rate_constraints(biomass_constraints)
 
     def add_toxin_production_reactions(
         self, models, model_names, objective_keys, toxin_production_rate=1.0
@@ -372,7 +371,14 @@ class Community:
         toxin_mat = self.toxin_mat.reshape(1, -1)
 
         param_vec = np.concatenate(
-            [initial_concs_vec, k_val_vec, max_exchange_vec, biomass_constraints_vec, toxin_mat], axis=1
+            [
+                initial_concs_vec,
+                k_val_vec,
+                max_exchange_vec,
+                biomass_constraints_vec,
+                toxin_mat,
+            ],
+            axis=1,
         ).reshape(-1, 1)
 
         return param_vec
@@ -433,7 +439,8 @@ class Community:
             parameter_vec[
                 n_variables
                 + n_k_vals
-                + n_max_exchange_vals + n_biomass_constraint_vals : n_variables
+                + n_max_exchange_vals
+                + n_biomass_constraint_vals : n_variables
                 + n_k_vals
                 + n_max_exchange_vals
                 + n_biomass_constraint_vals
@@ -499,7 +506,6 @@ class Community:
             len(self.populations)
         ), f"Error: shape of biomass_constraints[0], {biomass_constraints.shape[0]} does not match expected  {len(self.populations)}"
         self.biomass_constraints = biomass_constraints
-
 
     def set_solution_key_order(self):
         solution_keys = []
@@ -655,9 +661,12 @@ class Community:
         self.lower_constraints = lower_constraints
 
         for idx, pop in enumerate(self.populations):
-            
+
             # Set biomass rate constraint
-            pop.model.reactions.get_by_id(self.objective_reaction_keys[idx]).bounds = (0.0, self.biomass_constraints[idx])
+            pop.model.reactions.get_by_id(self.objective_reaction_keys[idx]).bounds = (
+                0.0,
+                self.biomass_constraints[idx],
+            )
 
             pop.update_reaction_constraints(lower_constraints[idx])
             with warnings.catch_warnings():

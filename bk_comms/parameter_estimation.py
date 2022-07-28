@@ -27,6 +27,7 @@ from bk_comms.utils import save_particles
 from bk_comms.data_analysis.visualisation import load_particles_dataframe
 from bk_comms.data_analysis.visualisation import filter_unfinished_experiments
 
+
 class ParameterEstimation:
     def init_particles(self, n_particles, assign_model=True, set_media=True):
         particles = np.zeros(shape=n_particles, dtype=object)
@@ -116,7 +117,6 @@ class ParameterEstimation:
                     batch_particles[p_batch_idx].biomass_constraints[
                         model_idx
                     ] = male_part.biomass_constraints[model_idx].copy()
-
 
                     batch_particles[p_batch_idx].toxin_mat[
                         model_idx
@@ -209,7 +209,6 @@ class ParameterEstimation:
             while len(candidate_particles) < self.n_particles_batch:
                 new_particles = self.init_particles(self.n_particles_batch)
 
-
                 for media_name in self.sim_media_names:
                     [p.set_media_conditions(media_name) for p in new_particles]
 
@@ -238,14 +237,13 @@ class ParameterEstimation:
             if len(candidate_particles) > 0:
                 particles.extend(candidate_particles)
 
-            logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024 ** 2)
+            logger.info(psutil.Process(os.getpid()).memory_info().rss / 1024**2)
 
             batch_idx += 1
 
         particles = particles[: self.population_size]
 
         return particles
-
 
     def generate_models_list(self, n_models):
         # Generate a list of models that will be assigned
@@ -355,7 +353,9 @@ class ParameterEstimation:
 
                 distance_arr = np.load(f"{hotstart_dir}/particle_distance_vectors.npy")
 
-                biomass_rate_constraints_arr = np.load(f"{hotstart_dir}/particle_biomass_rate_constr_vectors.npy")
+                biomass_rate_constraints_arr = np.load(
+                    f"{hotstart_dir}/particle_biomass_rate_constr_vectors.npy"
+                )
 
                 # biomass_fluxes = np.load(f"{hotstart_dir}/biomass_flux.npy")
 
@@ -368,7 +368,9 @@ class ParameterEstimation:
             logger.info(f"max_exchange_arr shape: {max_exchange_arr.shape}")
             logger.info(f"toxin_arr shape: {toxin_arr.shape}")
             logger.info(f"distance_arr shape: {distance_arr.shape}")
-            logger.info(f"biomass_rate_constraints_arr shape: {biomass_rate_constraints_arr.shape}")
+            logger.info(
+                f"biomass_rate_constraints_arr shape: {biomass_rate_constraints_arr.shape}"
+            )
 
             naked_particles = self.init_particles(
                 n_particles=len(max_exchange_arr), assign_model=False, set_media=False
@@ -384,7 +386,6 @@ class ParameterEstimation:
                 p.set_media_conditions(self.sim_media_names[0], set_media=False)
                 p.set_biomass_rate_constraints(biomass_rate_constraints_arr[idx])
 
-                
                 # p.biomass_flux = biomass_fluxes[idx]
                 p.distance = distance_arr[idx]
 
@@ -401,9 +402,7 @@ class ParameterEstimation:
         # Calculate distances
         for p in particles:
             for distance_func in self.distance_object:
-                p.distance.extend(
-                    distance_func.calculate_distance(p, sol_distance_key)
-                )
+                p.distance.extend(distance_func.calculate_distance(p, sol_distance_key))
 
 
 class NSGAII(ParameterEstimation):
@@ -448,7 +447,9 @@ class NSGAII(ParameterEstimation):
         self.final_generation = False
         self.run_idx = run_idx
 
-        self.output_dir = f"{self.experiment_dir}/generation_{self.gen_idx}/run_{self.run_idx}/"
+        self.output_dir = (
+            f"{self.experiment_dir}/generation_{self.gen_idx}/run_{self.run_idx}/"
+        )
 
         if crossover_type == "parameterwise":
             self.crossover = self.crossover_parameterwise
@@ -474,8 +475,6 @@ class NSGAII(ParameterEstimation):
 
         self.max_generations = max_generations
 
-
-
         if not isinstance(hotstart_particles_regex, type(None)):
             self.hotstart_particles(hotstart_particles_regex)
 
@@ -485,7 +484,9 @@ class NSGAII(ParameterEstimation):
 
         # Generate first generation
         if self.gen_idx == 0:
-            self.output_dir = f"{self.experiment_dir}/generation_{self.gen_idx}/run_{self.run_idx}/"
+            self.output_dir = (
+                f"{self.experiment_dir}/generation_{self.gen_idx}/run_{self.run_idx}/"
+            )
             Path(self.output_dir).mkdir(parents=True, exist_ok=True)
 
             self.population = self.gen_initial_population(n_processes, parallel)
@@ -498,7 +499,9 @@ class NSGAII(ParameterEstimation):
             self.gen_idx += 1
 
         while self.gen_idx < self.max_generations:
-            self.output_dir = f"{self.experiment_dir}/generation_{self.gen_idx}/run_{self.run_idx}/"
+            self.output_dir = (
+                f"{self.experiment_dir}/generation_{self.gen_idx}/run_{self.run_idx}/"
+            )
             Path(self.output_dir).mkdir(parents=True, exist_ok=True)
 
             logger.info(f"Running generation {self.gen_idx}")
@@ -654,7 +657,7 @@ class SimpleSimulate(ParameterEstimation):
         population_size,
         hotstart_particles_regex,
         generation_idx,
-        filter=None
+        filter=None,
     ):
 
         self.experiment_name = experiment_name
@@ -662,7 +665,7 @@ class SimpleSimulate(ParameterEstimation):
         self.sim_media_names = sim_media_names
 
         self.distance_object = distance_object
-        
+
         self.output_dir = output_dir
         self.simulator = simulator
         self.n_particles_batch = n_particles_batch
@@ -676,12 +679,13 @@ class SimpleSimulate(ParameterEstimation):
 
         self.models = self.generate_models_list(n_models=self.n_particles_batch)
 
-
         experiment_folders = glob.glob(self.hotstart_particles_regex)
 
         experiment_folders = filter_unfinished_experiments(experiment_folders)
 
-        self.particles_df = load_particles_dataframe(self.sim_media_names, experiment_folders)
+        self.particles_df = load_particles_dataframe(
+            self.sim_media_names, experiment_folders
+        )
         self.particles_df.sort_values(by="sum_distance", inplace=True)
 
     def initialize_fresh_particle(self):
@@ -690,9 +694,9 @@ class SimpleSimulate(ParameterEstimation):
     def load_particle(self, particle_dir, particle_idx):
         print("particle_dir", particle_dir)
         # Make parameter paths
-        init_populations_arr = np.load(
-            f"{particle_dir}/particle_init_populations.npy"
-        )[particle_idx]
+        init_populations_arr = np.load(f"{particle_dir}/particle_init_populations.npy")[
+            particle_idx
+        ]
         k_values_arr = np.load(
             f"{particle_dir}/particle_k_values.npy",
         )[particle_idx]
@@ -700,10 +704,8 @@ class SimpleSimulate(ParameterEstimation):
             f"{particle_dir}/particle_max_exchange.npy",
         )[particle_idx]
         toxin_arr = np.load(f"{particle_dir}/particle_toxin.npy")[particle_idx]
-        
-        p = self.init_particles(
-            n_particles=1, assign_model=False, set_media=False
-        )[0]
+
+        p = self.init_particles(n_particles=1, assign_model=False, set_media=False)[0]
 
         p.set_initial_populations(init_populations_arr)
         p.set_k_value_matrix(k_values_arr)
@@ -725,11 +727,13 @@ class SimpleSimulate(ParameterEstimation):
             batch_particles = []
             for i in range(self.n_particles_batch):
                 row = self.particles_df.iloc[row_idx]
-                p = self.load_particle(particle_dir=row['data_dir'], particle_idx=row['particle_index'])
-                
+                p = self.load_particle(
+                    particle_dir=row["data_dir"], particle_idx=row["particle_index"]
+                )
+
                 for idx, pop in enumerate(p.populations):
                     pop.model = self.models[i][idx]
-                
+
                 batch_particles.append(p)
                 row_idx += 1
 
@@ -739,9 +743,7 @@ class SimpleSimulate(ParameterEstimation):
                 [p.set_media_conditions(media_name) for p in batch_particles]
 
                 if not isinstance(self.filter, type(None)):
-                    batch_particles = self.filter.filter_particles(
-                        batch_particles
-                    )
+                    batch_particles = self.filter.filter_particles(batch_particles)
 
                 # Simulate particle for media name
                 self.simulator.simulate_particles(
@@ -758,13 +760,11 @@ class SimpleSimulate(ParameterEstimation):
 
                 for p in batch_particles:
                     p.distance = [1]
-                
 
             print("Saving particles")
 
             self.delete_particle_fba_models(batch_particles)
             self.population.extend(batch_particles)
-
 
         save_particles(
             self.population,
