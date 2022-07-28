@@ -386,8 +386,9 @@ class ParameterEstimation:
                 p.set_max_exchange_mat(max_exchange_arr[idx])
                 p.set_toxin_mat(toxin_arr[idx])
                 p.set_media_conditions(self.sim_media_names[0], set_media=False)
-                p.set_biomass_rate_constraints(biomass_constraints_arr[idx])
+                p.set_biomass_rate_constraints(biomass_rate_constraints_arr[idx])
 
+                
                 # p.biomass_flux = biomass_fluxes[idx]
                 p.distance = distance_arr[idx]
 
