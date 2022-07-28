@@ -20,28 +20,23 @@ from bk_comms.data_analysis.visualisation import prepare_particles_df
 def run_algorithm(cfg: DictConfig):
 
     Path(cfg.output_dir).mkdir(parents=True, exist_ok=True)
-    OmegaConf.save(cfg, f"{cfg.output_dir}/cfg.yaml")
+    OmegaConf.save(cfg, f"{cfg.experiment_dir}/cfg.yaml")
 
     logger.remove()
-    logger.add(f"{cfg.output_dir}info_log.log", level="DEBUG")
+    logger.add(f"{cfg.experiment_dir}info_log.log", level="DEBUG")
 
 
     alg = instantiate(cfg.algorithm)
-
-    if not isinstance(cfg.algorithm.hotstart_particles_regex, type(None)):
-        alg.hotstart_particles(cfg.algorithm.hotstart_particles_regex)
-    
-    # # Write config once folder structuer has ben made
     alg.run(n_processes=cfg.n_processes, parallel=cfg.parallel)
 
     particles_df = prepare_particles_df(cfg)
+    print(particles_df.head(5))
 
     visualisation_pipeline = cfg.visualisation
 
     for step in visualisation_pipeline:
         print(step)
         step = instantiate(step, particles_df=particles_df)
-        step.show()
 
 
 

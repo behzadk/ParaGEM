@@ -12,5 +12,6 @@ simulator: ${simulator}
 experiment_name: ${experiment_name}
 base_community: ${community}
 distance_object: ${distance}
-output_dir: ${output_dir}
+experiment_dir: ${experiment_dir}
+run_idx: ${run_idx}
 particle_filter: ${filter}

@@ -10,7 +10,7 @@ max_uptake_sampler:
     min_val: 0
     max_val: 0
     distribution_type: "uniform"
-  prob_dist_1: 0.95
+  prob_dist_1: 1.0
 
 k_val_sampler:
   _target_: bk_comms.sampling.SampleUniform

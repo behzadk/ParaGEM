@@ -1,3 +1,4 @@
+from cProfile import run
 from bk_comms import utils
 
 import copy
@@ -16,6 +17,7 @@ from sympy.core.cache import *
 import time
 import sys
 import pygmo
+from pathlib import Path
 
 import glob
 
@@ -207,14 +209,6 @@ class ParameterEstimation:
             while len(candidate_particles) < self.n_particles_batch:
                 new_particles = self.init_particles(self.n_particles_batch)
 
-                # TEMP test to see if kvalues initial pop should be set to 1e-130
-                n_populations = len(new_particles[0].populations)
-                n_dynamic_compounds = len(new_particles[0].dynamic_compounds)
-
-                k_val_mat = np.ones([n_populations, n_dynamic_compounds])
-                k_val_mat = k_val_mat * 1e-30
-
-                [p.set_k_value_matrix(k_val_mat) for p in new_particles]
 
                 for media_name in self.sim_media_names:
                     [p.set_media_conditions(media_name) for p in new_particles]
@@ -380,6 +374,8 @@ class ParameterEstimation:
                 n_particles=len(max_exchange_arr), assign_model=False, set_media=False
             )
 
+            print("Naked Particles: ", len(naked_particles))
+
             for idx, p in enumerate(naked_particles):
                 p.set_initial_populations(init_populations_arr[idx])
                 p.set_k_value_matrix(k_values_arr[idx])
@@ -393,8 +389,10 @@ class ParameterEstimation:
                 p.distance = distance_arr[idx]
 
             hotstart_particles.extend(naked_particles)
+            print("hotstart_particles: ", len(hotstart_particles))
 
         hotstart_particles = utils.get_unique_particles(hotstart_particles)
+        print("hotstart_particles: ", len(hotstart_particles))
 
         self.population = hotstart_particles
 
@@ -414,7 +412,7 @@ class NSGAII(ParameterEstimation):
         experiment_name,
         distance_object,
         base_community,
-        output_dir,
+        experiment_dir,
         simulator,
         sim_media_names,
         crossover_type="parameterwise",
@@ -423,6 +421,7 @@ class NSGAII(ParameterEstimation):
         particle_filter=None,
         mutation_probability=0.0,
         generation_idx=0,
+        run_idx=0,
         hotstart_particles_regex=None,
         population_size=32,
         max_generations=10,
@@ -439,8 +438,7 @@ class NSGAII(ParameterEstimation):
         self.n_particles_batch = n_particles_batch
 
         self.sim_media_names = sim_media_names
-
-        self.output_dir = output_dir
+        self.experiment_dir = experiment_dir
         self.population_size = population_size
         self.distance_object = distance_object
         self.mutation_probability = mutation_probability
@@ -448,6 +446,9 @@ class NSGAII(ParameterEstimation):
 
         self.gen_idx = int(generation_idx)
         self.final_generation = False
+        self.run_idx = run_idx
+
+        self.output_dir = f"{self.experiment_dir}/generation_{self.gen_idx}/run_{self.run_idx}/"
 
         if crossover_type == "parameterwise":
             self.crossover = self.crossover_parameterwise
@@ -484,6 +485,9 @@ class NSGAII(ParameterEstimation):
 
         # Generate first generation
         if self.gen_idx == 0:
+            self.output_dir = f"{self.experiment_dir}/generation_{self.gen_idx}/run_{self.run_idx}/"
+            Path(self.output_dir).mkdir(parents=True, exist_ok=True)
+
             self.population = self.gen_initial_population(n_processes, parallel)
 
             save_particles(
@@ -494,6 +498,9 @@ class NSGAII(ParameterEstimation):
             self.gen_idx += 1
 
         while self.gen_idx < self.max_generations:
+            self.output_dir = f"{self.experiment_dir}/generation_{self.gen_idx}/run_{self.run_idx}/"
+            Path(self.output_dir).mkdir(parents=True, exist_ok=True)
+
             logger.info(f"Running generation {self.gen_idx}")
             logger.info(f"Selecting parents")
 
@@ -515,6 +522,8 @@ class NSGAII(ParameterEstimation):
                 logger.info(
                     f"Pop mean distance: {population_average_distance}, pop median distance: {population_mediain_distance}, pop min distance: {population_min_distance}"
                 )
+
+                print(self.population)
 
                 # Select parents population by non-dominated sorting and crowd distance
                 parent_particles = self.non_dominated_sort_parent_selection(
