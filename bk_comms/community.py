@@ -16,6 +16,9 @@ from scipy.integrate import odeint
 
 from loguru import logger
 
+from bk_comms.utils import logger_wraps
+from typing import Tuple
+
 import copy
 import gc
 import warnings
@@ -172,6 +175,7 @@ class Community:
 
         self.reaction_keys = [x.replace("M_", "EX_") for x in self.dynamic_compounds]
 
+
         # Initialise populations
         self.populations = self.load_populations(
             self.model_names,
@@ -200,13 +204,9 @@ class Community:
 
         self.set_biomass_rate_constraints(np.ones(len(self.populations)) * 1000)
 
-        logger.info(f"Setting pop indexesmem usage (mb): {utils.get_mem_usage()}")
-        self.population_indexes = self.set_population_indexes()
+        self.population_indexes = self.gen_population_indexes()
+        self.compound_indexes = self.gen_compound_indexes()
 
-        logger.info(
-            f"Setting compound indexes, mem usage (mb): {utils.get_mem_usage()}"
-        )
-        self.compound_indexes = self.set_compound_indexes()
 
         logger.info(
             f"Setting solution key order,  mem usage (mb): {utils.get_mem_usage()}"
@@ -220,9 +220,18 @@ class Community:
         gc.collect()
 
     def sample_parameters_from_prior(self):
-        """
-        Samples and sets community parameters and initial populations from
-        prior distribution samplers
+        """ Samples and sets community parameters from community priors
+
+        Samples and sets initial populations, max exchange matrix, k values matrix, biomass constraints
+        and toxin interaction matrix
+
+        Args:
+        self : self
+
+        Returns:
+
+        Raises:
+
         """
         n_populations = len(self.populations)
         n_dynamic_compounds = len(self.dynamic_compounds)
@@ -291,14 +300,33 @@ class Community:
 
             self.set_biomass_rate_constraints(biomass_constraints)
 
+    @logger_wraps()
     def add_toxin_production_reactions(
-        self, models, model_names, objective_keys, toxin_production_rate=1.0
-    ):
-        """
-        Adds a new metabolite to each model, precursor and toxin production reactions,
-        and an exchange reaction for the toxin
-        """
+        self, models: List[str], model_names: List[str], objective_keys: List[str], toxin_production_rate: float=1.0
+    ) -> List[str]: 
+        """ Adds metabolites and reactions for toxin interactions to each model
+        
+        Adds precursor metabolites, toxin metabolites and production reactions to each model. 
+        Each model produces a unique toxin. Production of the toxin is added to the biomass reaction,
+        so toxin is only produced while the organism is able to grow.
+        
+        Each model has exchange reactions added for each toxin - I don't think this is necesssary and should be removed.
+        Need to check that sensitivity to toxin is not dependnt upon ability to uptake (should be based just on 
+        environmental concentration).
 
+        Args:
+            self : self
+            models : List of models to add toxins to
+            model_names : Names of the models, used for naming the toxins
+            objective_keys : Name of the objective function. used to 
+            toxin_production_rate : Rate of production for toxin from organism into the environment
+
+        Returns:
+            toxin_names : List of toxin names added
+
+        Raises:
+
+        """
         toxin_names = []
         toxin_metabolites = []
 
@@ -359,11 +387,21 @@ class Community:
 
         return toxin_names
 
-    def generate_parameter_vector(self):
-        # Initial conditions
-        # k values
-        # exchange_constraints
+    def generate_parameter_vector(self) -> np.ndarray:
+        """ Generates parameter vector by flattening and concatenating community parameters
 
+        Concatenates parameters into a 1d vector. 1d vec produced here can be used by 
+        :func:`~community.Community.load_parameter_vector`.
+        
+        Args:
+            self : self
+
+        Returns:
+            param_vec : 1d numpy array of parameters
+
+        Raises:
+
+        """
         initial_concs_vec = self.init_y.reshape(1, -1)
         k_val_vec = self.k_vals.reshape(1, -1)
         max_exchange_vec = self.max_exchange_mat.reshape(1, -1)
@@ -383,24 +421,18 @@ class Community:
 
         return param_vec
 
-    def update_parameters_from_particle(self, particle, model_names):
-        # Update self arrays according to the specific model of the particle
-        for particle_model_name in model_names:
-            if particle_model_name in self.model_names:
-                particle_model_idx = particle.model_names.index(particle_model_name)
-                this_model_idx = self.model_names.index(particle_model_name)
-
-                print(particle_model_name, self.model_names[this_model_idx])
-
-                self.k_vals[this_model_idx] = particle.k_vals[particle_model_idx]
-                self.max_exchange_mat[this_model_idx] = particle.max_exchange_mat[
-                    particle_model_idx
-                ]
 
     def load_parameter_vector(self, parameter_vec):
-        """
-        Loads a parameter vector consisting of initial concentrations, k values and
-        max exchange parameters
+        """ Loads a 1d parameter vector produced by :func:`~community.Community.generate_parameter_vector`
+
+        Args:
+            self : self
+            param_vec : 1d numpy array of parameters
+
+        Returns:
+
+        Raises:
+
         """
 
         n_variables = len(self.init_y)
@@ -448,10 +480,22 @@ class Community:
             ].reshape(self.toxin_mat.shape)
         )
 
-    def load_initial_compound_values(self, sub_media_df):
-        """
-        Loads vector of initial compound concentrations from a subset
-        of the media df for a particular media name
+    def load_initial_compound_values(self, sub_media_df: pd.DataFrame) -> np.ndarray:
+        """ Loads vector of initial compound concentrations from a subset of a media df, containing only one 
+
+        Args:
+            self : self
+            sub_media_df : dataframe of media file containing only one media name
+
+        Returns:
+            init_compound_values : numpy array containing initial compound values
+
+        Raises:
+
+        Todo:
+            * consider renaming this function
+            * Add assertion that only one media name exists
+
         """
 
         init_compound_values = np.zeros(len(self.dynamic_compounds))
@@ -471,7 +515,15 @@ class Community:
 
         return init_compound_values
 
-    def set_initial_populations(self, populations_vec):
+    def set_initial_populations(self, populations_vec: List[float]):
+        """ Setter for initial population
+
+        Args:
+            self : self
+            populations_vec : list containing intial populations
+        Raises:
+
+        """
         assert len(populations_vec) == (
             len(self.populations)
         ), f"Error: length of parameter_vec, {len(populations_vec)} \
@@ -479,7 +531,15 @@ class Community:
 
         self.init_population_values = populations_vec
 
-    def set_k_value_matrix(self, k_val_mat):
+    def set_k_value_matrix(self, k_val_mat: np.ndarray):
+        """ Setter for k-values matrix
+
+        Args:
+            self : self
+            k_val_mat : array of k-values
+        Raises:
+        """
+
         assert k_val_mat.shape == (
             len(self.populations),
             len(self.dynamic_compounds),
@@ -487,27 +547,63 @@ class Community:
 
         self.k_vals = k_val_mat
 
-    def set_max_exchange_mat(self, max_exchange_mat):
+    def set_max_exchange_mat(self, max_exchange_mat: np.ndarray):
+        """ Setter for max exchange matrix
+
+        Args:
+            self : self
+            max_exchange_mat : array of max exchange values
+        Raises:
+        """
+
         assert max_exchange_mat.shape == (
             len(self.populations),
             len(self.dynamic_compounds),
         ), f"Error: shape of max_exchange_mat, {max_exchange_mat.shape} does not match expected  {(len(self.populations), len(self.dynamic_compounds))}"
         self.max_exchange_mat = max_exchange_mat
 
-    def set_toxin_mat(self, toxin_mat):
+    def set_toxin_mat(self, toxin_mat: np.ndarray):
+        """ Setter for toxin interaction matrix
+
+        Args:
+            self : self
+            toxin_mat : array of toxin interaction values
+        Raises:
+        """
+
         assert toxin_mat.shape == (
             len(self.populations),
             len(self.populations),
         ), f"Error: shape of toxin_mat, {toxin_mat.shape} does not match expected  {(len(self.populations), len(self.populations))}"
         self.toxin_mat = toxin_mat
 
-    def set_biomass_rate_constraints(self, biomass_constraints):
+    def set_biomass_rate_constraints(self, biomass_constraints: np.ndarray):
+        """ Setter for biomass constraints
+
+        Args:
+            self : self
+            biomass_constraints : array biomass constraint values
+        Raises:
+        """
+
         assert biomass_constraints.shape[0] == (
             len(self.populations)
         ), f"Error: shape of biomass_constraints[0], {biomass_constraints.shape[0]} does not match expected  {len(self.populations)}"
         self.biomass_constraints = biomass_constraints
 
-    def set_solution_key_order(self):
+    def set_solution_key_order(self)->List[str]:
+        """ Sets solution keys. Defining the order of species, compounds and toxins in simulation solutions 
+
+        Args:
+            self : self
+        
+        Returns:
+            solution_keys : list defining order of simulation solutions
+
+        Raises:
+
+        """
+
         solution_keys = []
 
         for p in self.populations:
@@ -526,12 +622,25 @@ class Community:
         self,
         model_names: List[str],
         model_paths: List[str],
-        dynamic_compounds,
-        reaction_keys,
+        dynamic_compounds: List[str],
+        reaction_keys: List[str],
         media_df,
-    ):
+    ) -> List[Population]:
         """
         Load population objects from model paths
+
+        Args:
+            self : self
+            model_names : list of model names
+            model_paths : list of model paths
+            dynamic_compounds : list of dynamic cmpounds e.g 'M_ala__L_e'
+            reaction_keys : list of reaction keys corresponding to compound e.g 'EX_ala__L_e'
+        
+        Returns:
+            populations : list of Population objects
+
+        Raises:
+
         """
         populations = []
         for idx, n in enumerate(model_names):
@@ -551,13 +660,28 @@ class Community:
         model_paths: List[str],
         smetana_analysis_path: str,
         media_df: pd.DataFrame,
-        flavor: str,
-    ):
-        """
+        flavor: str = 'fbc2',
+    )-> List[str]:
+        """ Generates a list of dynamic compounds
+
+        Uses SMETANA output to get compounds involved in competition and 
+        crossfeeding
+
         1. Generate complete environment reactions.
         2. Read SMETANA output full output
         3. Identify metabolites involved in crossfeeding
         4. Identify metabolites involved in competition
+
+        Args:
+            self : self
+            model_paths : list of model paths
+            smetana_analysis_path : path to smetana analysis
+            media_df : media dataframe
+            flavor : flavor for carveme (use fbc2)
+
+        Returns:
+            dynamic_compounds : list of dynamic compounds
+
         """
 
         dynamic_media_df = media_df.loc[media_df["dynamic"] == True]
@@ -605,22 +729,68 @@ class Community:
 
         return dynamic_compounds
 
-    def set_population_indexes(self):
-        num_populations = len(self.populations)
-        return list(range(num_populations))
+    def gen_population_indexes(self):
+        """
+        generates population indexes
 
-    def set_compound_indexes(self):
+        Args:
+            self : self
+        Returns:
+            pop_indexes : indexes for populations used in solutions
+        """
+        num_populations = len(self.populations)
+        pop_indexes = list(range(num_populations))
+        return pop_indexes
+
+    def gen_compound_indexes(self)->np.ndarray:
+        """
+        generates compound indexes
+
+        Args:
+            self : self
+        Returns:
+            pop_indexes : indexes for populations used in solutions
+        """
+
         num_dynamic_cmpds = len(self.dynamic_compounds)
         num_populations = len(self.populations)
 
-        return list(range(num_populations, num_populations + num_dynamic_cmpds))
+        compound_indexes = list(range(num_populations, num_populations + num_dynamic_cmpds))
+        return compound_indexes
 
     def set_init_y(self):
+        """
+        Sets attribute initial y, concentrations of populations and compounds
+
+        Args:
+            self : self
+        """
+
         self.init_y = np.concatenate(
             (self.init_population_values, self.init_compound_values), axis=None
         )
 
     def set_media_conditions(self, media_name, set_media=True):
+        """
+        1. Subsets media dataframe for the given media_name
+        2. Sets curr_media_df attribute
+        3. Sets init_compound_values attrubite from the current media
+        4. Optionally sets the media for each model in the community populations
+
+        Args:
+            self : self
+            media_name : name of media to use
+            set_media : bool to define whether media is set
+        
+        Returns:
+            populations : list of Population objects
+
+        ToDo
+            * This should be two functions
+
+        """
+
+
         sub_media_df = self.media_df.loc[self.media_df["medium"] == media_name]
         self.curr_media_df = sub_media_df
 
@@ -636,7 +806,23 @@ class Community:
 
     def calculate_exchange_reaction_lb_constraints(
         self, compound_concs, k_mat, max_exchange_mat
-    ):
+    ) -> np.ndarray:
+        """ Calculates exchange reaction constraints based on michaelis menten dynamics
+
+        Args:
+            self : self
+            compound_concs : concentrations of dynamic compounds
+            k_mat : matrix of k values
+            max_exchange_mat : matrix of vmax values
+        
+        Returns:
+            constraints_mat : numpy array of new exchange reaction constraints
+
+        ToDo
+            * This should be two functions
+
+        """
+
         # Get matrix where exchange is uptake (negative numbers)
         uptake_mat = np.clip(max_exchange_mat, a_min=None, a_max=0)
         uptake_mat = uptake_mat * (compound_concs / (k_mat + compound_concs))
@@ -644,9 +830,26 @@ class Community:
         # Get matrix where exchange is secretion (positive numbers)
         secretion_mat = np.clip(max_exchange_mat, a_min=0, a_max=None)
 
-        return uptake_mat + secretion_mat
+        constraints_mat = uptake_mat + secretion_mat
 
-    def sim_step(self, y):
+        return constraints_mat
+
+    def sim_step(self, y)-> Tuple[np.ndarray, np.ndarray]:
+        """Simulates a single step by calculating michaelis menten constraints,
+        applying them to the population models, and optimising for the objective
+        function
+
+        Args:
+            self : self
+            y : y
+            
+        
+        Returns:
+            growth_rates : numpy array of new exchange reaction constraints
+
+        ToDo
+            * This should be two functions
+        """
         compound_concs = y[self.compound_indexes]
 
         flux_matrix = np.zeros(
