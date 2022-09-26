@@ -1,4 +1,4 @@
-_target_: bk_comms.sampling.SampleSkewNormal
+_target_: paragem.sampling.SampleSkewNormal
 loc: -2.0
 scale: 0.25
 alpha: 0.0

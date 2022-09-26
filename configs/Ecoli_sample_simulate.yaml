@@ -6,18 +6,18 @@ output_dir: ${experiment_dir}/generation_${algorithm.generation_idx}/run_${run_i
 
 # Names of models being simulated
 model_names:
-  - null
+  - E_coli_IAI1
 
 # Paths to each model in the community
 model_paths:
-- ${user.wd}/models/melanie_data_models/${model_names.0}.xml
+- ${user.wd}/models/melanie_data_models/E_coli_IAI1.xml
 
 # Keys to the objective reaction in each model
 objective_reaction_keys:
 - Growth
 
 # Name of experiment
-experiment_name: test
+experiment_name: E_coli_IAI1_sample_simulate
 
 # Medias to be simulated
 sim_media_names:
@@ -25,15 +25,14 @@ sim_media_names:
   - M2
 
 # Number of particles to include in visualisations
-vis_n_particles: 15
-
+vis_n_particles: 50
 
 defaults:
   - _self_
-  - user: hpc
+  - user: local
   - community: default
   - data: M2_M3
-  - algorithm: NSGAII
+  - algorithm: sample_simulate
   - simulator: time_series_comets
   - sampler: default_log_uniform_constr_biomass
   - distance: fold_change_error_pointwise

@@ -1,12 +1,7 @@
-_target_: paragem.parameter_optimization.NSGAII
-population_size: 50
+_target_: paragem.parameter_optimization.SampleSimulate
+population_size: 10
 n_particles_batch: 10
-mutation_probability: 0.15
-hotstart_particles_regex:
 generation_idx: 0
-max_generations: 1
-crossover_type: parameterwise
-mutate_type: parameterwise
 sim_media_names: ${sim_media_names}
 simulator: ${simulator}
 experiment_name: ${experiment_name}

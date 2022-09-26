@@ -1,12 +1,12 @@
 max_uptake_sampler:
-  _target_: bk_comms.sampling.MultiDistribution
+  _target_: paragem.sampling.MultiDistribution
   dist_1:
-    _target_: bk_comms.sampling.SampleUniformConstant
+    _target_: paragem.sampling.SampleUniformConstant
     min_val: -1e-3
     max_val: -50.0
     distribution_type: "log_uniform"
   dist_2:
-    _target_: bk_comms.sampling.SampleUniform
+    _target_: paragem.sampling.SampleUniform
     min_val: 0
     max_val: 0
     distribution_type: "uniform"
@@ -14,13 +14,13 @@ max_uptake_sampler:
 
 
 k_val_sampler:
-  _target_: bk_comms.sampling.SampleUniform
+  _target_: paragem.sampling.SampleUniform
   min_val: 1e-30
   max_val: 1e-1
   distribution_type: "log_uniform"
 
 init_population_sampler:
-  _target_: bk_comms.sampling.SampleUniform
+  _target_: paragem.sampling.SampleUniform
   min_val: 0.004
   max_val: 0.004
   distribution_type: "log_uniform"

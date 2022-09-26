@@ -1,32 +1,32 @@
 max_uptake_sampler:
-  _target_: bk_comms.sampling.MultiDistribution
+  _target_: paragem.sampling.MultiDistribution
   dist_1:
-    _target_: bk_comms.sampling.SampleUniformConstant
-    min_val: -1000
-    max_val: -1000
+    _target_: paragem.sampling.SampleUniformConstant
+    min_val: -10
+    max_val: -10
     distribution_type: "uniform"
   dist_2:
-    _target_: bk_comms.sampling.SampleUniform
+    _target_: paragem.sampling.SampleUniform
     min_val: 0
     max_val: 0
     distribution_type: "uniform"
   prob_dist_1: 1.0
 
 k_val_sampler:
-  _target_: bk_comms.sampling.SampleUniform
+  _target_: paragem.sampling.SampleUniform
   min_val: 1e-30
-  max_val: 1e-1
+  max_val: 1000
   distribution_type: "log_uniform"
 
 init_population_sampler:
-  _target_: bk_comms.sampling.SampleUniform
+  _target_: paragem.sampling.SampleUniform
   min_val: 0.004
   max_val: 0.004
   distribution_type: "log_uniform"
 
 biomass_rate_constraint_sampler:
-  _target_: bk_comms.sampling.SampleUniform
-  min_val: 0.05
+  _target_: paragem.sampling.SampleUniform
+  min_val: 2.0
   max_val: 2.0
   distribution_type: "uniform"
 

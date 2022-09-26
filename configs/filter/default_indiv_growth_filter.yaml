@@ -1,4 +1,4 @@
-_target_: bk_comms.lo_filters.ViableGrowthFilter
+_target_: paragem.lo_filters.ViableGrowthFilter
 population_names: ${model_names}
 growth_keys:
   - Growth

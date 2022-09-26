@@ -1,5 +1,5 @@
 _convert_: partial
-_target_: bk_comms.community.Community
+_target_: paragem.community.Community
 enable_toxin_interactions: false
 initial_population_prior: ${sampler.init_population_sampler}
 k_val_prior: ${sampler.k_val_sampler}

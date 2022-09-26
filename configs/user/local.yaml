@@ -1,3 +1,5 @@
-wd: /Users/bezk/Documents/CAM/research_code/yeast_LAB_coculture/
+# Working directory for our project
+wd: /Users/bezk/Documents/CAM/research_code/ParaGEM/
+data_dir: ${user.wd}/data/
 gurobi_home_dir: "/Library/gurobi950/macos_universal2"
 comets_home_dir: "/Users/bezk/Documents/CAM/research_code/comets"

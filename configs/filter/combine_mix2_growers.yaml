@@ -1,4 +1,4 @@
-_target_: bk_comms.lo_filters.ViableGrowthCombineParticles
+_target_: paragem.lo_filters.ViableGrowthCombineParticles
 input_experiment_dirs: 
   - ${user.wd}/output/mel_indiv_growth/exp_B_longum_subsp_longum_ga_fit_batch_tests/
   - ${user.wd}/output/mel_indiv_growth/exp_C_perfringens_S107_ga_fit_batch_tests/

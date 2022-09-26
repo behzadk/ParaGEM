@@ -1,5 +1,0 @@
-_target_: bk_comms.simulator.CometsTimeSeriesSimulation
-t_end: 48.0
-dt: 0.1
-gurobi_home_dir: "${user.gurobi_home_dir}"
-comets_home_dir: "${user.comets_home_dir}"

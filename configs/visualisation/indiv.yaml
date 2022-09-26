@@ -1,7 +1,7 @@
-- _target_: bk_comms.data_analysis.visualisation.figure_plot_distances
+- _target_: paragem.data_analysis.visualisation.figure_plot_distances
   output_dir: ${experiment_dir}
 
-- _target_: bk_comms.data_analysis.visualisation.figure_all_particle_fold_change_timeseries
+- _target_: paragem.data_analysis.visualisation.figure_all_particle_fold_change_timeseries
   species_name: ${model_names.0}
   target_data_path: ${data.exp_data_path}
   exp_sol_keys: ${data.exp_sol_keys}
@@ -9,7 +9,7 @@
   n_particles_vis: 50
   output_dir: ${experiment_dir}
 
-- _target_: bk_comms.data_analysis.visualisation.figure_all_particle_fold_change_timeseries
+- _target_: paragem.data_analysis.visualisation.figure_all_particle_fold_change_timeseries
   species_name: ${model_names.0}
   target_data_path: ${data.exp_data_path}
   exp_sol_keys: ${data.exp_sol_keys}

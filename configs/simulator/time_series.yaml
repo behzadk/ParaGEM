@@ -1,5 +1,0 @@
-_target_: bk_comms.simulator.TimeSeriesSimulation
-t_0: 0.0
-t_end: 24.0
-steps: 100000
-method: 'vode'

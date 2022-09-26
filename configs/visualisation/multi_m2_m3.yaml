@@ -1,21 +1,21 @@
-- _target_: bk_comms.data_analysis.visualisation.figure_plot_distances
+- _target_: paragem.data_analysis.visualisation.figure_plot_distances
   output_dir: ${experiment_dir}
 
-- _target_: bk_comms.data_analysis.visualisation.figure_particle_abundance_timeseries
+- _target_: paragem.data_analysis.visualisation.figure_particle_abundance_timeseries
   target_data_path: ${user.wd}/experimental_data/mel_target_data/target_data_pH7_Mix2_Med2.csv
   exp_sol_keys: ${data.exp_sol_keys}
   sim_media_name: M2
   n_particles_vis: 25
   output_dir: ${experiment_dir}
 
-- _target_: bk_comms.data_analysis.visualisation.figure_particle_abundance_timeseries
+- _target_: paragem.data_analysis.visualisation.figure_particle_abundance_timeseries
   target_data_path: ${user.wd}/experimental_data/mel_target_data/target_data_pH7_Mix2_Med3.csv
   exp_sol_keys: ${data.exp_sol_keys}
   sim_media_name: M3
   n_particles_vis: 25
   output_dir: ${experiment_dir}
 
-- _target_: bk_comms.data_analysis.visualisation.figure_particle_endpoint_abundance
+- _target_: paragem.data_analysis.visualisation.figure_particle_endpoint_abundance
   target_data_path: ${user.wd}/experimental_data/mel_target_data/target_data_pH7_Mix2_Med2.csv
   exp_sol_keys: ${data.exp_sol_keys}
   sim_media_name: M2
@@ -23,7 +23,7 @@
   output_dir: ${experiment_dir}
 
 
-- _target_: bk_comms.data_analysis.visualisation.figure_particle_endpoint_abundance
+- _target_: paragem.data_analysis.visualisation.figure_particle_endpoint_abundance
   target_data_path: ${user.wd}/experimental_data/mel_target_data/target_data_pH7_Mix2_Med3.csv
   exp_sol_keys: ${data.exp_sol_keys}
   sim_media_name: M3
@@ -31,26 +31,26 @@
   output_dir: ${experiment_dir}
 
 
-- _target_: bk_comms.data_analysis.visualisation.figure_particle_toxin_interactions
+- _target_: paragem.data_analysis.visualisation.figure_particle_toxin_interactions
   n_particles_vis: 25
   model_names: ${model_names}
   output_dir: ${experiment_dir}
 
 
-- _target_: bk_comms.data_analysis.visualisation.figure_community_biomass
+- _target_: paragem.data_analysis.visualisation.figure_community_biomass
   n_particles_vis: 25
   model_names: ${model_names}
   media_name: M2
   output_dir: ${experiment_dir}
 
-- _target_: bk_comms.data_analysis.visualisation.figure_community_biomass
+- _target_: paragem.data_analysis.visualisation.figure_community_biomass
   n_particles_vis: 25
   model_names: ${model_names}
   media_name: M3
   output_dir: ${experiment_dir}
 
 
-- _target_: bk_comms.data_analysis.visualisation.figure_datapane
+- _target_: paragem.data_analysis.visualisation.figure_datapane
   sim_media_names: 
   - M2
   - M3

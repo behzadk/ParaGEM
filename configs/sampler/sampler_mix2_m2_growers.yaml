@@ -1,5 +1,5 @@
 max_uptake_sampler:
-  _target_: bk_comms.sampling.SampleCombinationParticles
+  _target_: paragem.sampling.SampleCombinationParticles
   input_particles_parameter_vector_regex: 
     - ${user.wd}/output/indiv_growth_test/B_longum_subsp_longum/generation_0/run_0/
     - ${user.wd}/output/indiv_growth_test/C_perfringens_S107/generation_0/run_0/
@@ -20,7 +20,7 @@ max_uptake_sampler:
     - C_ramosum
 
 k_val_sampler:
-  _target_: bk_comms.sampling.SampleCombinationParticles
+  _target_: paragem.sampling.SampleCombinationParticles
   input_particles_parameter_vector_regex: 
     - ${user.wd}/output/indiv_growth_test/B_longum_subsp_longum/generation_0/run_0/
     - ${user.wd}/output/indiv_growth_test/C_perfringens_S107/generation_0/run_0/
@@ -40,7 +40,7 @@ k_val_sampler:
     - C_ramosum
 
 biomass_rate_constraint_sampler:
-  _target_: bk_comms.sampling.SampleCombinationParticles
+  _target_: paragem.sampling.SampleCombinationParticles
   input_particles_parameter_vector_regex: 
     - ${user.wd}/output/indiv_growth_test/B_longum_subsp_longum/generation_0/run_0/
     - ${user.wd}/output/indiv_growth_test/C_perfringens_S107/generation_0/run_0/
@@ -61,21 +61,21 @@ biomass_rate_constraint_sampler:
 
 
 toxin_interaction_sampler:
-  _target_: bk_comms.sampling.MultiDistribution
+  _target_: paragem.sampling.MultiDistribution
   dist_1:
-    _target_: bk_comms.sampling.SampleUniform
+    _target_: paragem.sampling.SampleUniform
     min_val: 0
     max_val: 0
     distribution_type: "uniform"
   dist_2:
-    _target_: bk_comms.sampling.SampleUniform
+    _target_: paragem.sampling.SampleUniform
     min_val: 10000
     max_val: 10000
     distribution_type: "log_uniform"
   prob_dist_1: 0.80
 
 init_population_sampler:
-  _target_: bk_comms.sampling.SampleUniform
+  _target_: paragem.sampling.SampleUniform
   min_val: 0.00008
   max_val: 0.00008
   distribution_type: "log_uniform"

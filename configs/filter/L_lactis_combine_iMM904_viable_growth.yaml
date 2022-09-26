@@ -1,4 +1,4 @@
-_target_: bk_comms.lo_filters.ViableGrowthCombineParticles
+_target_: paragem.lo_filters.ViableGrowthCombineParticles
 input_experiment_dirs: 
   - ${cfg.wd}/output/exp_yeast_ga_fit/
   - ${cfg.wd}/output/exp_lactis_ga_fit/

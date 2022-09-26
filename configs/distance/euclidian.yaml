@@ -1,4 +1,4 @@
-_target_: bk_comms.distances.DistanceTimeseriesEuclidianDistance
+_target_: paragem.distances.DistanceTimeseriesEuclidianDistance
 _convert_: partial
 exp_data_path: ${cfg.exp_data_path}
 exp_sol_keys: ${cfg.exp_sol_keys}

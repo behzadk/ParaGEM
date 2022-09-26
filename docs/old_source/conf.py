@@ -36,7 +36,7 @@ autodoc_default_options = {
 html_domain_indices = False
 
 # If false, no index is generated.
-html_use_index = True
+html_use_index = False
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
