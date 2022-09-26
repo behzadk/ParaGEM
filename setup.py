@@ -1,11 +1,11 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="bk_comms",
+    name="paragem",
     version="1.0",
     description="A useful module",
-    author="Man Foo",
-    author_email="foomail@foo.com",
+    author="Behzad Karkaria",
+    author_email="behzad.karkaria@gmail.com",
     packages=find_packages(),  # same as name
     # entry_points={
     #     'console_scripts': [
