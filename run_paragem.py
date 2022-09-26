@@ -1,6 +1,5 @@
-from omegaconf import DictConfig, open_dict
+from omegaconf import DictConfig
 
-from hydra import compose, initialize
 from omegaconf import OmegaConf
 
 import hydra
@@ -8,12 +7,7 @@ from hydra.utils import instantiate
 from pathlib import Path
 
 from loguru import logger
-
-import warnings
-from bk_comms.data_analysis.visualisation import pipeline as vis_pipeline
-
-from bk_comms.data_analysis.visualisation import prepare_particles_df
-# warnings.filterwarnings("ignore")
+from paragem.data_analysis.visualisation import prepare_particles_df
 
 
 @hydra.main(version_base=None, config_path="./configs")
@@ -24,7 +18,6 @@ def run_algorithm(cfg: DictConfig):
 
     logger.remove()
     logger.add(f"{cfg.experiment_dir}info_log.log", level="DEBUG")
-
 
     alg = instantiate(cfg.algorithm)
     alg.run(n_processes=cfg.n_processes, parallel=cfg.parallel)
@@ -38,8 +31,7 @@ def run_algorithm(cfg: DictConfig):
         print(step)
         step = instantiate(step, particles_df=particles_df)
 
-
-    vis_pipeline(cfg)
+    # vis_pipeline(cfg)
 
 
 if __name__ == "__main__":
