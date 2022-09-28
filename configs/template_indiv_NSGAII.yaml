@@ -10,7 +10,7 @@ model_names:
 
 # Paths to each model in the community
 model_paths:
-- ${user.wd}/models/melanie_data_models/${model_names.0}.xml
+- ${user.data_dir}/models/melanie_data_models/${model_names.0}.xml
 
 # Keys to the objective reaction in each model
 objective_reaction_keys:
@@ -35,7 +35,7 @@ defaults:
   - data: M2_M3
   - algorithm: NSGAII
   - simulator: time_series_comets
-  - sampler: default_log_uniform_constr_biomass
+  - sampler: default_log_uniform
   - distance: fold_change_error_pointwise
   - filter: default_indiv_growth_filter
   - visualisation: indiv
