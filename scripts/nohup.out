@@ -1,0 +1,389 @@
+/home/bk445/.conda/envs/paragem/bin/python
+running build
+running build_py
+copying paragem/simulator.py -> build/lib/paragem
+warning: build_py: byte-compiling is disabled, skipping.
+
+running install
+running bdist_egg
+running egg_info
+writing paragem.egg-info/PKG-INFO
+writing dependency_links to paragem.egg-info/dependency_links.txt
+writing top-level names to paragem.egg-info/top_level.txt
+reading manifest file 'paragem.egg-info/SOURCES.txt'
+writing manifest file 'paragem.egg-info/SOURCES.txt'
+installing library code to build/bdist.linux-x86_64/egg
+running install_lib
+creating build/bdist.linux-x86_64/egg
+creating build/bdist.linux-x86_64/egg/paragem
+copying build/lib/paragem/lo_filters.py -> build/bdist.linux-x86_64/egg/paragem
+copying build/lib/paragem/distances.py -> build/bdist.linux-x86_64/egg/paragem
+copying build/lib/paragem/simulator.py -> build/bdist.linux-x86_64/egg/paragem
+copying build/lib/paragem/__init__.py -> build/bdist.linux-x86_64/egg/paragem
+copying build/lib/paragem/utils.py -> build/bdist.linux-x86_64/egg/paragem
+creating build/bdist.linux-x86_64/egg/paragem/data_analysis
+copying build/lib/paragem/data_analysis/visualisation_utils.py -> build/bdist.linux-x86_64/egg/paragem/data_analysis
+copying build/lib/paragem/data_analysis/__init__.py -> build/bdist.linux-x86_64/egg/paragem/data_analysis
+copying build/lib/paragem/data_analysis/visualisation.py -> build/bdist.linux-x86_64/egg/paragem/data_analysis
+copying build/lib/paragem/sampling.py -> build/bdist.linux-x86_64/egg/paragem
+copying build/lib/paragem/__main__.py -> build/bdist.linux-x86_64/egg/paragem
+copying build/lib/paragem/community.py -> build/bdist.linux-x86_64/egg/paragem
+creating build/bdist.linux-x86_64/egg/paragem/parameter_optimization
+copying build/lib/paragem/parameter_optimization/__init__.py -> build/bdist.linux-x86_64/egg/paragem/parameter_optimization
+copying build/lib/paragem/parameter_optimization/sample_simulate.py -> build/bdist.linux-x86_64/egg/paragem/parameter_optimization
+copying build/lib/paragem/parameter_optimization/nsgaII.py -> build/bdist.linux-x86_64/egg/paragem/parameter_optimization
+copying build/lib/paragem/parameter_optimization/base.py -> build/bdist.linux-x86_64/egg/paragem/parameter_optimization
+copying build/lib/paragem/parameter_optimization/rejection.py -> build/bdist.linux-x86_64/egg/paragem/parameter_optimization
+/home/bk445/.conda/envs/paragem/lib/python3.8/site-packages/setuptools/command/install.py:34: SetuptoolsDeprecationWarning: setup.py install is deprecated. Use build and pip and other standards-based tools.
+  warnings.warn(
+/home/bk445/.conda/envs/paragem/lib/python3.8/site-packages/setuptools/command/easy_install.py:144: EasyInstallDeprecationWarning: easy_install command is deprecated. Use build and pip and other standards-based tools.
+  warnings.warn(
+warning: install_lib: byte-compiling is disabled, skipping.
+
+creating build/bdist.linux-x86_64/egg/EGG-INFO
+copying paragem.egg-info/PKG-INFO -> build/bdist.linux-x86_64/egg/EGG-INFO
+copying paragem.egg-info/SOURCES.txt -> build/bdist.linux-x86_64/egg/EGG-INFO
+copying paragem.egg-info/dependency_links.txt -> build/bdist.linux-x86_64/egg/EGG-INFO
+copying paragem.egg-info/top_level.txt -> build/bdist.linux-x86_64/egg/EGG-INFO
+zip_safe flag not set; analyzing archive contents...
+creating 'dist/paragem-1.0-py3.8.egg' and adding 'build/bdist.linux-x86_64/egg' to it
+removing 'build/bdist.linux-x86_64/egg' (and everything under it)
+Processing paragem-1.0-py3.8.egg
+Removing /home/bk445/.conda/envs/paragem/lib/python3.8/site-packages/paragem-1.0-py3.8.egg
+Copying paragem-1.0-py3.8.egg to /home/bk445/.conda/envs/paragem/lib/python3.8/site-packages
+paragem 1.0 is already the active version in easy-install.pth
+
+Installed /home/bk445/.conda/envs/paragem/lib/python3.8/site-packages/paragem-1.0-py3.8.egg
+Processing dependencies for paragem==1.0
+Finished processing dependencies for paragem==1.0
+2022-09-28 15:40:15.724 | DEBUG    | __main__:test_main:45 - Entering 'test_instantiate_simulator'
+2022-09-28 15:40:15.726 | DEBUG    | __main__:test_main:45 - Exiting 'test_instantiate_simulator'
+2022-09-28 15:40:15.726 | DEBUG    | __main__:test_main:47 - Entering 'test_instantiate_algorithm'
+2022-09-28 15:40:15.809 | INFO     | paragem.community:__init__:192 - /rds/user/bk445/hpc-work/ParaGEM/data//models/melanie_data_models/E_coli_IAI1.xml
+Set parameter GURO_PAR_SPECIAL
+Set parameter TokenServer to value "login-e-1"
+Total env compounds: 330
+Crossfeeding compounds: 58638
+Competition compounds: 125
+Media compounds: 594
+Toxin compounds: 0
+Dynamic compounds: 181
+2022-09-28 15:40:39.732 | INFO     | paragem.community:__init__:36 - Loading model E_coli_IAI1
+2022-09-28 15:40:39.733 | INFO     | paragem.community:__init__:228 - Setting k val mat, mem usage (mb): 496.94921875
+2022-09-28 15:40:39.733 | INFO     | paragem.community:__init__:233 - Setting max exchange mat, mem usage (mb): 496.94921875
+2022-09-28 15:40:39.734 | INFO     | paragem.community:__init__:240 - Setting toxin mat, mem usage (mb): 496.94921875
+2022-09-28 15:40:39.734 | INFO     | paragem.community:__init__:250 - Setting solution key order,  mem usage (mb): 496.94921875
+2022-09-28 15:40:39.734 | INFO     | paragem.community:__init__:255 - Community initialisation finished,  mem usage (mb): 496.94921875
+2022-09-28 15:40:39.924 | INFO     | paragem.parameter_optimization.base:generate_models_list:301 - Copying base comm
+2022-09-28 15:40:43.281 | INFO     | paragem.parameter_optimization.base:generate_models_list:309 - Deleting basecomm models
+2022-09-28 15:40:43.282 | DEBUG    | __main__:test_main:47 - Exiting 'test_instantiate_algorithm'
+2022-09-28 15:40:43.282 | DEBUG    | __main__:test_main:48 - Entering 'test_gen_initial_population'
+2022-09-28 15:40:43.282 | DEBUG    | __main__:test_gen_initial_population:99 - Entering 'gen_initial_population' (args=(<paragem.parameter_optimization.nsgaII.NSGAII object at 0x2ad90f708a00>,), kwargs={'n_processes': 2, 'parallel': True})
+2022-09-28 15:40:43.282 | INFO     | paragem.parameter_optimization.base:gen_initial_population:239 - Generating initial population
+2022-09-28 15:40:43.282 | INFO     | paragem.parameter_optimization.base:gen_initial_population:245 - Initial accepted particles: 0
+2022-09-28 15:42:28.923 | INFO     | paragem.lo_filters:filter_growth_rates:13 - Filtering particles by growth rate
+2022-09-28 15:42:29.596 | INFO     | paragem.parameter_optimization.base:gen_initial_population:259 - Simulating candidates 5
+building empty layout model
+models will need to be added with layout.add_model()
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+     index    diff_c g_refresh  ...   g_static_val    init_amount  metabolite
+0        0  0.000005         0  ...              0            0.0  12ppd__R_e
+1        1  0.000005         0  ...              0            0.0  12ppd__S_e
+2        2  0.000005         0  ...              0            0.0  14glucan_e
+3        3  0.000005         0  ...              0            0.0     15dap_e
+4        4  0.000005         0  ...              0            0.0    23camp_e
+..     ...       ...       ...  ...            ...            ...         ...
+340      0  0.000005         0  ...       0.000079       0.000079      slnt_e
+341      0  0.000005         0  ...       0.000403       0.000403     tungs_e
+342      0  0.000005         0  ...       0.002758       0.002758     pheme_e
+343      0  0.000005         0  ...  170380.315334  170380.315334       ni2_e
+344      0  0.000005         0  ...       0.592002       0.592002       na1_e
+
+[345 rows x 7 columns]
+None
+building empty layout model
+models will need to be added with layout.add_model()
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+     index    diff_c g_refresh  ...   g_static_val    init_amount  metabolite
+0        0  0.000005         0  ...              0            0.0  12ppd__R_e
+1        1  0.000005         0  ...              0            0.0  12ppd__S_e
+2        2  0.000005         0  ...              0            0.0  14glucan_e
+3        3  0.000005         0  ...              0            0.0     15dap_e
+4        4  0.000005         0  ...              0            0.0    23camp_e
+..     ...       ...       ...  ...            ...            ...         ...
+340      0  0.000005         0  ...       0.000079       0.000079      slnt_e
+341      0  0.000005         0  ...       0.000403       0.000403     tungs_e
+342      0  0.000005         0  ...       0.002758       0.002758     pheme_e
+343      0  0.000005         0  ...  170380.315334  170380.315334       ni2_e
+344      0  0.000005         0  ...       0.592002       0.592002       na1_e
+
+[345 rows x 7 columns]
+None
+building empty layout model
+models will need to be added with layout.add_model()
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+     index    diff_c g_refresh  ...   g_static_val    init_amount  metabolite
+0        0  0.000005         0  ...              0            0.0  12ppd__R_e
+1        1  0.000005         0  ...              0            0.0  12ppd__S_e
+2        2  0.000005         0  ...              0            0.0  14glucan_e
+3        3  0.000005         0  ...              0            0.0     15dap_e
+4        4  0.000005         0  ...              0            0.0    23camp_e
+..     ...       ...       ...  ...            ...            ...         ...
+340      0  0.000005         0  ...       0.000079       0.000079      slnt_e
+341      0  0.000005         0  ...       0.000403       0.000403     tungs_e
+342      0  0.000005         0  ...       0.002758       0.002758     pheme_e
+343      0  0.000005         0  ...  170380.315334  170380.315334       ni2_e
+344      0  0.000005         0  ...       0.592002       0.592002       na1_e
+
+[345 rows x 7 columns]
+None
+building empty layout model
+models will need to be added with layout.add_model()
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+     index    diff_c g_refresh  ...   g_static_val    init_amount  metabolite
+0        0  0.000005         0  ...              0            0.0  12ppd__R_e
+1        1  0.000005         0  ...              0            0.0  12ppd__S_e
+2        2  0.000005         0  ...              0            0.0  14glucan_e
+3        3  0.000005         0  ...              0            0.0     15dap_e
+4        4  0.000005         0  ...              0            0.0    23camp_e
+..     ...       ...       ...  ...            ...            ...         ...
+340      0  0.000005         0  ...       0.000079       0.000079      slnt_e
+341      0  0.000005         0  ...       0.000403       0.000403     tungs_e
+342      0  0.000005         0  ...       0.002758       0.002758     pheme_e
+343      0  0.000005         0  ...  170380.315334  170380.315334       ni2_e
+344      0  0.000005         0  ...       0.592002       0.592002       na1_e
+
+[345 rows x 7 columns]
+None
+building empty layout model
+models will need to be added with layout.add_model()
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+reaction couldnt be found
+     index    diff_c g_refresh  ...   g_static_val    init_amount  metabolite
+0        0  0.000005         0  ...              0            0.0  12ppd__R_e
+1        1  0.000005         0  ...              0            0.0  12ppd__S_e
+2        2  0.000005         0  ...              0            0.0  14glucan_e
+3        3  0.000005         0  ...              0            0.0     15dap_e
+4        4  0.000005         0  ...              0            0.0    23camp_e
+..     ...       ...       ...  ...            ...            ...         ...
+340      0  0.000005         0  ...       0.000079       0.000079      slnt_e
+341      0  0.000005         0  ...       0.000403       0.000403     tungs_e
+342      0  0.000005         0  ...       0.002758       0.002758     pheme_e
+343      0  0.000005         0  ...  170380.315334  170380.315334       ni2_e
+344      0  0.000005         0  ...       0.592002       0.592002       na1_e
+
+[345 rows x 7 columns]
+None
+TIMEOUT ERROR
+Terminating pool
+2022-09-28 15:59:09.669 | DEBUG    | paragem.parameter_optimization.base:gen_initial_population:267 - Entering 'calculate_and_set_particle_distances' (args=(<paragem.parameter_optimization.nsgaII.NSGAII object at 0x2ad90f708a00>, [<paragem.community.Community object at 0x2ad91270e160>, <paragem.community.Community object at 0x2ad9126ddd30>, <paragem.community.Community object at 0x2ad912656a00>, <paragem.community.Community object at 0x2ad90686bf10>, <paragem.community.Community object at 0x2ad91265e910>], 'M3'), kwargs={})
+Error executing job with overrides: ['user=hpc', 'model_names.0=E_coli_IAI1', 'run_idx=0', 'data=M2_M3', 'experiment_name=test_indiv', 'algorithm.generation_idx=0', 'algorithm.hotstart_particles_regex=null', 'algorithm.max_generations=1', 'algorithm.population_size=25', 'filter.min_growth.0=0.01', 'filter.max_growth.0=10.0', 'n_processes=2', 'algorithm.n_particles_batch=5']
+Traceback (most recent call last):
+  File "run_tests.py", line 148, in <module>
+    test_main()
+  File "/home/bk445/.conda/envs/paragem/lib/python3.8/site-packages/hydra/main.py", line 90, in decorated_main
+    _run_hydra(
+  File "/home/bk445/.conda/envs/paragem/lib/python3.8/site-packages/hydra/_internal/utils.py", line 389, in _run_hydra
+    _run_app(
+  File "/home/bk445/.conda/envs/paragem/lib/python3.8/site-packages/hydra/_internal/utils.py", line 452, in _run_app
+    run_and_report(
+  File "/home/bk445/.conda/envs/paragem/lib/python3.8/site-packages/hydra/_internal/utils.py", line 216, in run_and_report
+    raise ex
+  File "/home/bk445/.conda/envs/paragem/lib/python3.8/site-packages/hydra/_internal/utils.py", line 213, in run_and_report
+    return func()
+  File "/home/bk445/.conda/envs/paragem/lib/python3.8/site-packages/hydra/_internal/utils.py", line 453, in <lambda>
+    lambda: hydra.run(
+  File "/home/bk445/.conda/envs/paragem/lib/python3.8/site-packages/hydra/_internal/hydra.py", line 132, in run
+    _ = ret.return_value
+  File "/home/bk445/.conda/envs/paragem/lib/python3.8/site-packages/hydra/core/utils.py", line 260, in return_value
+    raise self._return_value
+  File "/home/bk445/.conda/envs/paragem/lib/python3.8/site-packages/hydra/core/utils.py", line 186, in run_job
+    ret.return_value = task_function(task_cfg)
+  File "run_tests.py", line 48, in test_main
+    particles = test_gen_initial_population(alg, cfg)
+  File "run_tests.py", line 27, in wrapped
+    result = func(*args, **kwargs)
+  File "run_tests.py", line 99, in test_gen_initial_population
+    particles = alg.gen_initial_population(n_processes=n_processes, parallel=parallel)
+  File "/rds/user/bk445/hpc-work/ParaGEM/paragem/utils.py", line 221, in wrapped
+    result = func(*args, **kwargs)
+  File "/rds/user/bk445/hpc-work/ParaGEM/paragem/parameter_optimization/base.py", line 267, in gen_initial_population
+    self.calculate_and_set_particle_distances(
+  File "/rds/user/bk445/hpc-work/ParaGEM/paragem/utils.py", line 221, in wrapped
+    result = func(*args, **kwargs)
+  File "/rds/user/bk445/hpc-work/ParaGEM/paragem/parameter_optimization/base.py", line 452, in calculate_and_set_particle_distances
+    p.distance.extend(distance_func.calculate_distance(p, sol_distance_key))
+  File "/rds/user/bk445/hpc-work/ParaGEM/paragem/distances.py", line 291, in calculate_distance
+    sim_t_idx = find_nearest(sim_t, t)
+  File "/rds/user/bk445/hpc-work/ParaGEM/paragem/distances.py", line 18, in find_nearest
+    idx = (np.abs(array - value)).argmin()
+ValueError: attempt to get argmin of an empty sequence

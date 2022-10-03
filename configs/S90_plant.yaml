@@ -1,0 +1,55 @@
+run_idx: 999
+experiment_dir: ${user.wd}/output/${experiment_name}/
+output_dir: ${experiment_dir}/generation_${algorithm.generation_idx}/run_${run_idx}/
+
+model_names:
+  - B_longum_subsp_longum
+  - C_perfringens_S107
+  - E_coli_IAI1
+  - L_paracasei
+  - L_plantarum
+  - S_salivarius
+  - C_ramosum
+
+model_paths:
+  - ${user.wd}/models/melanie_data_models/B_longum_subsp_longum.xml
+  - ${user.wd}/models/melanie_data_models/C_perfringens_S107.xml
+  - ${user.wd}/models/melanie_data_models/E_coli_IAI1.xml
+  - ${user.wd}/models/melanie_data_models/L_paracasei.xml
+  - ${user.wd}/models/melanie_data_models/L_plantarum.xml
+  - ${user.wd}/models/melanie_data_models/S_salivarius.xml
+  - ${user.wd}/models/melanie_data_models/C_ramosum.xml
+
+objective_reaction_keys:
+  - Growth
+  - Growth
+
+experiment_name: test
+
+sim_media_names:
+  - M2
+
+vis_n_particles: 15
+
+
+defaults:
+  - _self_
+  - user: hpc
+  - community: default_toxin
+  - data: M2_multi
+  - algorithm: NSGAII
+  - simulator: time_series_comets_batch_dilution
+  - sampler: sampler_mix2_m2_growers
+  - distance: abundance_error
+  - visualisation: multi
+  - override hydra/job_logging: none 
+  - override hydra/hydra_logging: none
+
+filter: null
+
+parallel: True
+n_processes: 10
+
+hydra.run.dir: . 
+hydra.output_subdir: null
+hydra.job.chdir: True

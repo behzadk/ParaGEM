@@ -21,7 +21,7 @@ class CometsTimeSeriesSimulation:
         batch_dilution=False,
         dilution_factor=0.0,
         dilution_time=0.0,
-        media_log_rate=5,
+        media_log_rate=1,
         flux_log_rate=0.0,
     ):
         self.dt = dt
@@ -47,12 +47,11 @@ class CometsTimeSeriesSimulation:
             for pop_idx in range(len(community.populations)):
                 objective_reaction_keys = community.objective_reaction_keys
 
-                with contextlib.redirect_stdout(None):
-                    community.populations[pop_idx].model.change_bounds(
-                        objective_reaction_keys[pop_idx],
-                        0.0,
-                        community.biomass_constraints[pop_idx],
-                    )
+                community.populations[pop_idx].model.change_bounds(
+                    objective_reaction_keys[pop_idx],
+                    0.0,
+                    community.biomass_constraints[pop_idx],
+                )
 
     def convert_models(self, community):
         """Converts cobrapy models of community to comets model inplace"""
@@ -82,8 +81,7 @@ class CometsTimeSeriesSimulation:
                 # model.change_vmax(cmpd_str, lower_bound_constraints[cmpd_idx])
 
                 # Update model lower bound
-                with contextlib.redirect_stdout(None):
-                    model.change_bounds(cmpd_str, lower_bound_constraints[cmpd_idx], 1000)
+                model.change_bounds(cmpd_str, lower_bound_constraints[cmpd_idx], 1000)
 
     def set_k_values(self, layout, community):
         for idx, model in enumerate(layout.models):
@@ -100,26 +98,38 @@ class CometsTimeSeriesSimulation:
                 model.change_km(cmpd_str, k_values[cmpd_idx])
 
     def set_layout_metabolite_concentrations(self, layout, community):
+        # Get all exchanged metabolites
+        all_exchange_metabolites = []
+        for pop in community.populations:
+            all_exchange_metabolites.extend(pop.model.get_exchange_metabolites())
+        
+        all_exchange_metabolites = list(set(all_exchange_metabolites))
+
+        # Set all to zero initial concentration
+        for idx, cmpd in enumerate(all_exchange_metabolites):
+            layout.set_specific_metabolite(cmpd, 0.0)
+        
         # Set toxin compound initial concentrations to zero
         # will be overriden if defined in media file
         for idx, toxin_name in enumerate(community.toxin_names):
             toxin_name = toxin_name + "_e"
             
-            with contextlib.redirect_stdout(None):
-                layout.set_specific_metabolite(toxin_name, 1e-30)
+            layout.set_specific_metabolite(toxin_name, 1e-30)
 
         # Set dynamic compound initial concentrations
-        for idx, cmpd in enumerate(community.dynamic_compounds):
-            metabolite_str = cmpd.replace("M_", "")
-
-            with contextlib.redirect_stdout(None):
-                layout.set_specific_metabolite(
-                    metabolite_str, community.init_compound_values[idx]
-                )
+        dynamic_media_df = community.curr_media_df.loc[
+            community.curr_media_df["dynamic"] == 1
+        ]
+        for compound_idx, dynm_cmpd in enumerate(community.dynamic_compounds):
+            cmpd_str = dynm_cmpd
+            cmpd_str = cmpd_str.replace("M_", "")
+            print(cmpd_str, community.init_compound_values[compound_idx])
+            
+            layout.set_specific_metabolite(cmpd_str, community.init_compound_values[compound_idx], static=False)
 
         #  Fill non dynamic compound concentrations
         non_dynamic_media_df = community.curr_media_df.loc[
-            community.media_df["dynamic"] == 0
+            community.curr_media_df["dynamic"] == 0
         ]
         for idx, row in non_dynamic_media_df.iterrows():
             cmpd_str = row.compound
@@ -187,7 +197,7 @@ class CometsTimeSeriesSimulation:
 
                 except KeyError:
                     for t_val in t:
-                        t_idx = utils.find_nearest(s_df["t"].values, t_val)
+                        # t_idx = utils.find_nearest(s_df["t"].values, t_val)
                         sol[:, idx][t_idx] = np.nan
 
         return sol, t
@@ -195,7 +205,7 @@ class CometsTimeSeriesSimulation:
     def simulate(self, community, idx=0):
         self.convert_models(community)
         layout = cometspy.layout()
-        self.apply_biomass_constraints(community)
+        # self.apply_biomass_constraints(community)
 
         self.set_model_initial_pop(layout, community)
         self.load_layout_models(layout, community)
@@ -208,7 +218,7 @@ class CometsTimeSeriesSimulation:
 
         sim_params = cometspy.params()
         # sim_params.set_param('exchangestyle', 'Pseudo-Monod Style')
-        sim_params.set_param("defaultVmax", 1000)
+        sim_params.set_param("defaultVmax", 18.5)
         sim_params.set_param("defaultKm", 0.000015)
         sim_params.set_param("maxCycles", self.max_cycles)
         sim_params.set_param("timeStep", self.dt)

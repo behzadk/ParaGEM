@@ -1,11 +1,10 @@
 smetana_analysis_path: ${user.data_dir}/smetana_analysis/melanie_data_detailed.tsv
-
 media_path: ${user.data_dir}/media/melanie_data_media.tsv
 
 # Information about the data being used
 exp_data_path: ${user.data_dir}/experimental_data/mel_target_data/mel_indiv_target_data.csv
 exp_sol_keys:
-  M3: 
+  M3:
     - - ${model_names.0}_M3_0_ODfc
       - ${model_names.0}
 

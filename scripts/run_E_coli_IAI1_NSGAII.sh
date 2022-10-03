@@ -5,12 +5,12 @@
 python setup.py build install
 
 CONFIG_NAME='template_indiv_NSGAII.yaml'
-EXPERIMENT_NAME="indiv_growth_test"
+EXPERIMENT_NAME="indiv_growth_Ecoli"
 MODEL_NAME=E_coli_IAI1
 GENERTATION_IDX=0
 HOTSTART_PARTICLES_REGEX=null
 MAX_GENERATIONS=1
-POPULATION_SIZE=5
+POPULATION_SIZE=50
 DATA="M2_M3"
 FILTER_MINGROWTH="0.01"
 # FILTER_MINGROWTH="-0.0001"
@@ -22,7 +22,7 @@ species_arr=(E_coli_IAI1)
 
 for species in "${species_arr[@]}"
 do
-    python -u run_bkcomms.py --config-name="$CONFIG_NAME" user=local \
+    python -u run_paragem.py --config-name="$CONFIG_NAME" user=hpc \
     model_names.0="$species" \
     run_idx=0 \
     data="$DATA" \
@@ -31,15 +31,13 @@ do
     algorithm.hotstart_particles_regex="$HOTSTART_PARTICLES_REGEX" \
     algorithm.max_generations="$MAX_GENERATIONS" \
     algorithm.population_size="$POPULATION_SIZE" \
-    sampler=default_log_uniform_constr_biomass \
+    sampler=default_log_uniform \
     n_processes=10 \
     algorithm.n_particles_batch=10 \
     parallel=True
 done
 
-# arr_variable=(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15)
-
-arr_variable=(1)
+arr_variable=(1 2 3 4 5 6 7 8 9 10 11 12 13 14 15)
 
 for i in "${arr_variable[@]}"
 do  
@@ -50,7 +48,7 @@ do
     HOTSTART_PARTICLES_REGEX="\${user.wd}/output/$EXPERIMENT_NAME/\${model_names.0}/generation_$x/run_*/"
     MAX_GENERATIONS=$y
 
-    python -u run_bkcomms.py --config-name="$CONFIG_NAME" user=local \
+    python -u run_paragem.py --config-name="$CONFIG_NAME" user=hpc \
     model_names.0="$MODEL_NAME" \
     run_idx=0 \
     data="$DATA" \
@@ -59,10 +57,11 @@ do
     algorithm.hotstart_particles_regex="$HOTSTART_PARTICLES_REGEX" \
     algorithm.max_generations="$MAX_GENERATIONS" \
     algorithm.population_size="$POPULATION_SIZE" \
+    sampler=default_log_uniform \
     filter.min_growth.0="$FILTER_MINGROWTH" \
     filter.max_growth.0="$FILTER_MAXGROWTH" \
-    n_processes=5 \
-    algorithm.n_particles_batch=5 \
+    n_processes=10 \
+    algorithm.n_particles_batch=10 \
     algorithm.population_size="$POPULATION_SIZE"
 done
 

@@ -3,25 +3,26 @@ max_uptake_sampler:
   dist_1:
     _target_: paragem.sampling.SampleUniform
     min_val: -1e-3
-    max_val: -50.0
+    max_val: -5.0
     distribution_type: "log_uniform"
   dist_2:
     _target_: paragem.sampling.SampleUniform
-    min_val: 1e-5
-    max_val: 1e-1
-    distribution_type: "log_uniform"
+    min_val: 0.0
+    max_val: 0.0
+    distribution_type: "uniform"
   prob_dist_1: 0.95
 
 k_val_sampler:
   _target_: paragem.sampling.SampleUniform
-  min_val: 1e-30
-  max_val: 1e-1
+  min_val: 1e-25
+  max_val: 20.0
   distribution_type: "log_uniform"
 
 init_population_sampler:
   _target_: paragem.sampling.SampleUniform
-  min_val: 0.004
-  max_val: 0.004
+  min_val: 0.04
+  max_val: 0.04
   distribution_type: "log_uniform"
 
+biomass_rate_constraint_sampler: null
 toxin_interaction_sampler: null

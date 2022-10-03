@@ -188,7 +188,7 @@ def get_crossfeeding_compounds(smetana_df: pd.DataFrame):
     Generates list of metabolites involved in crossfeeding using the output of a SMETANA
     run
     """
-    return list(smetana_df.loc[smetana_df["smetana"] > 0.0].compound)
+    return list(set(smetana_df.loc[smetana_df["smetana"] > 0.0].compound))
 
 
 def get_competition_compounds(smetana_df: pd.DataFrame, all_compounds):

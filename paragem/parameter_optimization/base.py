@@ -253,8 +253,10 @@ class ParameterOptimization:
                     if not isinstance(self.filter, type(None)):
                         new_particles = self.filter.filter_particles(new_particles)
 
+                logger.info(f"batch particles: {len(candidate_particles)}")
                 candidate_particles.extend(new_particles)
 
+            candidate_particles = candidate_particles[:self.n_particles_batch]
             logger.info(f"Simulating candidates {len(candidate_particles)}")
             for media_idx, media_name in enumerate(self.sim_media_names):
                 self.simulator.simulate_particles(
