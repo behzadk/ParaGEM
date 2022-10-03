@@ -1,4 +1,6 @@
 smetana_analysis_path: ${user.data_dir}/smetana_analysis/melanie_data_detailed.tsv
+
+
 media_path: ${user.data_dir}/media/melanie_data_media.tsv
 
 # Information about the data being used

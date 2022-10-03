@@ -26,3 +26,5 @@ init_population_sampler:
 
 biomass_rate_constraint_sampler: null
 toxin_interaction_sampler: null
+
+biomass_rate_constraint_sampler: null
