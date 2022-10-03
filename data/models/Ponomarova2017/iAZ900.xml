@@ -175,6 +175,7 @@
 	<species id="M_5aprbu_c" name="M_5_Amino_6__5__phosphoribitylamino_uracil_C9H15N4O9P" compartment="Cytosol" charge="-2" boundaryCondition="false"/>
 	<species id="M_5dpmev_c" name="M__R__5_Diphosphomevalonate_C6H10O10P2" compartment="Cytosol" charge="-4" boundaryCondition="false"/>
 	<species id="M_5fthf_c" name="M_5_Formyltetrahydrofolate_C20H21N7O7" compartment="Cytosol" charge="-2" boundaryCondition="false"/>
+	<species id="M_5fthf_b" name="M_5_Formyltetrahydrofolate_C20H21N7O7" compartment="Extra_organism" charge="-2" boundaryCondition="true"/>
 	<species id="M_5fthf_e" name="M_5_Formyltetrahydrofolate_C20H21N7O7" compartment="Extra_organism" charge="-2" boundaryCondition="false"/>
 	<species id="M_5fthf_m" name="M_5_Formyltetrahydrofolate_C20H21N7O7" compartment="Mitochondria" charge="-2" boundaryCondition="false"/>
 	<species id="M_5mdr1p_c" name="M_5_Methylthio_5_deoxy_D_ribose_1_phosphate_C6H11O7PS" compartment="Cytosol" charge="-2" boundaryCondition="false"/>
@@ -365,6 +366,9 @@
 	<species id="M_cgly_c" name="M_Cys_Gly_C5H10N2O3S" compartment="Cytosol" charge="0" boundaryCondition="false"/>
 	<species id="M_ch4s_c" name="M_Methanethiol_CH4S" compartment="Cytosol" charge="0" boundaryCondition="false"/>
 	<species id="M_chitin_c" name="M_Chitin__monomer__C8H13NO5" compartment="Cytosol" charge="0" boundaryCondition="false"/>
+	<species id="M_chitin_birth_scar_c" name="M_chitin_birth_scar" compartment="Cytosol" charge="0" boundaryCondition="false"/>
+	<species id="M_chitin_septum_c" name="M_chitin_septum" compartment="Cytosol" charge="0" boundaryCondition="false"/>
+	<species id="M_chitin_ring_c" name="M_chitin_ring" compartment="Cytosol" charge="0" boundaryCondition="false"/>
 	<species id="M_chitos_c" name="M_Chitosan_C6H11NO4" compartment="Cytosol" charge="0" boundaryCondition="false"/>
 	<species id="M_chol_c" name="M_Choline_C5H14NO" compartment="Cytosol" charge="1" boundaryCondition="false"/>
 	<species id="M_chol_e" name="M_Choline_C5H14NO" compartment="Extra_organism" charge="1" boundaryCondition="false"/>
@@ -540,6 +544,7 @@
 	<species id="M_focytc_m" name="M_Ferrocytochrome_c_C42H53FeN8O6S2" compartment="Mitochondria" charge="1" boundaryCondition="false"/>
 	<species id="M_fola_c" name="M_Folc_acid_c_C19H19N7O6" compartment="Cytosol" charge="1" boundaryCondition="false"/>
 	<species id="M_fola_e" name="M_Folc_acid_e_C19H19N7O6" compartment="Extra_organism" charge="1" boundaryCondition="false"/>
+	<species id="M_fola_b" name="M_Folc_acid_e_C19H19N7O6" compartment="Extra_organism" charge="1" boundaryCondition="True"/>
 	<species id="M_for_c" name="M_Formate_CH1O2" compartment="Cytosol" charge="-1" boundaryCondition="false"/>
 	<species id="M_for_e" name="M_Formate_CH1O2" compartment="Extra_organism" charge="-1" boundaryCondition="false"/>
 	<species id="M_for_m" name="M_Formate_CH1O2" compartment="Mitochondria" charge="-1" boundaryCondition="false"/>
@@ -819,6 +824,7 @@
 	<species id="M_mettrna_m" name="M_L_Methionyl_tRNA__Met__C5H10NOSR" compartment="Mitochondria" charge="1" boundaryCondition="false"/>
 	<species id="M_mev_R_c" name="M__R__Mevalonate_C6H11O4" compartment="Cytosol" charge="-1" boundaryCondition="false"/>
 	<species id="M_mev_R_e" name="M__R__Mevalonate_C6H11O4" compartment="Extra_organism" charge="-1" boundaryCondition="false"/>
+	<species id="M_mev_R_b" name="M__R__Mevalonate_C6H11O4" compartment="Extra_organism" charge="-1" boundaryCondition="true"/>
 	<species id="M_mhpglu_c" name="M_5_Methyltetrahydropteroyltri_L_glutamate_C25H36N8O12" compartment="Cytosol" charge="0" boundaryCondition="false"/>
 	<species id="M_mi13456p_c" name="M_1D_myo_Inositol_1_3_4_5_6_pentakisphosphate_C6H7O21P5" compartment="Cytosol" charge="-10" boundaryCondition="false"/>
 	<species id="M_mi13456p_n" name="M_1D_myo_Inositol_1_3_4_5_6_pentakisphosphate_C6H7O21P5" compartment="Nucleus" charge="-10" boundaryCondition="false"/>
