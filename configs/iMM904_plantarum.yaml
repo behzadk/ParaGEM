@@ -1,0 +1,45 @@
+run_idx: 999
+experiment_dir: ${user.wd}/output/${experiment_name}/
+output_dir: ${experiment_dir}/generation_${algorithm.generation_idx}/run_${run_idx}/
+
+model_names:
+  - iMM904
+  - L_plantarum
+
+model_paths:
+  - ${user.data_dir}/models/Ponomarova2017/iMM904.xml
+  - ${user.data_dir}/models/Ponomarova2017/L_plantarum.xml
+  - ${user.data_dir}/models/Ponomarova2017/L_lactis.xml
+
+objective_reaction_keys:
+  - Growth
+  - Growth
+  - Growth
+
+experiment_name: iMM904_lactis_plantarum_24hr
+
+sim_media_names:
+  - CDM35
+
+vis_n_particles: 500
+
+defaults:
+  - _self_
+  - user: hpc
+  - community: default
+  - data: iMM904_plantarum_lactis_24hr
+  - algorithm: NSGAII
+  - simulator: time_series_comets
+  - sampler: default_log_uniform
+  - distance: total_biomass_fold_change
+  - visualisation: yeast_lab_coculture
+  - override hydra/job_logging: none 
+  - override hydra/hydra_logging: none
+
+filter: null
+parallel: True
+n_processes: 10
+
+hydra.run.dir: . 
+hydra.output_subdir: null
+hydra.job.chdir: True

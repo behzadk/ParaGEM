@@ -2,7 +2,7 @@
   output_dir: ${experiment_dir}
 
 - _target_: paragem.data_analysis.visualisation.figure_all_particle_fold_change_timeseries
-  species_name: ${model_names.0}
+  species_names: ${model_names}
   target_data_path: ${data.exp_data_path}
   exp_sol_keys: ${data.exp_sol_keys}
   sim_media_name: ${sim_media_names.0}

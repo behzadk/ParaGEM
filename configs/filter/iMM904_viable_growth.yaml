@@ -1,9 +1,9 @@
 _target_: paragem.lo_filters.ViableGrowthFilter
-population_names:
-  - iMM904
-growth_keys:
-  - BIOMASS_SC5_notrace
+population_names: ${model_names}
+growth_keys: ${objective_reaction_keys}
 min_growth:
-  - 0.0
+  - 0.001
+  - 0.001
 max_growth:
-  - 100.0
+  - 25.0
+  - 25.0

@@ -1,4 +1,4 @@
-- _target_: paragem.distances.DistanceAbundanceError
+- _target_: paragem.distances.DistanceTotalBiomassError
   _convert_: partial
   exp_data_path: ${data.exp_data_path}
   exp_sol_keys: ${data.exp_sol_keys}

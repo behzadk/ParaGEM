@@ -1,0 +1,16 @@
+smetana_analysis_path: ${user.data_dir}/smetana_analysis/yeast_lab_detailed.tsv
+media_path: ${user.data_dir}/media/media_db_CDM35.tsv
+
+# Information about the data being used
+exp_data_path: ${user.data_dir}/experimental_data/yeast_lab_data/Figure1A_CFU_24h_three_species_rel_abundance.csv
+
+exp_sol_keys:
+  CDM35:
+    - - S_cerevisiae_rel_abundance
+      - iMM904
+    - - L_plantarum_rel_abundance
+      - L_plantarum
+    - - L_lactis_rel_abundance
+      - L_lactis
+
+exp_t_key: time

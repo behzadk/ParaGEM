@@ -1,0 +1,14 @@
+smetana_analysis_path: ${user.data_dir}/smetana_analysis/yeast_lab_detailed.tsv
+media_path: ${user.data_dir}/media/media_db_CDM35.tsv
+
+# Information about the data being used
+exp_data_path: ${user.data_dir}/experimental_data/yeast_lab_data/Figure1B_qPCR_fold_change.csv
+
+exp_sol_keys:
+  CDM35:
+    - - L_plantarum_iMM904_fc
+      - iMM904
+    - - L_plantarum_iMM904_fc
+      - L_plantarum
+
+exp_t_key: time

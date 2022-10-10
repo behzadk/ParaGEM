@@ -20,8 +20,8 @@ k_val_sampler:
 
 init_population_sampler:
   _target_: paragem.sampling.SampleUniform
-  min_val: 0.04
-  max_val: 0.04
+  min_val: 0.004
+  max_val: 0.004
   distribution_type: "log_uniform"
 
 biomass_rate_constraint_sampler: null

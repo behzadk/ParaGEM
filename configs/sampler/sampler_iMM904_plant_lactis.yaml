@@ -1,0 +1,59 @@
+max_uptake_sampler:
+  _target_: paragem.sampling.SampleCombinationParticles
+  input_particles_parameter_vector_regex: 
+    - ${user.wd}/output/iMM904_lactis/generation_*/run_*/
+    - ${user.wd}/output/iMM904_plantarum/generation_*/run_*/
+    - ${user.wd}/output/iMM904_lactis/generation_*/run_*/
+
+  population_names:
+    - iMM904
+    - L_plantarum
+    - L_lactis
+  
+  distance_epsilon: 
+    - 22.0
+    - 11.0
+    - 22.0
+
+k_val_sampler:
+  _target_: paragem.sampling.SampleCombinationParticles
+  input_particles_parameter_vector_regex: 
+    - ${user.wd}/output/iMM904_lactis/generation_*/run_*/
+    - ${user.wd}/output/iMM904_plantarum/generation_*/run_*/
+    - ${user.wd}/output/iMM904_lactis/generation_*/run_*/
+
+  population_names:
+    - iMM904
+    - L_plantarum
+    - L_lactis
+  
+  distance_epsilon: 
+    - 22.0
+    - 11.0
+    - 22.0
+
+biomass_rate_constraint_sampler:
+  _target_: paragem.sampling.SampleCombinationParticles
+  input_particles_parameter_vector_regex: 
+    - ${user.wd}/output/iMM904_lactis/generation_*/run_*/
+    - ${user.wd}/output/iMM904_plantarum/generation_*/run_*/
+    - ${user.wd}/output/iMM904_lactis/generation_*/run_*/
+
+  population_names:
+    - iMM904
+    - L_plantarum
+    - L_lactis
+  
+  distance_epsilon: 
+    - 22.0
+    - 11.0
+    - 22.0
+
+toxin_interaction_sampler: null
+
+init_population_sampler:
+  _target_: paragem.sampling.SampleUniform
+  min_val: 0.004
+  max_val: 0.004
+  distribution_type: "log_uniform"
+
